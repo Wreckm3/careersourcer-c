@@ -12,18 +12,13 @@ function StepIndicator({ current, total, color }: { current: number; total: numb
       {Array.from({ length: total }, (_, i) => (
         <motion.div
           key={i}
-          className="h-1.5 rounded-full"
+          className={`rounded-full overflow-hidden ${i < current ? "w-8" : "w-4"} h-1.5`}
           style={{ backgroundColor: i < current ? color : undefined }}
-          className={`h-1.5 rounded-full ${i < current ? "" : "bg-muted"}`}
           initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1, backgroundColor: i < current ? color : undefined }}
+          animate={{ scaleX: 1 }}
           transition={{ delay: i * 0.05, duration: 0.3 }}
-          layout
         >
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${i < current ? "w-8" : "w-4"}`}
-            style={i < current ? { backgroundColor: color } : {}}
-          />
+          {i >= current && <div className="w-full h-full bg-muted rounded-full" />}
         </motion.div>
       ))}
     </div>
