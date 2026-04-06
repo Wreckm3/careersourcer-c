@@ -1,14 +1,18 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Landing from "./pages/Landing";
 import PathSelection from "./pages/PathSelection";
 import Dashboard from "./pages/Dashboard";
 import FocusMode from "./pages/FocusMode";
 import NotFound from "./pages/NotFound";
+import { AnimatedBackground } from "./components/career/AnimatedBackground";
+import { ThemeToggle } from "./components/career/ThemeToggle";
 
 export default function App() {
   return (
     <BrowserRouter>
+      <AnimatedBackground />
+      <ThemeToggle />
       <AnimatePresence mode="wait">
         <Routes>
           <Route path="/" element={<Landing />} />

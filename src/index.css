@@ -5,6 +5,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+* {
+  transition: background-color 0.4s ease, border-color 0.4s ease, color 0.3s ease;
+}
+
 :root {
   --font-size: 16px;
   --background: #ffffff;
