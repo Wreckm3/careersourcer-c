@@ -1,0 +1,124 @@
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowLeft, CheckCircle2, Circle, Play } from "lucide-react";
+import { getPath } from "@/data/paths";
+import { useProgress } from "@/hooks/useProgress";
+import { PageTransition } from "@/components/career/PageTransition";
+
+export default function Dashboard() {
+  const { pathId } = useParams<{ pathId: string }>();
+  const navigate = useNavigate();
+  const { isCompleted, getPathProgress } = useProgress();
+
+  const path = getPath(pathId || "");
+  if (!path) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">Path not found.</p>
+      </div>
+    );
+  }
+
+  const allSessionIds = path.stages.flatMap((s) => s.sessions.map((ss) => ss.id));
+  const { completed, total, percent } = getPathProgress(path.id, allSessionIds);
+
+  // Find first incomplete session
+  const firstIncomplete = path.stages
+    .flatMap((s) => s.sessions)
+    .find((s) => !isCompleted(s.id));
+
+  return (
+    <PageTransition>
+      <div className="min-h-screen bg-background px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-8">
+            <button
+              onClick={() => navigate("/paths")}
+              className="p-2 rounded-lg hover:bg-muted transition-colors duration-200"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div>
+              <p className="text-sm text-muted-foreground">Your Development</p>
+              <h1 className="text-3xl font-black tracking-tight">{path.title}</h1>
+            </div>
+          </div>
+
+          {/* Progress */}
+          <motion.div
+            className="mb-10 p-6 rounded-2xl border border-border bg-card"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-muted-foreground">
+                {completed} of {total} sessions completed
+              </span>
+              <span className="text-sm font-bold">{percent}%</span>
+            </div>
+            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ backgroundColor: path.color }}
+                initial={{ width: 0 }}
+                animate={{ width: `${percent}%` }}
+                transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+              />
+            </div>
+            {firstIncomplete && (
+              <Link
+                to={`/session/${path.id}/${firstIncomplete.id}`}
+                className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-xl text-sm font-semibold text-primary-foreground transition-transform duration-200 hover:scale-[1.03]"
+                style={{ backgroundColor: path.color }}
+              >
+                <Play className="w-4 h-4" />
+                Continue Session
+              </Link>
+            )}
+          </motion.div>
+
+          {/* Stages */}
+          <div className="space-y-8">
+            {path.stages.map((stage, si) => (
+              <motion.div
+                key={stage.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: si * 0.1 + 0.2 }}
+              >
+                <h2 className="text-xl font-bold mb-1">{stage.title}</h2>
+                <p className="text-sm text-muted-foreground mb-4">{stage.description}</p>
+                <div className="space-y-2">
+                  {stage.sessions.map((session) => {
+                    const done = isCompleted(session.id);
+                    return (
+                      <Link
+                        key={session.id}
+                        to={`/session/${path.id}/${session.id}`}
+                        className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                      >
+                        {done ? (
+                          <CheckCircle2 className="w-5 h-5 flex-shrink-0" style={{ color: path.color }} />
+                        ) : (
+                          <Circle className="w-5 h-5 flex-shrink-0 text-muted-foreground" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-semibold text-sm ${done ? "line-through opacity-60" : ""}`}>
+                            {session.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">{session.description}</p>
+                        </div>
+                        <span className="text-xs text-muted-foreground flex-shrink-0">{session.duration}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </PageTransition>
+  );
+}
