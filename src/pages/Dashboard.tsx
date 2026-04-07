@@ -38,6 +38,7 @@ export default function Dashboard() {
   const { pathId } = useParams<{ pathId: string }>();
   const navigate = useNavigate();
   const { isCompleted, getPathProgress } = useProgress();
+  const randomQuote = useMemo(() => quotes[Math.floor(Math.random() * quotes.length)], []);
 
   const path = getPath(pathId || "");
   if (!path) {
@@ -51,7 +52,6 @@ export default function Dashboard() {
   const allSessionIds = path.stages.flatMap((s) => s.sessions.map((ss) => ss.id));
   const { completed, total, percent } = getPathProgress(path.id, allSessionIds);
   const firstIncomplete = path.stages.flatMap((s) => s.sessions).find((s) => !isCompleted(s.id));
-  const randomQuote = useMemo(() => quotes[Math.floor(Math.random() * quotes.length)], []);
 
   return (
     <PageTransition>
