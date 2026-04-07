@@ -1,336 +1,279 @@
 import { useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Compass, ArrowRight, Target, Zap, TrendingUp, Users, BookOpen, Award } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  Compass,
+  BookOpen,
+  BarChart3,
+  Monitor,
+  Briefcase,
+  Database,
+  CheckCircle2,
+  Sparkles,
+} from "lucide-react";
 import { PageTransition } from "@/components/career/PageTransition";
-import { useEffect, useState, useRef } from "react";
 
-function useTypingEffect(words: string[], speed = 100, pause = 2000) {
-  const [text, setText] = useState("");
-  const [wordIndex, setWordIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.12, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+  }),
+};
 
-  useEffect(() => {
-    const current = words[wordIndex];
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setText(current.slice(0, text.length + 1));
-        if (text === current) {
-          setTimeout(() => setIsDeleting(true), pause);
-        }
-      } else {
-        setText(current.slice(0, text.length - 1));
-        if (text === "") {
-          setIsDeleting(false);
-          setWordIndex((prev) => (prev + 1) % words.length);
-        }
-      }
-    }, isDeleting ? speed / 2 : speed);
-    return () => clearTimeout(timeout);
-  }, [text, isDeleting, wordIndex, words, speed, pause]);
-
-  return text;
-}
-
-function AnimatedCounter({ target, label, duration = 2 }: { target: number; label: string; duration?: number }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting && !started) setStarted(true); },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [started]);
-
-  useEffect(() => {
-    if (!started) return;
-    let start = 0;
-    const step = target / (duration * 60);
-    const interval = setInterval(() => {
-      start += step;
-      if (start >= target) {
-        setCount(target);
-        clearInterval(interval);
-      } else {
-        setCount(Math.floor(start));
-      }
-    }, 1000 / 60);
-    return () => clearInterval(interval);
-  }, [started, target, duration]);
-
-  return (
-    <div ref={ref} className="text-center">
-      <p className="text-4xl md:text-5xl font-black text-foreground">{count.toLocaleString()}+</p>
-      <p className="text-sm text-muted-foreground mt-1">{label}</p>
-    </div>
-  );
-}
-
-const features = [
-  { icon: Target, title: "Guided Paths", desc: "Structured learning across Technology, Business & Data" },
-  { icon: Zap, title: "Focus Mode", desc: "Distraction-free sessions for deep learning" },
-  { icon: TrendingUp, title: "Track Progress", desc: "Visual progress tracking across all your paths" },
-  { icon: BookOpen, title: "Bite-Sized", desc: "5–10 minute sessions that fit your schedule" },
+const paths = [
+  {
+    icon: Monitor,
+    title: "Technology",
+    desc: "Learn coding, tools, and modern tech skills.",
+    color: "text-accent-blue",
+    bg: "bg-accent-blue/10",
+  },
+  {
+    icon: Briefcase,
+    title: "Business",
+    desc: "Understand strategy, leadership, and growth.",
+    color: "text-accent-emerald",
+    bg: "bg-accent-emerald/10",
+  },
+  {
+    icon: Database,
+    title: "Data",
+    desc: "Master data analysis and decision-making.",
+    color: "text-accent-purple",
+    bg: "bg-accent-purple/10",
+  },
 ];
 
-const testimonials = [
-  { name: "Alex M.", role: "Software Developer", quote: "This platform helped me build a clear learning routine." },
-  { name: "Sarah K.", role: "Business Analyst", quote: "Focus Mode is a game-changer for staying on track." },
-  { name: "David R.", role: "Data Enthusiast", quote: "Finally, a platform that respects my time." },
+const steps = [
+  { icon: Compass, title: "Choose a Path", desc: "Technology, Business, or Data" },
+  { icon: BookOpen, title: "Follow Structured Sessions", desc: "Simple, step-by-step learning" },
+  { icon: BarChart3, title: "Build Real Progress", desc: "Track your growth and stay consistent" },
+];
+
+const values = [
+  "Clear direction for beginners",
+  "Structured learning paths",
+  "No distractions",
+  "Built for real progress",
 ];
 
 export default function Landing() {
   const navigate = useNavigate();
-  const typedWord = useTypingEffect(["Direction", "Future", "Career", "Skills"], 80, 1800);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
 
   return (
     <PageTransition>
       <div className="min-h-screen bg-background overflow-x-hidden">
-        {/* Hero */}
-        <motion.section
-          ref={heroRef}
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="min-h-screen flex flex-col items-center justify-center px-4 relative"
-        >
+        {/* ─── HERO ─── */}
+        <section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center">
+          {/* Subtle gradient backdrop */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-accent-blue/5 blur-[120px]" />
+            <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] rounded-full bg-accent-purple/5 blur-[100px]" />
+          </div>
+
           <motion.div
-            className="flex flex-col items-center text-center max-w-3xl gap-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="relative z-10 max-w-2xl flex flex-col items-center gap-6"
+            initial="hidden"
+            animate="visible"
           >
-            <motion.div
-              className="p-4 rounded-2xl bg-accent-blue/10 mb-2"
-              initial={{ rotate: -10, opacity: 0, scale: 0.8 }}
-              animate={{ rotate: 0, opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
-            >
-              <Compass className="w-12 h-12 text-accent-blue" />
+            <motion.div custom={0} variants={fadeUp}>
+              <Sparkles className="w-8 h-8 text-accent-blue mb-2 mx-auto" />
             </motion.div>
 
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
-              Build Your{" "}
-              <span className="text-accent-blue inline-block min-w-[200px] text-left">
-                {typedWord}
-                <motion.span
-                  className="inline-block w-[3px] h-[1em] bg-accent-blue ml-1 align-middle"
-                  animate={{ opacity: [1, 0] }}
-                  transition={{ repeat: Infinity, duration: 0.6 }}
-                />
-              </span>
-            </h1>
+            <motion.h1
+              custom={1}
+              variants={fadeUp}
+              className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.08] text-foreground"
+            >
+              Build Your Direction.
+            </motion.h1>
 
-            <p className="text-lg text-muted-foreground max-w-lg">
-              A focused, distraction-free platform for structured self-growth.
-              Choose a path. Complete sessions. Grow with clarity.
-            </p>
+            <motion.p
+              custom={2}
+              variants={fadeUp}
+              className="text-muted-foreground text-base sm:text-lg max-w-md"
+            >
+              You don't need to have everything figured out. Start somewhere.
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <motion.div custom={3} variants={fadeUp} className="flex flex-col sm:flex-row gap-3 mt-2">
               <motion.button
                 onClick={() => navigate("/paths")}
-                className="group flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-accent-blue text-primary-foreground text-lg font-semibold transition-all duration-200 hover:shadow-xl hover:shadow-accent-blue/20"
+                className="group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-base transition-shadow duration-200 hover:shadow-lg hover:shadow-accent-blue/20"
                 whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Start Your Path
-                <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </motion.button>
+
               <motion.button
-                onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
-                className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-border text-foreground font-semibold transition-all duration-200 hover:bg-muted"
-                whileTap={{ scale: 0.98 }}
+                onClick={() => document.getElementById("paths-section")?.scrollIntoView({ behavior: "smooth" })}
+                className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl border border-border text-foreground font-semibold text-base transition-colors duration-200 hover:bg-muted"
+                whileTap={{ scale: 0.97 }}
               >
-                Learn More
+                Explore Paths
               </motion.button>
-            </div>
+            </motion.div>
           </motion.div>
 
           {/* Scroll indicator */}
           <motion.div
-            className="absolute bottom-8 flex flex-col items-center gap-2"
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="absolute bottom-8 flex flex-col items-center gap-1.5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
           >
-            <span className="text-xs text-muted-foreground">Scroll</span>
-            <div className="w-5 h-8 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1">
-              <motion.div
-                className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50"
-                animate={{ y: [0, 12, 0] }}
-                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              />
-            </div>
-          </motion.div>
-        </motion.section>
-
-        {/* Stats */}
-        <section className="py-20 px-4 border-t border-border bg-card/50">
-          <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-            <AnimatedCounter target={3} label="Learning Paths" />
-            <AnimatedCounter target={30} label="Sessions" />
-            <AnimatedCounter target={100} label="Minutes of Content" />
-            <AnimatedCounter target={500} label="Learners" />
-          </div>
-        </section>
-
-        {/* Features */}
-        <section id="features" className="py-24 px-4">
-          <div className="max-w-5xl mx-auto">
+            <span className="text-[11px] text-muted-foreground tracking-widest uppercase">Scroll</span>
             <motion.div
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5 }}
+              className="w-5 h-8 rounded-full border-2 border-border flex items-start justify-center p-1"
+              animate={{}}
             >
-              <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3">
-                Everything You Need to <span className="text-accent-emerald">Grow</span>
-              </h2>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Simple tools designed for focused, consistent self-improvement.
-              </p>
+              <motion.div
+                className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60"
+                animate={{ y: [0, 12, 0] }}
+                transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+              />
             </motion.div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {features.map((f, i) => (
-                <motion.div
-                  key={f.title}
-                  className="group p-8 rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-default"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ delay: i * 0.1, duration: 0.4 }}
-                >
-                  <div className="w-12 h-12 rounded-xl bg-accent-blue/10 flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                    <f.icon className="w-6 h-6 text-accent-blue" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{f.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+          </motion.div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-24 px-4 bg-card/50 border-t border-border">
+        {/* ─── HOW IT WORKS ─── */}
+        <section className="py-24 px-6 border-t border-border">
           <div className="max-w-4xl mx-auto">
             <motion.h2
-              className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+              className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-center mb-14"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5 }}
             >
-              How It <span className="text-accent-purple">Works</span>
+              How It Works
             </motion.h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-              {[
-                { step: "01", title: "Choose a Path", desc: "Pick Technology, Business, or Data based on your goals.", icon: Compass },
-                { step: "02", title: "Complete Sessions", desc: "Watch short videos and complete simple tasks.", icon: BookOpen },
-                { step: "03", title: "Track & Grow", desc: "See your progress and keep building momentum.", icon: Award },
-              ].map((item, i) => (
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {steps.map((s, i) => (
                 <motion.div
-                  key={item.step}
-                  className="relative text-center flex flex-col items-center"
-                  initial={{ opacity: 0, y: 30 }}
+                  key={s.title}
+                  className="group flex flex-col items-center text-center p-6 rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.15, duration: 0.5 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ delay: i * 0.12, duration: 0.45 }}
                 >
-                  <motion.div
-                    className="w-16 h-16 rounded-2xl bg-accent-purple/10 flex items-center justify-center mb-4"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <item.icon className="w-7 h-7 text-accent-purple" />
-                  </motion.div>
-                  <span className="text-xs font-bold text-accent-purple mb-2">STEP {item.step}</span>
-                  <h3 className="text-lg font-bold mb-1">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                  <div className="w-14 h-14 rounded-xl bg-accent-blue/10 flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
+                    <s.icon className="w-6 h-6 text-accent-blue" />
+                  </div>
+                  <span className="text-[11px] font-bold text-accent-blue tracking-widest uppercase mb-2">
+                    Step {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="text-lg font-bold mb-1 text-foreground">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Testimonials */}
-        <section className="py-24 px-4">
-          <div className="max-w-5xl mx-auto">
+        {/* ─── CHOOSE YOUR PATH ─── */}
+        <section id="paths-section" className="py-24 px-6 bg-card/50 border-t border-border">
+          <div className="max-w-4xl mx-auto">
             <motion.h2
-              className="text-3xl md:text-4xl font-black tracking-tight text-center mb-16"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+              className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-center mb-14"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5 }}
             >
-              What Learners <span className="text-accent-emerald">Say</span>
+              Choose Your Path
             </motion.h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {testimonials.map((t, i) => (
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {paths.map((p, i) => (
                 <motion.div
-                  key={t.name}
-                  className="p-6 rounded-2xl border border-border bg-card"
-                  initial={{ opacity: 0, y: 20 }}
+                  key={p.title}
+                  className="group flex flex-col items-center text-center p-8 rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 cursor-pointer"
+                  onClick={() => navigate("/paths")}
+                  initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.4 }}
-                  whileHover={{ y: -4 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ delay: i * 0.12, duration: 0.45 }}
+                  whileHover={{ scale: 1.02 }}
                 >
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, si) => (
-                      <motion.span
-                        key={si}
-                        className="text-yellow-400 text-sm"
-                        initial={{ opacity: 0, scale: 0 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: i * 0.1 + si * 0.05 }}
-                      >★</motion.span>
-                    ))}
+                  <div className={`w-14 h-14 rounded-xl ${p.bg} flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110`}>
+                    <p.icon className={`w-6 h-6 ${p.color}`} />
                   </div>
-                  <p className="text-sm text-foreground mb-4 italic">"{t.quote}"</p>
-                  <div>
-                    <p className="text-sm font-semibold">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-foreground">{p.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{p.desc}</p>
+                  <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${p.color} transition-transform group-hover:translate-x-0.5`}>
+                    Start Path <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-24 px-4 border-t border-border">
+        {/* ─── WHY CAREER COMPASS ─── */}
+        <section className="py-24 px-6 border-t border-border">
+          <div className="max-w-3xl mx-auto">
+            <motion.h2
+              className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-center mb-12"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5 }}
+            >
+              Why Career Compass?
+            </motion.h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+              {values.map((v, i) => (
+                <motion.div
+                  key={v}
+                  className="flex items-center gap-3 px-5 py-4 rounded-xl border border-border bg-card"
+                  initial={{ opacity: 0, x: -12 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.4 }}
+                >
+                  <CheckCircle2 className="w-5 h-5 text-accent-emerald shrink-0" />
+                  <span className="text-sm font-medium text-foreground">{v}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── FINAL CTA ─── */}
+        <section className="py-28 px-6 border-t border-border bg-card/50">
           <motion.div
-            className="max-w-2xl mx-auto text-center"
+            className="max-w-xl mx-auto text-center flex flex-col items-center gap-5"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">
-              Ready to Start?
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-foreground leading-tight">
+              You don't need to have everything figured out.
             </h2>
-            <p className="text-muted-foreground mb-8">
-              Pick a path and begin your journey today. No sign-up required.
-            </p>
+            <p className="text-muted-foreground text-base">Just start somewhere.</p>
             <motion.button
               onClick={() => navigate("/paths")}
-              className="group inline-flex items-center gap-3 px-10 py-4 rounded-xl bg-accent-blue text-primary-foreground text-lg font-semibold hover:shadow-xl hover:shadow-accent-blue/20"
+              className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-base transition-shadow duration-200 hover:shadow-lg hover:shadow-accent-blue/20 mt-2"
               whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.97 }}
             >
-              Get Started Free
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              Start Your Path
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </motion.button>
           </motion.div>
         </section>
 
-        {/* Footer */}
-        <footer className="py-8 px-4 border-t border-border text-center">
+        {/* ─── FOOTER ─── */}
+        <footer className="py-8 px-6 border-t border-border text-center">
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Career Compass. Built for focused growth.
           </p>
