@@ -1,9 +1,10 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Circle, Play, Flame, Clock, BookOpen } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Play, Flame, Clock } from "lucide-react";
 import { getPath } from "@/data/paths";
 import { useProgress } from "@/hooks/useProgress";
 import { PageTransition } from "@/components/career/PageTransition";
+import { useMemo } from "react";
 
 const quotes = [
   "Small steps every day lead to big results.",
@@ -50,7 +51,7 @@ export default function Dashboard() {
   const allSessionIds = path.stages.flatMap((s) => s.sessions.map((ss) => ss.id));
   const { completed, total, percent } = getPathProgress(path.id, allSessionIds);
   const firstIncomplete = path.stages.flatMap((s) => s.sessions).find((s) => !isCompleted(s.id));
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  const randomQuote = useMemo(() => quotes[Math.floor(Math.random() * quotes.length)], []);
 
   return (
     <PageTransition>

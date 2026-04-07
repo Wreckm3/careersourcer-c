@@ -69,7 +69,7 @@ export default function PathSelection() {
                   whileHover={{ y: -6, boxShadow: `0 20px 40px -12px ${path.color}22` }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {/* Glow on hover */}
+                  {/* Radial glow on hover */}
                   <motion.div
                     className="absolute inset-0 opacity-0 transition-opacity duration-500"
                     style={{
