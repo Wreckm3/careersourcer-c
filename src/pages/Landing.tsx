@@ -1,7 +1,25 @@
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowRight, Compass, BookOpen, BarChart3, Target, Zap } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Compass, BookOpen, BarChart3, Target, Zap, User } from "lucide-react";
 import { useProgress } from "@/hooks/useProgress";
+import { useState, useEffect } from "react";
+
+const rotatingPhrases = [
+  "Build Your Direction.",
+  "Build Your Future.",
+  "Shape Your Career.",
+  "Find Your Path.",
+  "Easy Way to Grow.",
+];
+
+function useRotatingText(phrases: string[], interval = 3000) {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setIndex((i) => (i + 1) % phrases.length), interval);
+    return () => clearInterval(timer);
+  }, [phrases.length, interval]);
+  return phrases[index];
+}
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
