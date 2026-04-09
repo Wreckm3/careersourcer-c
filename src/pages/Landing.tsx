@@ -51,9 +51,22 @@ export default function Landing() {
   const navigate = useNavigate();
   const { progress } = useProgress();
   const hasProgress = progress.selectedPath && progress.completedSessions.length > 0;
+  const headline = useRotatingText(rotatingPhrases, 3000);
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Profile icon */}
+      <motion.button
+        onClick={() => navigate("/profile")}
+        className="fixed top-5 right-16 z-50 w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        whileTap={{ scale: 0.9 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <User className="w-4 h-4" />
+      </motion.button>
+
       {/* ─── HERO ─── */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -61,8 +74,19 @@ export default function Landing() {
         </div>
 
         <motion.div className="relative z-10 max-w-xl flex flex-col items-center gap-6" {...fadeUp(0)}>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.08] text-foreground">
-            Build Your Direction.
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.08] text-foreground h-[1.2em] relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={headline}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="block"
+              >
+                {headline}
+              </motion.span>
+            </AnimatePresence>
           </h1>
 
           <motion.p {...fadeUp(0.3)} className="text-muted-foreground text-base sm:text-lg max-w-md">
