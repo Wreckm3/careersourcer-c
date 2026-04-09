@@ -6,20 +6,17 @@ import { getSession, getNextSession } from "@/data/paths";
 import { useProgress } from "@/hooks/useProgress";
 import { VideoEmbed } from "@/components/career/VideoEmbed";
 
-function StepIndicator({ current, total, color }: { current: number; total: number; color: string }) {
+function StepBar({ current, total, color }: { current: number; total: number; color: string }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1">
       {Array.from({ length: total }, (_, i) => (
-        <motion.div
+        <div
           key={i}
-          className={`rounded-full overflow-hidden ${i < current ? "w-8" : "w-4"} h-1.5`}
+          className={`h-1.5 rounded-full transition-all duration-300 ${i < current ? "w-6" : "w-3"}`}
           style={{ backgroundColor: i < current ? color : undefined }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: i * 0.05, duration: 0.3 }}
         >
           {i >= current && <div className="w-full h-full bg-muted rounded-full" />}
-        </motion.div>
+        </div>
       ))}
     </div>
   );
@@ -71,20 +68,20 @@ export default function FocusMode() {
       className="min-h-screen bg-background flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.3 }}
     >
-      {/* Top bar */}
+      {/* Top bar — minimal */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-4">
           <span className="text-xs text-muted-foreground font-medium">
-            Session {sessionIndex} of {totalSessions}
+            {sessionIndex} / {totalSessions}
           </span>
-          <StepIndicator current={sessionIndex} total={totalSessions} color={path.color} />
+          <StepBar current={sessionIndex} total={totalSessions} color={path.color} />
         </div>
         <button
           onClick={() => navigate(`/dashboard/${path.id}`)}
-          className="p-2 rounded-lg hover:bg-muted transition-colors duration-200"
-          aria-label="Exit focus mode"
+          className="p-2 rounded-lg hover:bg-muted transition-colors"
+          aria-label="Exit"
         >
           <X className="w-4 h-4" />
         </button>
@@ -94,9 +91,9 @@ export default function FocusMode() {
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
         <motion.div
           className="w-full max-w-3xl space-y-6"
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
+          transition={{ delay: 0.1, duration: 0.35 }}
           key={session.id}
         >
           {/* Title */}
@@ -113,15 +110,10 @@ export default function FocusMode() {
           <VideoEmbed url={session.videoUrl} title={session.title} onSkip={handleSkip} />
 
           {/* Task */}
-          <motion.div
-            className="p-5 rounded-xl border border-border bg-card"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <div className="p-5 rounded-xl border border-border bg-card">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Your Task</p>
             <p className="text-sm leading-relaxed">{session.task}</p>
-          </motion.div>
+          </div>
 
           {/* Actions */}
           <AnimatePresence mode="wait">
@@ -129,15 +121,15 @@ export default function FocusMode() {
               <motion.div
                 key="complete"
                 className="flex justify-center"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -8 }}
               >
                 <motion.button
                   onClick={handleComplete}
                   className="flex items-center gap-2 px-8 py-3 rounded-xl bg-primary text-primary-foreground font-semibold"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   Mark as Complete
@@ -145,32 +137,32 @@ export default function FocusMode() {
               </motion.div>
             ) : (
               <motion.div
-                key="completed"
-                className="flex flex-col items-center gap-5"
+                key="done"
+                className="flex flex-col items-center gap-4"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, type: "spring" }}
+                transition={{ duration: 0.35, type: "spring" }}
               >
-                {/* Celebration */}
                 <motion.div
                   className="flex items-center gap-2 text-accent-emerald font-semibold"
                   initial={{ scale: 0.8 }}
-                  animate={{ scale: [0.8, 1.1, 1] }}
-                  transition={{ duration: 0.5 }}
+                  animate={{ scale: [0.8, 1.08, 1] }}
+                  transition={{ duration: 0.4 }}
                 >
                   <Sparkles className="w-5 h-5" />
-                  Step completed!
+                  Step completed.
                   <Sparkles className="w-5 h-5" />
                 </motion.div>
+
                 <motion.button
                   onClick={handleNext}
                   className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-primary-foreground"
                   style={{ backgroundColor: path.color }}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   {nextSession ? (
-                    <>Next Session <ArrowRight className="w-4 h-4" /></>
+                    <>Continue <ArrowRight className="w-4 h-4" /></>
                   ) : (
                     "Back to Dashboard"
                   )}
