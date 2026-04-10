@@ -74,15 +74,15 @@ export default function Landing() {
         </div>
 
         <motion.div className="relative z-10 max-w-xl flex flex-col items-center gap-6" {...fadeUp(0)}>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.08] text-foreground h-[1.2em] relative overflow-hidden">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground">
             <AnimatePresence mode="wait">
               <motion.span
                 key={headline}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30 }}
-                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="block"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                className="block whitespace-nowrap"
               >
                 {headline}
               </motion.span>
