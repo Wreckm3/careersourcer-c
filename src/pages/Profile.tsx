@@ -1,30 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trophy, Flame, CheckCircle2, BarChart3, Monitor, Briefcase } from "lucide-react";
+import { ArrowLeft, Trophy, Flame, CheckCircle2, BarChart3, Monitor, Briefcase, LogOut, Mail, Pencil, Check } from "lucide-react";
 import { useProgress } from "@/hooks/useProgress";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { paths } from "@/data/paths";
 import { useEffect, useState } from "react";
-
-const STREAK_KEY = "career-compass-streak";
-
-function loadStreak(): { current: number; lastDate: string | null } {
-  try {
-    const stored = localStorage.getItem(STREAK_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return { current: 0, lastDate: null };
-}
-
-function updateStreak(): { current: number; lastDate: string } {
-  const streak = loadStreak();
-  const today = new Date().toISOString().slice(0, 10);
-  if (streak.lastDate === today) return { ...streak, lastDate: today };
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  const newCurrent = streak.lastDate === yesterday ? streak.current + 1 : 1;
-  const updated = { current: newCurrent, lastDate: today };
-  localStorage.setItem(STREAK_KEY, JSON.stringify(updated));
-  return updated;
-}
+import { toast } from "sonner";
 
 const pathIcons: Record<string, React.ElementType> = {
   technology: Monitor,
@@ -41,17 +23,53 @@ const fadeUp = (delay = 0) => ({
 export default function Profile() {
   const navigate = useNavigate();
   const { progress, getPathProgress } = useProgress();
-  const [streak, setStreak] = useState(loadStreak);
+  const { user, loading: authLoading, signOut } = useAuth();
+  const [displayName, setDisplayName] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
 
   useEffect(() => {
-    if (progress.completedSessions.length > 0) {
-      setStreak(updateStreak());
+    if (!authLoading && !user) navigate("/auth", { replace: true });
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const name = data?.display_name || user.email?.split("@")[0] || "";
+        setDisplayName(name);
+        setDraft(name);
+      });
+  }, [user]);
+
+  const saveName = async () => {
+    if (!user || !draft.trim()) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: draft.trim() })
+      .eq("id", user.id);
+    if (error) {
+      toast.error("Couldn't save");
+      return;
     }
-  }, [progress.completedSessions.length]);
+    setDisplayName(draft.trim());
+    setEditing(false);
+    toast.success("Saved");
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   const totalSessions = paths.reduce((sum, p) => sum + p.stages.reduce((s, st) => s + st.sessions.length, 0), 0);
   const completedCount = progress.completedSessions.length;
   const overallPercent = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+  const streakCurrent = progress.streakCurrent;
 
   return (
     <div className="min-h-screen bg-background px-6 py-12">
@@ -67,12 +85,50 @@ export default function Profile() {
         </motion.button>
 
         {/* Header */}
-        <motion.h1
-          className="text-3xl sm:text-4xl font-black tracking-tight text-foreground mb-2"
-          {...fadeUp(0.05)}
-        >
-          Your Profile
-        </motion.h1>
+        <motion.div className="flex items-start justify-between gap-4 mb-2" {...fadeUp(0.05)}>
+          <div className="flex-1 min-w-0">
+            {editing ? (
+              <div className="flex items-center gap-2">
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  maxLength={60}
+                  autoFocus
+                  className="flex-1 px-3 py-2 rounded-lg border border-border bg-input-background text-2xl font-black focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
+                />
+                <button
+                  onClick={saveName}
+                  className="p-2 rounded-lg bg-accent-blue text-primary-foreground"
+                  aria-label="Save"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground flex items-center gap-2">
+                {displayName || "Your Profile"}
+                <button
+                  onClick={() => setEditing(true)}
+                  className="text-muted-foreground hover:text-foreground"
+                  aria-label="Edit name"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+              </h1>
+            )}
+            {user?.email && (
+              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+                <Mail className="w-3.5 h-3.5" /> {user.email}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <LogOut className="w-4 h-4" /> Sign out
+          </button>
+        </motion.div>
         <motion.p className="text-muted-foreground mb-10" {...fadeUp(0.1)}>
           Track your overall growth across all paths.
         </motion.p>
@@ -82,7 +138,7 @@ export default function Profile() {
           {[
             { icon: CheckCircle2, label: "Completed", value: completedCount, color: "text-accent-emerald" },
             { icon: Trophy, label: "Progress", value: `${overallPercent}%`, color: "text-accent-blue" },
-            { icon: Flame, label: "Streak", value: `${streak.current}d`, color: "text-accent-purple" },
+            { icon: Flame, label: "Streak", value: `${streakCurrent}d`, color: "text-accent-purple" },
           ].map((stat) => (
             <div
               key={stat.label}
