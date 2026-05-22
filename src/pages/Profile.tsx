@@ -1,30 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trophy, Flame, CheckCircle2, BarChart3, Monitor, Briefcase } from "lucide-react";
+import { ArrowLeft, Trophy, Flame, CheckCircle2, BarChart3, Monitor, Briefcase, LogOut, Mail, Pencil, Check } from "lucide-react";
 import { useProgress } from "@/hooks/useProgress";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { paths } from "@/data/paths";
 import { useEffect, useState } from "react";
-
-const STREAK_KEY = "career-compass-streak";
-
-function loadStreak(): { current: number; lastDate: string | null } {
-  try {
-    const stored = localStorage.getItem(STREAK_KEY);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return { current: 0, lastDate: null };
-}
-
-function updateStreak(): { current: number; lastDate: string } {
-  const streak = loadStreak();
-  const today = new Date().toISOString().slice(0, 10);
-  if (streak.lastDate === today) return { ...streak, lastDate: today };
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  const newCurrent = streak.lastDate === yesterday ? streak.current + 1 : 1;
-  const updated = { current: newCurrent, lastDate: today };
-  localStorage.setItem(STREAK_KEY, JSON.stringify(updated));
-  return updated;
-}
+import { toast } from "sonner";
 
 const pathIcons: Record<string, React.ElementType> = {
   technology: Monitor,
@@ -41,17 +23,53 @@ const fadeUp = (delay = 0) => ({
 export default function Profile() {
   const navigate = useNavigate();
   const { progress, getPathProgress } = useProgress();
-  const [streak, setStreak] = useState(loadStreak);
+  const { user, loading: authLoading, signOut } = useAuth();
+  const [displayName, setDisplayName] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
 
   useEffect(() => {
-    if (progress.completedSessions.length > 0) {
-      setStreak(updateStreak());
+    if (!authLoading && !user) navigate("/auth", { replace: true });
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const name = data?.display_name || user.email?.split("@")[0] || "";
+        setDisplayName(name);
+        setDraft(name);
+      });
+  }, [user]);
+
+  const saveName = async () => {
+    if (!user || !draft.trim()) return;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: draft.trim() })
+      .eq("id", user.id);
+    if (error) {
+      toast.error("Couldn't save");
+      return;
     }
-  }, [progress.completedSessions.length]);
+    setDisplayName(draft.trim());
+    setEditing(false);
+    toast.success("Saved");
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   const totalSessions = paths.reduce((sum, p) => sum + p.stages.reduce((s, st) => s + st.sessions.length, 0), 0);
   const completedCount = progress.completedSessions.length;
   const overallPercent = totalSessions > 0 ? Math.round((completedCount / totalSessions) * 100) : 0;
+  const streakCurrent = progress.streakCurrent;
 
   return (
     <div className="min-h-screen bg-background px-6 py-12">
