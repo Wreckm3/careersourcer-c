@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Compass, BookOpen, BarChart3, Target, Zap, User } from "lucide-react";
+import { ArrowRight, Compass, BookOpen, BarChart3, Target, Zap, User, LogIn } from "lucide-react";
 import { useProgress } from "@/hooks/useProgress";
+import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 
 const rotatingPhrases = [
@@ -50,21 +51,25 @@ const values = [
 export default function Landing() {
   const navigate = useNavigate();
   const { progress } = useProgress();
+  const { user } = useAuth();
   const hasProgress = progress.selectedPath && progress.completedSessions.length > 0;
   const headline = useRotatingText(rotatingPhrases, 3000);
+  const primaryDest = user ? (hasProgress ? `/dashboard/${progress.selectedPath}` : "/paths") : "/auth";
+  const primaryLabel = user ? (hasProgress ? "Continue Your Path" : "Start Your Path") : "Get Started";
 
   return (
     <div className="min-h-screen bg-background">
       {/* Profile icon */}
       <motion.button
-        onClick={() => navigate("/profile")}
+        onClick={() => navigate(user ? "/profile" : "/auth")}
         className="fixed top-5 right-16 z-50 w-10 h-10 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
         whileTap={{ scale: 0.9 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
+        aria-label={user ? "Profile" : "Sign in"}
       >
-        <User className="w-4 h-4" />
+        {user ? <User className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
       </motion.button>
 
       {/* ─── HERO ─── */}
@@ -94,27 +99,15 @@ export default function Landing() {
           </motion.p>
 
           <motion.div {...fadeUp(0.5)} className="flex flex-col sm:flex-row gap-3 mt-2">
-            {hasProgress ? (
-              <motion.button
-                onClick={() => navigate(`/dashboard/${progress.selectedPath}`)}
-                className="group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-base"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                Continue Your Path
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </motion.button>
-            ) : (
-              <motion.button
-                onClick={() => navigate("/paths")}
-                className="group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-base"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                Start Your Path
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </motion.button>
-            )}
+            <motion.button
+              onClick={() => navigate(primaryDest)}
+              className="group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-base"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {primaryLabel}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </motion.button>
             <motion.button
               onClick={() => navigate("/paths")}
               className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl border border-border text-foreground font-semibold text-base hover:bg-muted transition-colors"
@@ -194,12 +187,12 @@ export default function Landing() {
           </h2>
           <p className="text-muted-foreground text-base">Just start somewhere.</p>
           <motion.button
-            onClick={() => navigate("/paths")}
+            onClick={() => navigate(primaryDest)}
             className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-base mt-2"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            Start Your Path
+            {primaryLabel}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
           </motion.button>
         </motion.div>
