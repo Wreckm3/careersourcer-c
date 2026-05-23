@@ -1,4 +1,12 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useContext,
+  createContext,
+  ReactNode,
+} from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
@@ -24,7 +32,6 @@ function loadLocal(): Progress {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const p = JSON.parse(stored);
-      // merge legacy streak if present
       try {
         const legacy = localStorage.getItem(LEGACY_STREAK_KEY);
         if (legacy && p.streakCurrent == null) {
@@ -43,21 +50,51 @@ function saveLocal(p: Progress) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
 }
 
-export function useProgress() {
+async function persistCloud(userId: string, p: Progress) {
+  await supabase.from("user_progress").upsert(
+    {
+      user_id: userId,
+      selected_path: p.selectedPath,
+      completed_sessions: p.completedSessions,
+      streak_current: p.streakCurrent,
+      streak_last_date: p.streakLastDate,
+    },
+    { onConflict: "user_id" }
+  );
+}
+
+interface ProgressContextValue {
+  progress: Progress;
+  selectPath: (pathId: string) => void;
+  completeSession: (sessionId: string) => void;
+  isCompleted: (sessionId: string) => boolean;
+  getPathProgress: (
+    pathId: string,
+    allSessionIds: string[]
+  ) => { completed: number; total: number; percent: number };
+  resetProgress: () => void;
+}
+
+const ProgressContext = createContext<ProgressContextValue | null>(null);
+
+export function ProgressProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [progress, setProgress] = useState<Progress>(loadLocal);
   const hydratedFor = useRef<string | null>(null);
+  const isHydrated = useRef<boolean>(true); // local-only is always hydrated
 
-  // Load from cloud when user logs in; migrate local -> cloud if user has none
+  // Hydrate from cloud when user changes
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
       hydratedFor.current = null;
+      isHydrated.current = true;
       setProgress(loadLocal());
       return;
     }
     if (hydratedFor.current === user.id) return;
     hydratedFor.current = user.id;
+    isHydrated.current = false;
 
     (async () => {
       const { data } = await supabase
@@ -66,6 +103,7 @@ export function useProgress() {
         .eq("user_id", user.id)
         .maybeSingle();
 
+      const local = loadLocal();
       if (data) {
         const cloud: Progress = {
           selectedPath: data.selected_path,
@@ -75,8 +113,6 @@ export function useProgress() {
           streakCurrent: data.streak_current ?? 0,
           streakLastDate: data.streak_last_date,
         };
-        // Merge any local progress that isn't in cloud yet
-        const local = loadLocal();
         const merged: Progress = {
           selectedPath: cloud.selectedPath ?? local.selectedPath,
           completedSessions: Array.from(
@@ -86,22 +122,32 @@ export function useProgress() {
           streakLastDate: cloud.streakLastDate ?? local.streakLastDate,
         };
         setProgress(merged);
-        if (merged.completedSessions.length !== cloud.completedSessions.length) {
-          await persistCloud(user.id, merged);
+        isHydrated.current = true;
+        if (
+          merged.completedSessions.length !== cloud.completedSessions.length ||
+          merged.selectedPath !== cloud.selectedPath
+        ) {
+          persistCloud(user.id, merged).catch(() => {});
         }
       } else {
-        // first-time login: seed cloud with local
-        const local = loadLocal();
         setProgress(local);
-        await persistCloud(user.id, local);
+        isHydrated.current = true;
+        // seed cloud only if local has something worth saving
+        if (
+          local.selectedPath ||
+          local.completedSessions.length > 0 ||
+          local.streakCurrent > 0
+        ) {
+          persistCloud(user.id, local).catch(() => {});
+        }
       }
     })();
   }, [user, authLoading]);
 
-  // Persist on every change
+  // Persist on change — but only after hydration completes
   useEffect(() => {
     saveLocal(progress);
-    if (user) {
+    if (user && isHydrated.current) {
       persistCloud(user.id, progress).catch(() => {});
     }
   }, [progress, user]);
@@ -156,25 +202,24 @@ export function useProgress() {
     setProgress(empty);
   }, []);
 
-  return {
-    progress,
-    selectPath,
-    completeSession,
-    isCompleted,
-    getPathProgress,
-    resetProgress,
-  };
+  return (
+    <ProgressContext.Provider
+      value={{
+        progress,
+        selectPath,
+        completeSession,
+        isCompleted,
+        getPathProgress,
+        resetProgress,
+      }}
+    >
+      {children}
+    </ProgressContext.Provider>
+  );
 }
 
-async function persistCloud(userId: string, p: Progress) {
-  await supabase.from("user_progress").upsert(
-    {
-      user_id: userId,
-      selected_path: p.selectedPath,
-      completed_sessions: p.completedSessions,
-      streak_current: p.streakCurrent,
-      streak_last_date: p.streakLastDate,
-    },
-    { onConflict: "user_id" }
-  );
+export function useProgress() {
+  const ctx = useContext(ProgressContext);
+  if (!ctx) throw new Error("useProgress must be used inside ProgressProvider");
+  return ctx;
 }
