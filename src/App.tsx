@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import FocusMode from "./pages/FocusMode";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { AnimatedBackground } from "./components/career/AnimatedBackground";
 import { ThemeToggle } from "./components/career/ThemeToggle";
