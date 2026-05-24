@@ -26,6 +26,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/paths" element={<PathSelection />} />
               <Route path="/dashboard/:pathId" element={<Dashboard />} />
               <Route path="/session/:pathId/:sessionId" element={<FocusMode />} />
