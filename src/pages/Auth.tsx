@@ -10,19 +10,42 @@ import { toast } from "sonner";
 
 const signUpSchema = z.object({
   displayName: z.string().trim().min(1, "Name is required").max(60),
-  email: z.string().trim().email("Invalid email").max(255),
-  password: z.string().min(8, "At least 8 characters").max(72),
+  email: z.string().trim().email("Please enter a valid email").max(255),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(72, "Password is too long"),
 });
 
 const signInSchema = z.object({
-  email: z.string().trim().email("Invalid email").max(255),
-  password: z.string().min(1, "Required").max(72),
+  email: z.string().trim().email("Please enter a valid email").max(255),
+  password: z.string().min(1, "Password is required").max(72),
 });
+
+type Mode = "signin" | "signup" | "forgot";
+
+function mapAuthError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login credentials"))
+    return "Wrong email or password. If you signed up with Google, use 'Continue with Google' or reset your password.";
+  if (m.includes("email not confirmed"))
+    return "Please confirm your email before signing in.";
+  if (m.includes("user already registered") || m.includes("already been registered"))
+    return "An account with this email already exists. Try signing in instead.";
+  if (m.includes("password should be at least"))
+    return "Password must be at least 8 characters.";
+  if (m.includes("weak_password") || m.includes("pwned") || m.includes("compromised"))
+    return "This password has been found in a data breach. Please choose a stronger one.";
+  if (m.includes("rate limit") || m.includes("too many"))
+    return "Too many attempts. Please wait a moment and try again.";
+  if (m.includes("network")) return "Network error. Check your connection and retry.";
+  return message;
+}
 
 export default function Auth() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<Mode>("signin");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +65,7 @@ export default function Auth() {
           toast.error(parsed.error.errors[0].message);
           return;
         }
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
           options: {
@@ -51,11 +74,16 @@ export default function Auth() {
           },
         });
         if (error) {
-          toast.error(error.message);
+          toast.error(mapAuthError(error.message));
           return;
         }
-        toast.success("Account created. Welcome!");
-      } else {
+        if (data.session) {
+          toast.success("Account created. Welcome!");
+        } else {
+          toast.success("Account created. Check your email to confirm, then sign in.");
+          setMode("signin");
+        }
+      } else if (mode === "signin") {
         const parsed = signInSchema.safeParse({ email, password });
         if (!parsed.success) {
           toast.error(parsed.error.errors[0].message);
@@ -66,10 +94,28 @@ export default function Auth() {
           password: parsed.data.password,
         });
         if (error) {
-          toast.error(error.message);
+          toast.error(mapAuthError(error.message));
           return;
         }
+      } else {
+        // forgot password
+        const emailParse = z.string().trim().email().safeParse(email);
+        if (!emailParse.success) {
+          toast.error("Please enter a valid email");
+          return;
+        }
+        const { error } = await supabase.auth.resetPasswordForEmail(emailParse.data, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) {
+          toast.error(mapAuthError(error.message));
+          return;
+        }
+        toast.success("If an account exists, a reset link is on its way.");
+        setMode("signin");
       }
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -81,11 +127,19 @@ export default function Auth() {
       redirect_uri: window.location.origin + "/paths",
     });
     if (result.error) {
-      toast.error("Google sign-in failed");
+      toast.error("Google sign-in failed. Please try again.");
       setLoading(false);
     }
-    // if redirected, browser leaves; if tokens returned, auth listener handles redirect
   };
+
+  const heading =
+    mode === "signin" ? "Welcome back" : mode === "signup" ? "Create your account" : "Reset your password";
+  const subheading =
+    mode === "signin"
+      ? "Sign in to continue your path."
+      : mode === "signup"
+      ? "Save your progress across devices."
+      : "We'll email you a secure reset link.";
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
@@ -102,29 +156,27 @@ export default function Auth() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-sm"
       >
-        <h1 className="text-3xl font-black tracking-tight text-center mb-2">
-          {mode === "signin" ? "Welcome back" : "Create your account"}
-        </h1>
-        <p className="text-sm text-muted-foreground text-center mb-8">
-          {mode === "signin"
-            ? "Sign in to continue your path."
-            : "Save your progress across devices."}
-        </p>
+        <h1 className="text-3xl font-black tracking-tight text-center mb-2">{heading}</h1>
+        <p className="text-sm text-muted-foreground text-center mb-8">{subheading}</p>
 
-        <button
-          type="button"
-          onClick={signInGoogle}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-card hover:bg-muted transition-colors font-medium text-sm mb-5 disabled:opacity-60"
-        >
-          <GoogleIcon /> Continue with Google
-        </button>
+        {mode !== "forgot" && (
+          <>
+            <button
+              type="button"
+              onClick={signInGoogle}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-card hover:bg-muted transition-colors font-medium text-sm mb-5 disabled:opacity-60"
+            >
+              <GoogleIcon /> Continue with Google
+            </button>
 
-        <div className="flex items-center gap-3 mb-5">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">or</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-muted-foreground">or</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+          </>
+        )}
 
         <form onSubmit={submit} className="flex flex-col gap-3">
           {mode === "signup" && (
@@ -133,6 +185,7 @@ export default function Auth() {
               placeholder="Display name"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              autoComplete="name"
               className="px-4 py-3 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
               required
             />
@@ -142,17 +195,31 @@ export default function Auth() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             className="px-4 py-3 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
             required
           />
-          <input
-            type="password"
-            placeholder={mode === "signup" ? "Password (min 8 chars)" : "Password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="px-4 py-3 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
-            required
-          />
+          {mode !== "forgot" && (
+            <input
+              type="password"
+              placeholder={mode === "signup" ? "Password (min 8 chars)" : "Password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              className="px-4 py-3 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
+              required
+            />
+          )}
+
+          {mode === "signin" && (
+            <button
+              type="button"
+              onClick={() => setMode("forgot")}
+              className="self-end text-xs text-muted-foreground hover:text-foreground"
+            >
+              Forgot password?
+            </button>
+          )}
 
           <motion.button
             type="submit"
@@ -161,19 +228,44 @@ export default function Auth() {
             className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-accent-blue text-primary-foreground font-semibold disabled:opacity-60"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {mode === "signin" ? "Sign In" : "Create Account"}
+            {mode === "signin" ? "Sign In" : mode === "signup" ? "Create Account" : "Send Reset Link"}
           </motion.button>
         </form>
 
         <p className="text-sm text-center text-muted-foreground mt-6">
-          {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
-          <button
-            type="button"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="text-accent-blue font-semibold hover:underline"
-          >
-            {mode === "signin" ? "Create account" : "Sign in"}
-          </button>
+          {mode === "signin" && (
+            <>
+              New here?{" "}
+              <button
+                type="button"
+                onClick={() => setMode("signup")}
+                className="text-accent-blue font-semibold hover:underline"
+              >
+                Create account
+              </button>
+            </>
+          )}
+          {mode === "signup" && (
+            <>
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => setMode("signin")}
+                className="text-accent-blue font-semibold hover:underline"
+              >
+                Sign in
+              </button>
+            </>
+          )}
+          {mode === "forgot" && (
+            <button
+              type="button"
+              onClick={() => setMode("signin")}
+              className="text-accent-blue font-semibold hover:underline"
+            >
+              Back to sign in
+            </button>
+          )}
         </p>
       </motion.div>
     </div>
@@ -183,22 +275,10 @@ export default function Auth() {
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24">
-      <path
-        fill="#4285F4"
-        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-      />
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
     </svg>
   );
 }
