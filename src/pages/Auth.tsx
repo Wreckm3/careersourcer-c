@@ -201,33 +201,33 @@ export default function Auth() {
 
         <form onSubmit={submit} className="flex flex-col gap-3">
           {mode === "signup" && (
-            <input
+            <TypingInput
               type="text"
               placeholder="Display name"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={(value) => updateTypingField("name", value, setDisplayName)}
               autoComplete="name"
-              className="px-4 py-3 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
+              isTyping={typingField === "name"}
               required
             />
           )}
-          <input
+          <TypingInput
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(value) => updateTypingField("email", value, setEmail)}
             autoComplete="email"
-            className="px-4 py-3 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
+            isTyping={typingField === "email"}
             required
           />
           {mode !== "forgot" && (
-            <input
+            <TypingInput
               type="password"
               placeholder={mode === "signup" ? "Password (min 8 chars)" : "Password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(value) => updateTypingField("password", value, setPassword)}
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              className="px-4 py-3 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
+              isTyping={typingField === "password"}
               required
             />
           )}
