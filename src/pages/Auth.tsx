@@ -26,6 +26,16 @@ const signInSchema = z.object({
 type Mode = "signin" | "signup" | "forgot";
 type TypingField = "name" | "email" | "password" | null;
 
+const getAuthOrigin = () => {
+  if (window.location.hostname === "careersourcer.co.ke") return "https://www.careersourcer.co.ke";
+  return window.location.origin;
+};
+
+const usesLovableOAuthProxy = () => {
+  const host = window.location.hostname;
+  return host.endsWith(".lovable.app") || host.endsWith(".lovableproject.com");
+};
+
 function mapAuthError(message: string): string {
   const m = message.toLowerCase();
   if (m.includes("not_found") || m.includes("/~auth/initiate") || m.includes("/~oauth/initiate"))
@@ -93,7 +103,7 @@ export default function Auth() {
           email: parsed.data.email,
           password: parsed.data.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/paths`,
+            emailRedirectTo: `${getAuthOrigin()}/paths`,
             data: { display_name: parsed.data.displayName },
           },
         });
@@ -129,7 +139,7 @@ export default function Auth() {
           return;
         }
         const { error } = await supabase.auth.resetPasswordForEmail(emailParse.data, {
-          redirectTo: `${window.location.origin}/reset-password`,
+          redirectTo: `${getAuthOrigin()}/reset-password`,
         });
         if (error) {
           toast.error(mapAuthError(error.message));
@@ -148,18 +158,36 @@ export default function Auth() {
   const signInGoogle = async () => {
     setLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-        extraParams: { prompt: "select_account" },
-      });
-      if (result.redirected) return;
-      if (result.error) {
-        console.error("Google sign-in failed", result.error);
-        toast.error(mapAuthError(result.error.message));
-        setLoading(false);
+      const authOrigin = getAuthOrigin();
+
+      if (usesLovableOAuthProxy()) {
+        const result = await lovable.auth.signInWithOAuth("google", {
+          redirect_uri: authOrigin,
+          extraParams: { prompt: "select_account" },
+        });
+        if (result.redirected) return;
+        if (result.error) {
+          console.error("Google sign-in failed", result.error);
+          toast.error(mapAuthError(result.error.message));
+          setLoading(false);
+          return;
+        }
+        navigate("/paths", { replace: true });
         return;
       }
-      navigate("/paths", { replace: true });
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${authOrigin}/paths`,
+          queryParams: { prompt: "select_account" },
+        },
+      });
+      if (error) {
+        console.error("Google sign-in provider failed", error);
+        toast.error(mapAuthError(error.message));
+        return;
+      }
     } catch (error) {
       console.error("Google sign-in crashed", error);
       toast.error(mapAuthError(error instanceof Error ? error.message : "Google sign-in failed"));
