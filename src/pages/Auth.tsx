@@ -28,6 +28,13 @@ type TypingField = "name" | "email" | "password" | null;
 
 function mapAuthError(message: string): string {
   const m = message.toLowerCase();
+  if (m.includes("not_found") || m.includes("/~auth/initiate") || m.includes("/~oauth/initiate"))
+    return "Google sign-in is temporarily unavailable. Please refresh and try again, or use email and password.";
+  if (m.includes("unsupported provider") || m.includes("provider") && m.includes("disabled"))
+    return "Google sign-in is not enabled yet. Please try email and password while we finish setup.";
+  if (m.includes("popup was blocked"))
+    return "Your browser blocked the Google sign-in window. Allow popups for this site and try again.";
+  if (m.includes("cancelled")) return "Google sign-in was cancelled.";
   if (m.includes("invalid login credentials"))
     return "Wrong email or password. If you signed up with Google, use 'Continue with Google' or reset your password.";
   if (m.includes("email not confirmed"))
@@ -140,18 +147,25 @@ export default function Auth() {
 
   const signInGoogle = async () => {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-      extraParams: { prompt: "select_account" },
-    });
-    if (result.redirected) return;
-    if (result.error) {
-      toast.error(mapAuthError(result.error.message));
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+        extraParams: { prompt: "select_account" },
+      });
+      if (result.redirected) return;
+      if (result.error) {
+        console.error("Google sign-in failed", result.error);
+        toast.error(mapAuthError(result.error.message));
+        setLoading(false);
+        return;
+      }
+      navigate("/paths", { replace: true });
+    } catch (error) {
+      console.error("Google sign-in crashed", error);
+      toast.error(mapAuthError(error instanceof Error ? error.message : "Google sign-in failed"));
+    } finally {
       setLoading(false);
-      return;
     }
-    navigate("/paths", { replace: true });
-    setLoading(false);
   };
 
   const heading =
