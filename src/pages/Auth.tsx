@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import type { InputHTMLAttributes } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -290,6 +291,37 @@ export default function Auth() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+type TypingInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> & {
+  isTyping: boolean;
+  onChange: (value: string) => void;
+};
+
+function TypingInput({ isTyping, onChange, className = "", ...props }: TypingInputProps) {
+  return (
+    <label className="relative block">
+      <input
+        {...props}
+        onChange={(event) => onChange(event.target.value)}
+        className={`w-full px-4 py-3 pr-14 rounded-xl border border-border bg-input-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40 ${className}`}
+      />
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1 transition-opacity ${
+          isTyping ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        {[0, 1, 2].map((dot) => (
+          <span
+            key={dot}
+            className="h-1.5 w-1.5 rounded-full bg-accent-blue animate-bounce"
+            style={{ animationDelay: `${dot * 120}ms` }}
+          />
+        ))}
+      </span>
+    </label>
   );
 }
 
