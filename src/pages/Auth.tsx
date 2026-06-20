@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -23,6 +23,7 @@ const signInSchema = z.object({
 });
 
 type Mode = "signin" | "signup" | "forgot";
+type TypingField = "name" | "email" | "password" | null;
 
 function mapAuthError(message: string): string {
   const m = message.toLowerCase();
@@ -50,10 +51,25 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [typingField, setTypingField] = useState<TypingField>(null);
+  const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!authLoading && user) navigate("/paths", { replace: true });
   }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimer.current) clearTimeout(typingTimer.current);
+    };
+  }, []);
+
+  const updateTypingField = (field: Exclude<TypingField, null>, value: string, setter: (next: string) => void) => {
+    setter(value);
+    setTypingField(field);
+    if (typingTimer.current) clearTimeout(typingTimer.current);
+    typingTimer.current = setTimeout(() => setTypingField(null), 700);
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,12 +140,17 @@ export default function Auth() {
   const signInGoogle = async () => {
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/paths",
+      redirect_uri: window.location.origin,
+      extraParams: { prompt: "select_account" },
     });
+    if (result.redirected) return;
     if (result.error) {
-      toast.error("Google sign-in failed. Please try again.");
+      toast.error(mapAuthError(result.error.message));
       setLoading(false);
+      return;
     }
+    navigate("/paths", { replace: true });
+    setLoading(false);
   };
 
   const heading =
