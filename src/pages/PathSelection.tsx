@@ -1,23 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Monitor, Briefcase, BarChart3, ArrowRight, ArrowLeft, Clock, BookOpen } from "lucide-react";
-import { paths } from "@/data/paths";
-import { useProgress } from "@/hooks/useProgress";
-import { useState } from "react";
+import { Monitor, Briefcase, Palette, ArrowRight, ArrowLeft } from "lucide-react";
+import { categories } from "@/data/curriculum";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Monitor, Briefcase, BarChart3,
+  Monitor, Briefcase, Palette,
 };
 
 export default function PathSelection() {
   const navigate = useNavigate();
-  const { selectPath, getPathProgress } = useProgress();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-
-  const handleSelect = (pathId: string) => {
-    selectPath(pathId);
-    navigate(`/dashboard/${pathId}`);
-  };
 
   return (
     <motion.div
@@ -43,82 +34,49 @@ export default function PathSelection() {
           transition={{ duration: 0.3 }}
         >
           <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-3">
-            Choose Your Path
+            What do you want to learn?
           </h1>
           <p className="text-muted-foreground text-base max-w-md mx-auto">
-            Select a direction that matches your goals.
+            Three directions. Each one practical, free to start, built for action.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {paths.map((path, i) => {
-            const Icon = iconMap[path.icon];
-            const totalSessions = path.stages.reduce((a, s) => a + s.sessions.length, 0);
-            const allIds = path.stages.flatMap(s => s.sessions.map(ss => ss.id));
-            const progress = getPathProgress(path.id, allIds);
-            const isHovered = hoveredId === path.id;
-
+          {categories.map((cat, i) => {
+            const Icon = iconMap[cat.icon];
+            const featuredCount = cat.branches.filter((b) => b.featured).length;
             return (
               <motion.button
-                key={path.id}
-                onClick={() => handleSelect(path.id)}
-                onMouseEnter={() => setHoveredId(path.id)}
-                onMouseLeave={() => setHoveredId(null)}
+                key={cat.id}
+                onClick={() => navigate(`/category/${cat.id}`)}
                 className="group relative text-left p-7 rounded-2xl border border-border bg-card overflow-hidden transition-colors duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 + 0.15, duration: 0.4 }}
-                whileHover={{ y: -4, boxShadow: `0 16px 32px -8px ${path.color}18` }}
+                whileHover={{ y: -4, boxShadow: `0 16px 32px -8px ${cat.color}18` }}
                 whileTap={{ scale: 0.98 }}
               >
-                {/* Glow */}
-                <motion.div
-                  className="absolute inset-0 transition-opacity duration-500"
-                  style={{
-                    background: `radial-gradient(circle at 50% 0%, ${path.color}12, transparent 70%)`,
-                  }}
-                  animate={{ opacity: isHovered ? 1 : 0 }}
+                <div
+                  className="absolute inset-0 transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                  style={{ background: `radial-gradient(circle at 50% 0%, ${cat.color}12, transparent 70%)` }}
                 />
-
                 <div className="relative z-10">
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                    style={{ backgroundColor: `color-mix(in srgb, ${path.color} 15%, transparent)`, color: path.color }}
+                    style={{ backgroundColor: `color-mix(in srgb, ${cat.color} 15%, transparent)`, color: cat.color }}
                   >
                     {Icon && <Icon className="w-6 h-6" />}
                   </div>
-
-                  <h3 className="text-xl font-bold mb-2">{path.title}</h3>
-                  <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{path.description}</p>
-
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground mb-5">
-                    <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" />{totalSessions} sessions</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{path.stages.length} stages</span>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-2xl">{cat.emoji}</span>
+                    <h3 className="text-xl font-bold">{cat.title}</h3>
                   </div>
-
-                  {progress.completed > 0 && (
-                    <div className="mb-4">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-muted-foreground">{progress.percent}% complete</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ backgroundColor: path.color }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${progress.percent}%` }}
-                          transition={{ duration: 0.6 }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div
-                    className="flex items-center gap-2 text-sm font-semibold"
-                    style={{ color: path.color }}
-                  >
-                    {progress.completed > 0 ? "Continue" : "Start Path"}
-                    <ArrowRight className="w-4 h-4" />
+                  <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{cat.description}</p>
+                  <p className="text-xs text-muted-foreground mb-5">
+                    {cat.branches.length} branches · {featuredCount} ready to learn
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: cat.color }}>
+                    Explore <ArrowRight className="w-4 h-4" />
                   </div>
                 </div>
               </motion.button>

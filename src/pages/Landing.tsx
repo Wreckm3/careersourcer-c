@@ -36,26 +36,26 @@ const sectionFade = (delay = 0) => ({
 });
 
 const steps = [
-  { icon: Compass, title: "Choose a Path", desc: "Technology, Business, or Data" },
-  { icon: BookOpen, title: "Follow Sessions", desc: "Structured, step-by-step learning" },
-  { icon: BarChart3, title: "Build Progress", desc: "Track growth and stay consistent" },
+  { icon: Compass, title: "Pick a Direction", desc: "Technology, Business, or Creative" },
+  { icon: BookOpen, title: "Learn → Build", desc: "Short lessons with real challenges" },
+  { icon: BarChart3, title: "See Progress", desc: "Track growth, stay consistent" },
 ];
 
 const values = [
-  { icon: Target, text: "Clear direction for beginners" },
-  { icon: BookOpen, text: "Structured learning paths" },
+  { icon: Target, text: "Practical, not academic" },
+  { icon: BookOpen, text: "Free to start" },
   { icon: Zap, text: "No distractions" },
-  { icon: BarChart3, text: "Built for real progress" },
+  { icon: BarChart3, text: "Built for action" },
 ];
 
 export default function Landing() {
   const navigate = useNavigate();
   const { progress } = useProgress();
   const { user } = useAuth();
-  const hasProgress = progress.selectedPath && progress.completedSessions.length > 0;
+  const hasProgress = progress.completedSessions.length > 0;
   const headline = useRotatingText(rotatingPhrases, 3000);
-  const primaryDest = user ? (hasProgress ? `/dashboard/${progress.selectedPath}` : "/paths") : "/auth";
-  const primaryLabel = user ? (hasProgress ? "Continue Your Path" : "Start Your Path") : "Get Started";
+  const primaryDest = user ? "/paths" : "/auth";
+  const primaryLabel = user ? (hasProgress ? "Continue Learning" : "Start Learning") : "Get Started";
 
   return (
     <div className="min-h-screen bg-background">
