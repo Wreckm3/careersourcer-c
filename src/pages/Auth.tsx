@@ -223,24 +223,6 @@ export default function Auth() {
         <h1 className="text-3xl font-black tracking-tight text-center mb-2">{heading}</h1>
         <p className="text-sm text-muted-foreground text-center mb-8">{subheading}</p>
 
-        {mode !== "forgot" && (
-          <>
-            <button
-              type="button"
-              onClick={signInGoogle}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-border bg-card hover:bg-muted transition-colors font-medium text-sm mb-5 disabled:opacity-60"
-            >
-              <GoogleIcon /> Continue with Google
-            </button>
-
-            <div className="flex items-center gap-3 mb-5">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">or</span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-          </>
-        )}
 
         <form onSubmit={submit} className="flex flex-col gap-3">
           {mode === "signup" && (
