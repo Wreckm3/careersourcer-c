@@ -3,7 +3,8 @@ import { AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import Landing from "./pages/Landing";
 import PathSelection from "./pages/PathSelection";
-import Dashboard from "./pages/Dashboard";
+import Category from "./pages/Category";
+import Branch from "./pages/Branch";
 import FocusMode from "./pages/FocusMode";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
@@ -28,7 +29,8 @@ export default function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/paths" element={<PathSelection />} />
-              <Route path="/dashboard/:pathId" element={<Dashboard />} />
+              <Route path="/category/:categoryId" element={<Category />} />
+              <Route path="/branch/:categoryId/:branchId" element={<Branch />} />
               <Route path="/session/:pathId/:sessionId" element={<FocusMode />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
