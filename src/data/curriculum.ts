@@ -579,8 +579,59 @@ export const categories: Category[] = [
         tagline: "Create 3D art and models",
         description: "Learn Blender, the free 3D tool used by pros and studios worldwide.",
         searchKeywords: ["blender", "3d", "modeling", "animation", "render", "sculpting"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "blender-1",
+            title: "Why Blender is a Big Deal",
+            intro:
+              "Blender is 100% free, runs on most laptops, and is used to make professional animations, films, and game assets. The famous 'Donut Tutorial' has launched thousands of careers — and that's exactly where you'll start.",
+            description: "Meet the free tool studios actually use.",
+            videoUrl: yt("-tbSCMbJA6o"),
+            challenge: "Download Blender (free) from blender.org. Just install it — no need to open yet.",
+            duration: "~10 min",
+          },
+          {
+            id: "blender-2",
+            title: "Navigating the Interface",
+            intro:
+              "Blender looks scary at first — buttons everywhere. But you only need 6 shortcuts to start: G (grab), R (rotate), S (scale), Tab (edit mode), middle-mouse (orbit), scroll (zoom). Learn these, ignore the rest for now.",
+            description: "Stop being scared of the UI.",
+            videoUrl: yt("9NT_1BvV2yw"),
+            challenge: "Open Blender. Practice G, R, S on the default cube. Orbit around it.",
+            duration: "~10 min",
+          },
+          {
+            id: "blender-3",
+            title: "Modeling Your First Object",
+            intro:
+              "3D modeling is just pushing vertices, edges and faces around until they look like something. Start with simple shapes — a mug, a chair, a sword. Don't aim for realism; aim for recognisable.",
+            description: "Build something you can show.",
+            videoUrl: yt("ICBP-7x7Chc"),
+            challenge: "Model one simple object: a mug, table, or pencil. Save your .blend file.",
+            duration: "~15 min",
+          },
+          {
+            id: "blender-4",
+            title: "Lighting & Materials",
+            intro:
+              "A great model with bad lighting looks fake. A simple model with good lighting looks real. Three-point lighting and one HDRI environment map will instantly upgrade every render you make.",
+            description: "Make your 3D look real.",
+            videoUrl: yt("aafyp5g1CjI"),
+            challenge: "Add one light and one material to your model. Render a still image.",
+            duration: "~12 min",
+          },
+          {
+            id: "blender-5",
+            title: "Rendering & Sharing Your Work",
+            intro:
+              "ArtStation, Instagram and Reddit (r/blender) are where 3D artists get noticed. One clean render with good lighting beats five rushed ones. Post consistently and you'll get feedback that makes you better.",
+            description: "Get your art seen.",
+            videoUrl: yt("4pSkVBxlGxg"),
+            challenge: "Export your render as PNG. Post it anywhere — Instagram, WhatsApp status, ArtStation.",
+            duration: "~10 min",
+          },
+        ],
       },
       {
         id: "animation",
