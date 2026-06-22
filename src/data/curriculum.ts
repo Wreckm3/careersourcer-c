@@ -190,8 +190,59 @@ export const categories: Category[] = [
         tagline: "Use AI to do real work",
         description: "Use ChatGPT, Claude and no-code AI tools to save time and build things.",
         searchKeywords: ["ai", "chatgpt", "automation", "claude", "gpt", "artificial intelligence"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "ai-1",
+            title: "What AI Actually Is",
+            intro:
+              "AI tools like ChatGPT, Claude and Gemini are not magic — they predict the next likely word based on patterns learned from huge amounts of text. Knowing this changes how you use them: clearer instructions in, better results out.",
+            description: "Understand the tool you're about to use.",
+            videoUrl: yt("xs3ZyXX7dX0"),
+            challenge: "Open ChatGPT (free). Ask it to explain something you actually want to learn today.",
+            duration: "~5 min",
+          },
+          {
+            id: "ai-2",
+            title: "Prompting Like a Pro",
+            intro:
+              "A weak prompt gets a weak answer. A strong prompt sets a role, a task, a format and constraints. 'Write a CV' is weak. 'Act as a Kenyan HR manager. Write a 1-page CV for a Form 4 leaver applying for a sales internship. Use bullet points.' is strong.",
+            description: "The formula behind every great AI answer.",
+            videoUrl: yt("_wPTAeZLd7c"),
+            challenge: "Rewrite one bad prompt using: role + task + format + constraint. Compare both answers.",
+            duration: "~7 min",
+          },
+          {
+            id: "ai-3",
+            title: "Using AI to Save Hours Every Week",
+            intro:
+              "AI shines at the boring stuff: summarising notes, drafting emails, planning your week, breaking down hard topics. Pick 3 tasks you do weekly and let AI handle the first draft. You edit, you stay in control.",
+            description: "Practical, daily ways to use AI.",
+            videoUrl: yt("Qc6pdR8BhFA"),
+            challenge: "Pick one repetitive task this week (notes, emails, planning). Use AI to do it.",
+            duration: "~8 min",
+          },
+          {
+            id: "ai-4",
+            title: "Automating Boring Work (No-Code)",
+            intro:
+              "Tools like Zapier and Make connect apps together so they do things for you — like saving every email attachment to Drive automatically. No code required. One automation can save hours every month.",
+            description: "Make apps work for you.",
+            videoUrl: yt("JtdUgJGI_Oo"),
+            challenge: "Sign up for Zapier free. Build one Zap (even a trivial one) and turn it on.",
+            duration: "~8 min",
+          },
+          {
+            id: "ai-5",
+            title: "Turning AI Skills Into Income",
+            intro:
+              "People are already paying for AI-assisted work — content drafting, image generation, custom GPTs, lead research. You don't need to be an expert; you need to be useful to a specific person with a specific problem.",
+            description: "Earn from what you just learned.",
+            videoUrl: yt("TyXivx7fFwQ"),
+            challenge: "List 3 small AI services you could offer this week (e.g. CV polish, blog drafts, image edits).",
+            duration: "~9 min",
+          },
+        ],
       },
       {
         id: "ui-ux-design",
