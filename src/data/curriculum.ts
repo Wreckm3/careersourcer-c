@@ -105,7 +105,7 @@ export const categories: Category[] = [
             intro:
               "A website only matters when people can visit it. Free tools like GitHub Pages or Netlify let you publish a real, shareable URL in minutes — no hosting fees, no card needed.",
             description: "Put your site online for free.",
-            videoUrl: yt("p1QU3kLFPdg"),
+            videoUrl: yt("0P53S34zm44"),
             challenge:
               "Deploy your about-me page using Netlify Drop (drag and drop). Share the link with one friend.",
             duration: "~6 min",
@@ -127,7 +127,7 @@ export const categories: Category[] = [
             intro:
               "Most games — even AAA ones — start with one person, one idea, and a free tool. Tools like Scratch, GDevelop, Godot and Unity are 100% free. The hardest part isn't the engine; it's finishing your first tiny game.",
             description: "Understand how indie games are built.",
-            videoUrl: yt("nhdvLwiBYso"),
+            videoUrl: yt("_eK26atXTds"),
             challenge: "List 3 simple games you'd like to recreate (Pong, Snake, Flappy Bird, etc.)",
             duration: "~5 min",
           },
@@ -147,7 +147,7 @@ export const categories: Category[] = [
             intro:
               "Great games aren't about graphics — they're about one core loop that feels good. Jump-and-land, shoot-and-hit, match-and-clear. Before writing more code, design the feel.",
             description: "What makes a game actually fun.",
-            videoUrl: yt("8YJ4j5g7iAk"),
+            videoUrl: yt("216_5nu4aVQ"),
             challenge: "Pick your favourite game. Write down its core loop in one sentence.",
             duration: "~6 min",
           },
@@ -167,7 +167,7 @@ export const categories: Category[] = [
             intro:
               "Even a tiny game becomes real once someone else plays it. itch.io lets you publish browser games for free with no approval. One link, one friend playing — that's your first shipped game.",
             description: "Put your game online for free.",
-            videoUrl: yt("BUMo7q4VFY0"),
+            videoUrl: yt("c2T7GOXR8xo"),
             challenge: "Create a free itch.io account. Browse 3 indie games made by solo developers.",
             duration: "~5 min",
           },
@@ -190,8 +190,59 @@ export const categories: Category[] = [
         tagline: "Use AI to do real work",
         description: "Use ChatGPT, Claude and no-code AI tools to save time and build things.",
         searchKeywords: ["ai", "chatgpt", "automation", "claude", "gpt", "artificial intelligence"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "ai-1",
+            title: "What AI Actually Is",
+            intro:
+              "AI tools like ChatGPT, Claude and Gemini are not magic — they predict the next likely word based on patterns learned from huge amounts of text. Knowing this changes how you use them: clearer instructions in, better results out.",
+            description: "Understand the tool you're about to use.",
+            videoUrl: yt("xs3ZyXX7dX0"),
+            challenge: "Open ChatGPT (free). Ask it to explain something you actually want to learn today.",
+            duration: "~5 min",
+          },
+          {
+            id: "ai-2",
+            title: "Prompting Like a Pro",
+            intro:
+              "A weak prompt gets a weak answer. A strong prompt sets a role, a task, a format and constraints. 'Write a CV' is weak. 'Act as a Kenyan HR manager. Write a 1-page CV for a Form 4 leaver applying for a sales internship. Use bullet points.' is strong.",
+            description: "The formula behind every great AI answer.",
+            videoUrl: yt("_wPTAeZLd7c"),
+            challenge: "Rewrite one bad prompt using: role + task + format + constraint. Compare both answers.",
+            duration: "~7 min",
+          },
+          {
+            id: "ai-3",
+            title: "Using AI to Save Hours Every Week",
+            intro:
+              "AI shines at the boring stuff: summarising notes, drafting emails, planning your week, breaking down hard topics. Pick 3 tasks you do weekly and let AI handle the first draft. You edit, you stay in control.",
+            description: "Practical, daily ways to use AI.",
+            videoUrl: yt("Qc6pdR8BhFA"),
+            challenge: "Pick one repetitive task this week (notes, emails, planning). Use AI to do it.",
+            duration: "~8 min",
+          },
+          {
+            id: "ai-4",
+            title: "Automating Boring Work (No-Code)",
+            intro:
+              "Tools like Zapier and Make connect apps together so they do things for you — like saving every email attachment to Drive automatically. No code required. One automation can save hours every month.",
+            description: "Make apps work for you.",
+            videoUrl: yt("JtdUgJGI_Oo"),
+            challenge: "Sign up for Zapier free. Build one Zap (even a trivial one) and turn it on.",
+            duration: "~8 min",
+          },
+          {
+            id: "ai-5",
+            title: "Turning AI Skills Into Income",
+            intro:
+              "People are already paying for AI-assisted work — content drafting, image generation, custom GPTs, lead research. You don't need to be an expert; you need to be useful to a specific person with a specific problem.",
+            description: "Earn from what you just learned.",
+            videoUrl: yt("TyXivx7fFwQ"),
+            challenge: "List 3 small AI services you could offer this week (e.g. CV polish, blog drafts, image edits).",
+            duration: "~9 min",
+          },
+        ],
       },
       {
         id: "ui-ux-design",
@@ -240,7 +291,7 @@ export const categories: Category[] = [
             intro:
               "Freelancing means selling a skill directly to clients — no boss, no office. People in Kenya freelance in writing, design, video editing, virtual assistance, coding. Start with one skill, one platform, one client.",
             description: "How freelancing works in real life.",
-            videoUrl: yt("yhmYJEvjm6w"),
+            videoUrl: yt("utPBI1qitJU"),
             challenge: "List 3 skills you have, even basic ones (typing, English, design, social media).",
             duration: "~5 min",
           },
@@ -250,7 +301,7 @@ export const categories: Category[] = [
             intro:
               "You don't need to be an expert. You need to be slightly ahead of your client. Pick the skill where you have the smallest gap to bridge and where buyers exist — writing, simple design, basic video editing, data entry.",
             description: "Choose what to sell first.",
-            videoUrl: yt("BqaVjirOJ_M"),
+            videoUrl: yt("FMd67p9pEdo"),
             challenge: "Pick ONE skill from your list. Write 3 sentences about why you'd hire yourself.",
             duration: "~6 min",
           },
@@ -260,7 +311,7 @@ export const categories: Category[] = [
             intro:
               "Both platforms work from Kenya and pay via M-Pesa-friendly methods. Fiverr is easier to start (you set what you offer). Upwork takes longer to get approved but pays better. Many Kenyans use both.",
             description: "Create your first gig or profile.",
-            videoUrl: yt("E_K9b7VfM5o"),
+            videoUrl: yt("mVdyKy2Hn0U"),
             challenge: "Create a free account on Fiverr. Don't publish yet — just explore 10 gigs in your skill.",
             duration: "~7 min",
           },
@@ -270,7 +321,7 @@ export const categories: Category[] = [
             intro:
               "Clients scan, they don't read. Your title, image, and first sentence do 90% of the work. Steal structure from top-rated gigs in your category — don't copy text, copy the format.",
             description: "What makes clients click 'order'.",
-            videoUrl: yt("a72YlsBe-jE"),
+            videoUrl: yt("rLfAImFUwds"),
             challenge: "Write a draft gig title and 3-line description for your skill.",
             duration: "~6 min",
           },
@@ -280,7 +331,7 @@ export const categories: Category[] = [
             intro:
               "The first client is the hardest. Most beginners get theirs by pricing low, replying fast, and over-delivering on one small job. Once you have one 5-star review, the next jobs come easier.",
             description: "Land that first paying job.",
-            videoUrl: yt("p_M7v4Tn5kI"),
+            videoUrl: yt("AomSFPbUMHQ"),
             challenge: "Publish your gig OR send 5 personalised proposals on Upwork this week.",
             duration: "~7 min",
           },
@@ -311,7 +362,7 @@ export const categories: Category[] = [
             intro:
               "Niches grow faster than general accounts. 'Cooking Kenyan student meals' beats 'cooking'. 'Tech tips for high schoolers' beats 'tech'. Pick a topic you can post about for 30 days without getting bored.",
             description: "Find the topic only you can own.",
-            videoUrl: yt("YZ8gWzGCkfM"),
+            videoUrl: yt("TLCuJRivmhU"),
             challenge: "Write down 3 niche ideas. Circle the one you'd post about every day for free.",
             duration: "~6 min",
           },
@@ -321,7 +372,7 @@ export const categories: Category[] = [
             intro:
               "Every modern phone shoots great video. What matters: natural light (face a window), steady framing (lean on something), and clear audio (record close to your mouth or use earphones).",
             description: "Shoot good video with what you have.",
-            videoUrl: yt("MtZxv4QHX24"),
+            videoUrl: yt("vfgXdSaaSPQ"),
             challenge: "Record one 30-second clip of yourself talking about your niche. Just one.",
             duration: "~7 min",
           },
@@ -331,7 +382,7 @@ export const categories: Category[] = [
             intro:
               "The first 3 seconds decide everything. Strong hooks: ask a question, state a bold claim, show the end result first, or break a pattern. Without a hook, even great content gets scrolled past.",
             description: "The most important 3 seconds.",
-            videoUrl: yt("LkP9_QgFmlw"),
+            videoUrl: yt("LmXpbP7dD48"),
             challenge: "Write 5 different hook lines for the same video idea.",
             duration: "~5 min",
           },
@@ -341,7 +392,7 @@ export const categories: Category[] = [
             intro:
               "The algorithm rewards rhythm. 3 posts a week for 3 months beats 30 posts in one week. Pick a schedule you can actually hold — even 2 posts a week — and protect it.",
             description: "How creators actually grow.",
-            videoUrl: yt("ko0mTpZUVrU"),
+            videoUrl: yt("VdBY8Tv-s2Q"),
             challenge: "Decide a posting schedule. Write it where you'll see it daily.",
             duration: "~5 min",
           },
@@ -434,7 +485,7 @@ export const categories: Category[] = [
             intro:
               "Canva is free, runs in your browser, and lets you make professional-looking designs in minutes. Pros use it too — it's not 'cheating'. Master it before paying for anything fancier.",
             description: "Make your first real design.",
-            videoUrl: yt("g5cPyTcVX-c"),
+            videoUrl: yt("jzWxBuvwuwQ"),
             challenge: "Open Canva. Design one Instagram post about anything you care about.",
             duration: "~8 min",
           },
@@ -454,7 +505,7 @@ export const categories: Category[] = [
             intro:
               "Clients don't hire your CV — they hire your portfolio. Even 3 strong pieces beat 20 weak ones. Start with fake briefs: redesign a local business's poster, design a logo for your dream brand.",
             description: "What clients actually want to see.",
-            videoUrl: yt("ej0_z5mD2-c"),
+            videoUrl: yt("8M0qxamf1rE"),
             challenge: "Design 3 pieces around one theme (e.g. 3 posters for a fake coffee shop).",
             duration: "~6 min",
           },
@@ -475,7 +526,7 @@ export const categories: Category[] = [
             intro:
               "Editing is storytelling with cuts. A good editor turns 30 minutes of raw footage into a 3-minute video people watch to the end. The best editors aren't fast — they make decisions fast.",
             description: "Understand the real job.",
-            videoUrl: yt("PWMpqQEM5Fk"),
+            videoUrl: yt("g9G218IncLw"),
             challenge: "Watch a short YouTube video. Count how many cuts happen in the first 30 seconds.",
             duration: "~5 min",
           },
@@ -485,7 +536,7 @@ export const categories: Category[] = [
             intro:
               "CapCut is free, runs on any phone, and is what most TikTok and Reels editors actually use. You can do 80% of pro editing without ever touching a laptop.",
             description: "Edit your first video on your phone.",
-            videoUrl: yt("3lBz4HWAtfo"),
+            videoUrl: yt("P51CqlPOE_w"),
             challenge: "Install CapCut. Import any 3 clips from your phone and stitch them together.",
             duration: "~8 min",
           },
@@ -505,7 +556,7 @@ export const categories: Category[] = [
             intro:
               "Bad video with great audio is watchable. Great video with bad audio gets closed in 5 seconds. Free music (Epidemic Sound trial, YouTube Audio Library) and clean voice recording matter more than 4K footage.",
             description: "Why audio matters more than video.",
-            videoUrl: yt("kQYvUcFcaQU"),
+            videoUrl: yt("Wcxw3BPSt3A"),
             challenge: "Add background music and one sound effect to your edited video.",
             duration: "~6 min",
           },
@@ -515,7 +566,7 @@ export const categories: Category[] = [
             intro:
               "DaVinci Resolve is what Hollywood films are edited in — and the full version is free forever. If you want to edit on a laptop, start here, not in pirated Premiere.",
             description: "Step up to laptop editing.",
-            videoUrl: yt("63Dz3CTNxL8"),
+            videoUrl: yt("SrJOE2pEp7A"),
             challenge: "Download DaVinci Resolve (free). Just open it — no need to edit yet.",
             duration: "~9 min",
           },
@@ -528,8 +579,59 @@ export const categories: Category[] = [
         tagline: "Create 3D art and models",
         description: "Learn Blender, the free 3D tool used by pros and studios worldwide.",
         searchKeywords: ["blender", "3d", "modeling", "animation", "render", "sculpting"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "blender-1",
+            title: "Why Blender is a Big Deal",
+            intro:
+              "Blender is 100% free, runs on most laptops, and is used to make professional animations, films, and game assets. The famous 'Donut Tutorial' has launched thousands of careers — and that's exactly where you'll start.",
+            description: "Meet the free tool studios actually use.",
+            videoUrl: yt("-tbSCMbJA6o"),
+            challenge: "Download Blender (free) from blender.org. Just install it — no need to open yet.",
+            duration: "~10 min",
+          },
+          {
+            id: "blender-2",
+            title: "Navigating the Interface",
+            intro:
+              "Blender looks scary at first — buttons everywhere. But you only need 6 shortcuts to start: G (grab), R (rotate), S (scale), Tab (edit mode), middle-mouse (orbit), scroll (zoom). Learn these, ignore the rest for now.",
+            description: "Stop being scared of the UI.",
+            videoUrl: yt("9NT_1BvV2yw"),
+            challenge: "Open Blender. Practice G, R, S on the default cube. Orbit around it.",
+            duration: "~10 min",
+          },
+          {
+            id: "blender-3",
+            title: "Modeling Your First Object",
+            intro:
+              "3D modeling is just pushing vertices, edges and faces around until they look like something. Start with simple shapes — a mug, a chair, a sword. Don't aim for realism; aim for recognisable.",
+            description: "Build something you can show.",
+            videoUrl: yt("ICBP-7x7Chc"),
+            challenge: "Model one simple object: a mug, table, or pencil. Save your .blend file.",
+            duration: "~15 min",
+          },
+          {
+            id: "blender-4",
+            title: "Lighting & Materials",
+            intro:
+              "A great model with bad lighting looks fake. A simple model with good lighting looks real. Three-point lighting and one HDRI environment map will instantly upgrade every render you make.",
+            description: "Make your 3D look real.",
+            videoUrl: yt("aafyp5g1CjI"),
+            challenge: "Add one light and one material to your model. Render a still image.",
+            duration: "~12 min",
+          },
+          {
+            id: "blender-5",
+            title: "Rendering & Sharing Your Work",
+            intro:
+              "ArtStation, Instagram and Reddit (r/blender) are where 3D artists get noticed. One clean render with good lighting beats five rushed ones. Post consistently and you'll get feedback that makes you better.",
+            description: "Get your art seen.",
+            videoUrl: yt("4pSkVBxlGxg"),
+            challenge: "Export your render as PNG. Post it anywhere — Instagram, WhatsApp status, ArtStation.",
+            duration: "~10 min",
+          },
+        ],
       },
       {
         id: "animation",
