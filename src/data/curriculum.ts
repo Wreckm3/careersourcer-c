@@ -180,8 +180,59 @@ export const categories: Category[] = [
         tagline: "Build phone apps",
         description: "Make apps for Android and iPhone using a single codebase.",
         searchKeywords: ["app", "mobile", "phone", "android", "ios", "flutter", "react native"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "app-1",
+            title: "What App Development Actually Is",
+            intro:
+              "An app is just a program that runs on a phone. You can build one app that runs on both Android and iPhone using tools like Flutter (by Google) or React Native. No need to learn two languages. Pick one tool — Flutter is the friendliest start.",
+            description: "Understand what you're about to build.",
+            videoUrl: yt("lHhRhPV--G0"),
+            challenge: "Search the Play Store for 'Flutter Gallery'. Install it and tap around — every screen there is built with Flutter.",
+            duration: "~3 min",
+          },
+          {
+            id: "app-2",
+            title: "Your First Flutter Setup",
+            intro:
+              "Setup is the hardest part of app development — once Flutter is installed, everything else is faster. You need Flutter SDK + Android Studio. On a slow connection it can take 1–2 hours, but you only do it once.",
+            description: "Install the tools you'll use forever.",
+            videoUrl: yt("1ukSR1GRtMU"),
+            challenge: "Install Flutter and run `flutter doctor` in the terminal. Aim to see at least one green checkmark.",
+            duration: "~12 min",
+          },
+          {
+            id: "app-3",
+            title: "Build Your First Widget",
+            intro:
+              "Everything in Flutter is a 'widget' — text, buttons, layouts. You build apps by combining widgets like Lego blocks. This sounds abstract until you build one — then it clicks.",
+            description: "The Lego-block thinking behind Flutter.",
+            videoUrl: yt("W1pNjxmNHNQ"),
+            challenge: "Create a new Flutter project. Change the default text to your own name and hot-reload it.",
+            duration: "~10 min",
+          },
+          {
+            id: "app-4",
+            title: "Build a Real App",
+            intro:
+              "Now stitch widgets, screens and a bit of logic into something that feels like a real app. Even a counter, todo or tip-calculator app teaches you 80% of what real production apps use.",
+            description: "From single screen to multi-screen app.",
+            videoUrl: yt("x0uinJvhNxI"),
+            challenge: "Pick ONE small idea (calculator, tip splitter, BMI tool). Build it — even if it's ugly.",
+            duration: "~30 min (skip around)",
+          },
+          {
+            id: "app-5",
+            title: "Ship It to Real Users",
+            intro:
+              "Building an app you never share is just practice. Getting it on a friend's phone — even as a test APK — changes everything. Later you can publish to Play Store (about KSh 3,000 one-time fee).",
+            description: "From your laptop to a real phone.",
+            videoUrl: yt("pTJJsmejUOQ"),
+            challenge: "Build a release APK with `flutter build apk`. Send it to one friend on WhatsApp and have them install it.",
+            duration: "~25 min (skip around)",
+          },
+        ],
       },
       {
         id: "ai-automation",
