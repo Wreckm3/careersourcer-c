@@ -546,7 +546,7 @@ export const categories: Category[] = [
             intro:
               "Cuts hide boredom. B-roll (extra footage shown over the main one) keeps eyes engaged. Pacing — when to slow down vs speed up — separates amateur from pro. Watch any pro video with this in mind.",
             description: "Make videos that hold attention.",
-            videoUrl: yt("aQpQGRRGZNo"),
+            videoUrl: yt("ivhHHoLXy4s"),
             challenge: "Re-edit your first video. Cut anything boring. Aim to make it 30% shorter.",
             duration: "~7 min",
           },
