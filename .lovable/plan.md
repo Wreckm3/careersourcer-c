@@ -1,42 +1,26 @@
-## Plan
+## Video availability audit
 
-Two changes: a new aurora background animation, and a full auth + cloud-synced progress system.
+Checked all 40 YouTube videos in `src/data/curriculum.ts` via the YouTube oEmbed API.
 
----
+**Result: 39/40 available. 1 broken.**
 
-### 1) Gradient Aurora Background
+| Branch | Lesson | Video ID | Status |
+|---|---|---|---|
+| Video Editing | "Cuts, B-Roll and Pacing" (line 549) | `aQpQGRRGZNo` | 404 — removed by uploader |
 
-Replace the current floating-orb background with slow, drifting aurora curtains using existing brand colors (blue, purple, emerald).
+All other branches (Web Dev, Game Dev, AI & Automation, Freelancing, Content Creation, Graphic Design, Blender) pass.
 
-- Rewrite `src/components/career/AnimatedBackground.tsx`
-- 3 large, heavily-blurred conic/linear gradient layers, each on its own slow loop (30–45s) of translate + scale + rotate, with `mix-blend-screen` (dark) / `mix-blend-multiply` (light) for the glow
-- 1 subtle horizontal shimmer pass on top
-- Opacity ~0.15 light / ~0.22 dark so it never fights content
-- Stays site-wide via the existing `fixed inset-0 -z-10` wrapper in `App.tsx`
-- Uses framer-motion (already installed) and existing CSS tokens — no new files, no new deps
+## Fix
 
----
+Replace the broken video with a verified, on-topic alternative:
 
-### 2) Authentication + Cloud Sync
+- **New video:** Katie Steckly — *"Give me 10 minutes and I'll make your editing 10x better"* (`ivhHHoLXy4s`)
+- **Why it fits:** Beginner-friendly, covers cuts, B-roll and pacing in ~10 minutes, matches the lesson's intro and challenge wording. Channel is established and the video is publicly embeddable.
 
-Enable Lovable Cloud and add real account signup/login with email + password and Google, plus a `profiles` table and synced progress.
+Single line change at `src/data/curriculum.ts:549`:
 
-**Backend (Lovable Cloud)**
-- Enable Lovable Cloud
-- `profiles` table: `id (uuid, FK auth.users)`, `display_name`, `avatar_url`, `created_at` — RLS so users can only read/update their own row
-- Trigger `handle_new_user` auto-creates a profile row on signup
-- `user_progress` table: `user_id`, `path_id`, `completed_sessions (jsonb)`, `streak`, `last_active`, `updated_at` — RLS scoped to `auth.uid()`
-- Google provider note: the user will need to enable Google in Cloud → Users → Providers (I'll show clear instructions and a button)
+```ts
+videoUrl: yt("ivhHHoLXy4s"),
+```
 
-**Frontend**
-- New `/auth` page with two tabs (Sign In / Sign Up): email + password fields, "Continue with Google" button, friendly errors, redirect to `/paths` on success
-- New `useAuth` hook: sets up `onAuthStateChange` listener BEFORE `getSession()`, exposes `user`, `session`, `signOut`
-- Update `useProgress` to read/write from `user_progress` when logged in, falling back to localStorage when logged out, and migrate localStorage data into the account on first login
-- Landing page CTA becomes "Get Started" → `/auth` for logged-out users, "Continue Your Path" for logged-in users
-- Profile page shows real display name + email, "Sign out" button, and edit display name
-- Add `/auth` route in `App.tsx`
-
-**Out of scope**
-- Password reset flow (can add next if wanted)
-- Email verification customization (default Cloud emails are used)
-- Roles/admin (not needed yet)
+No other edits needed.
