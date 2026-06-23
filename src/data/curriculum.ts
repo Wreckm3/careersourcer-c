@@ -558,8 +558,59 @@ export const categories: Category[] = [
         tagline: "Start your first business",
         description: "Turn a small idea into a real business — even with little money.",
         searchKeywords: ["business", "startup", "founder", "entrepreneur", "company"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "entre-1",
+            title: "Start With Why",
+            intro:
+              "Every successful business answers one question clearly: WHY does this exist? People don't buy what you do, they buy why you do it. This idea — from Simon Sinek — has shaped a generation of founders.",
+            description: "The foundation under every great business.",
+            videoUrl: yt("u4ZoJKF_VuA"),
+            challenge: "Write ONE sentence: 'My business exists because…'. Don't overthink it — just write it.",
+            duration: "~18 min",
+          },
+          {
+            id: "entre-2",
+            title: "How to Find a Real Idea",
+            intro:
+              "Most beginner founders fail because they fall in love with an idea nobody wants. The best ideas come from real problems you (or people around you) already have. Michael Seibel from Y Combinator breaks down exactly how to test that.",
+            description: "Ideas come from problems, not brainstorming.",
+            videoUrl: yt("vDXkpJw16os"),
+            challenge: "List 5 problems you or your friends complain about every week. One of them is an idea.",
+            duration: "~17 min",
+          },
+          {
+            id: "entre-3",
+            title: "Build the Smallest Thing First (MVP)",
+            intro:
+              "An MVP — minimum viable product — is the tiniest version of your idea that proves people want it. It is meant to be ugly, simple and embarrassing. If you wait until it's perfect, you'll never launch.",
+            description: "Launch ugly, learn fast.",
+            videoUrl: yt("QRZ_l7cVzzU"),
+            challenge: "Describe your MVP in ONE sentence: 'It's a [thing] that lets [people] do [action].'",
+            duration: "~17 min",
+          },
+          {
+            id: "entre-4",
+            title: "Getting Your First Customers",
+            intro:
+              "Your first 10 customers won't come from ads — they'll come from you DM-ing people, calling friends, posting in WhatsApp groups. Founders who can't sell die. Founders who can sell survive long enough to figure the rest out.",
+            description: "Do things that don't scale.",
+            videoUrl: yt("hyYCn_kAngI"),
+            challenge: "Message 3 people today and pitch your idea in 2 sentences. Note their reactions.",
+            duration: "~25 min",
+          },
+          {
+            id: "entre-5",
+            title: "Register Your Business in Kenya",
+            intro:
+              "Once your idea has even one paying customer, register it. In Kenya it costs under KSh 1,000 and takes about an hour on eCitizen. You get a real business name, the right to invoice, and the foundation to grow.",
+            description: "Make it official — Kenya edition.",
+            videoUrl: yt("4dbTC9J5sE4"),
+            challenge: "Log into eCitizen and do a name search for your business — even just to reserve it.",
+            duration: "~3 min",
+          },
+        ],
       },
       {
         id: "digital-marketing",
@@ -568,8 +619,59 @@ export const categories: Category[] = [
         tagline: "Get attention online",
         description: "Learn how brands grow on Instagram, TikTok, Google and email.",
         searchKeywords: ["marketing", "ads", "promotion", "sales", "growth", "seo"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "mkt-1",
+            title: "Digital Marketing in 10 Tips",
+            intro:
+              "Digital marketing is just getting the right message to the right person at the right time — using the internet. Neil Patel's 10 essentials cover the whole landscape: SEO, email, paid ads, social — in one short sitting.",
+            description: "The 30,000-foot view first.",
+            videoUrl: yt("4abNIEHj-10"),
+            challenge: "Pick ONE channel (SEO, email, TikTok, Instagram) that fits your business best. Just one.",
+            duration: "~11 min",
+          },
+          {
+            id: "mkt-2",
+            title: "SEO — Free Traffic Forever",
+            intro:
+              "Search engine optimisation is how you appear on Google when someone searches. Get it right and you receive free customers for years. Ahrefs' beginner intro is the cleanest explanation on the internet.",
+            description: "Why one blog post can pay you for years.",
+            videoUrl: yt("DvwS7cV9GmQ"),
+            challenge: "Type your business idea into Google. Note the top 3 results — they are your competition.",
+            duration: "~20 min",
+          },
+          {
+            id: "mkt-3",
+            title: "Email Marketing — The Hidden Goldmine",
+            intro:
+              "Every Ksh 1 spent on email returns about Ksh 40. Email isn't dead — it's just boring and that's why it works. Build a small list early and you own a direct line to your customers that no algorithm can take away.",
+            description: "The channel no one can shut down on you.",
+            videoUrl: yt("J0CEiuOfON0"),
+            challenge: "Sign up for MailerLite (free up to 1,000 contacts). Create your first list.",
+            duration: "~17 min",
+          },
+          {
+            id: "mkt-4",
+            title: "The Art of Digital Marketing",
+            intro:
+              "Tactics change every year — TikTok today, something else next year. But the underlying art of marketing — empathy, positioning, storytelling — never changes. Neil Patel covers what stays the same.",
+            description: "Beyond tactics — into strategy.",
+            videoUrl: yt("ExV24jFfi_g"),
+            challenge: "Write down: who is your ONE ideal customer? Age, struggle, where they hang out online.",
+            duration: "~35 min",
+          },
+          {
+            id: "mkt-5",
+            title: "Turn It Into a Career",
+            intro:
+              "You don't need a marketing degree. Most digital marketers learned online and built a portfolio of small wins. A single 'I grew this account from 0 to 1,000 followers' case study can get you hired.",
+            description: "From learning to earning.",
+            videoUrl: yt("DoLzQN1m7sU"),
+            challenge: "Offer to manage one social account for a friend's business — free — for 30 days. That's your case study.",
+            duration: "~6 min",
+          },
+        ],
       },
       {
         id: "e-commerce",
@@ -578,8 +680,59 @@ export const categories: Category[] = [
         tagline: "Sell products online",
         description: "Set up your own online shop and start selling.",
         searchKeywords: ["ecommerce", "shop", "store", "sell", "shopify", "online store"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "ecom-1",
+            title: "How E-Commerce Actually Works",
+            intro:
+              "An online store is 4 simple things: a product, a website, a way to take payment, a way to deliver. That's it. In Kenya you can use Shopify, WooCommerce, or even just a WhatsApp catalog to start.",
+            description: "The 4 pieces of any online store.",
+            videoUrl: yt("RWI59fC7Z48"),
+            challenge: "List 3 products you could realistically source or make and sell from home.",
+            duration: "~19 min",
+          },
+          {
+            id: "ecom-2",
+            title: "Build Your Shopify Store",
+            intro:
+              "Shopify is the most beginner-friendly way to launch a real store. The free trial is enough to set up everything before you pay a cent. This full walkthrough has helped thousands of people launch.",
+            description: "From signup to live store.",
+            videoUrl: yt("uorQJ_ucDhg"),
+            challenge: "Start the Shopify free trial. Set up your store name and homepage — that's enough today.",
+            duration: "~40 min (skip around)",
+          },
+          {
+            id: "ecom-3",
+            title: "Design a Store That Sells",
+            intro:
+              "A pretty store doesn't sell — a CLEAR store sells. Good product photos, simple navigation, trust signals (reviews, return policy), fast checkout. This step-by-step shows you the difference.",
+            description: "What separates a real store from a hobby site.",
+            videoUrl: yt("PVufWxoWfkI"),
+            challenge: "Add your first product to your store with: 3 photos, a clear title, and a benefit-driven description.",
+            duration: "~45 min (skip around)",
+          },
+          {
+            id: "ecom-4",
+            title: "The Complete Shopify Guide",
+            intro:
+              "Once you've launched, this complete guide fills in the gaps — taxes, shipping zones, apps, abandoned cart emails. Treat it like a reference, not a one-sitting watch.",
+            description: "Your reference manual.",
+            videoUrl: yt("ferhOYx1NMo"),
+            challenge: "Set up your shipping zones (start with just 'Nairobi' and 'Rest of Kenya').",
+            duration: "~60 min (skip around)",
+          },
+          {
+            id: "ecom-5",
+            title: "Get Your First Sale",
+            intro:
+              "Your first sale is psychologically huge — and it almost never comes from ads. It comes from your WhatsApp status, your friends, a TikTok. Focus all energy on getting ONE stranger to buy.",
+            description: "Stop tweaking. Start selling.",
+            videoUrl: yt("4abNIEHj-10"),
+            challenge: "Post your store link on WhatsApp status + one Instagram story today. Just once.",
+            duration: "~11 min",
+          },
+        ],
       },
       {
         id: "personal-finance",
@@ -588,8 +741,59 @@ export const categories: Category[] = [
         tagline: "Manage your money well",
         description: "Save, budget and invest from a teenager's pocket money up.",
         searchKeywords: ["finance", "money", "save", "budget", "invest", "savings"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "fin-1",
+            title: "The 50/30/20 Rule",
+            intro:
+              "The simplest budget on earth: 50% of income to needs, 30% to wants, 20% to savings. It works whether you earn KSh 2,000 a month or KSh 200,000. Master this once and you'll never be broke from confusion again.",
+            description: "One rule, every income level.",
+            videoUrl: yt("OZQQMYfaBT4"),
+            challenge: "Take your last KSh 1,000. Split it: KSh 500 needs, KSh 300 wants, KSh 200 savings.",
+            duration: "~10 min",
+          },
+          {
+            id: "fin-2",
+            title: "Budgeting When You're Young",
+            intro:
+              "Most adults wish someone taught them this at 16. Track every shilling for one month and you'll be shocked where it goes. Awareness alone fixes 50% of money problems.",
+            description: "The skill that compounds for life.",
+            videoUrl: yt("sNocjsSSRkE"),
+            challenge: "Write down every shilling you spent yesterday. Total it.",
+            duration: "~3 min",
+          },
+          {
+            id: "fin-3",
+            title: "Compound Interest — The 8th Wonder",
+            intro:
+              "Money grows on money. KSh 1,000 saved every month at 10% becomes over KSh 2 million in 30 years. Einstein supposedly called compound interest 'the most powerful force in the universe'. Understand it once and you'll save earlier for life.",
+            description: "Why starting today matters so much.",
+            videoUrl: yt("Rm6UdfRs3gw"),
+            challenge: "Open M-Shwari Lock Savings. Lock KSh 100 for 1 month — just to feel how it works.",
+            duration: "~7 min",
+          },
+          {
+            id: "fin-4",
+            title: "Investing for Beginners",
+            intro:
+              "Saving protects your money. Investing GROWS it. Ali Abdaal's beginner guide explains index funds, stocks and what's actually worth your time when you're starting with little money.",
+            description: "From saver to investor.",
+            videoUrl: yt("lNdOtlpmH5U"),
+            challenge: "Research one Kenyan investment option — money market fund, T-bill, or Sanlam Money Market. Just learn what it is.",
+            duration: "~20 min",
+          },
+          {
+            id: "fin-5",
+            title: "The Only Investing Video You'll Ever Need",
+            intro:
+              "Mark Tilbury's video is one of the most respected beginner investing breakdowns on YouTube. By the end you'll understand index funds, diversification and why most 'get rich' YouTubers are wrong.",
+            description: "Lock in the long view.",
+            videoUrl: yt("Ay4fmZdZqJE"),
+            challenge: "Write down one investing rule you'll stick to: e.g. 'I save 20% of every paycheck before spending'.",
+            duration: "~21 min",
+          },
+        ],
       },
     ],
   },
