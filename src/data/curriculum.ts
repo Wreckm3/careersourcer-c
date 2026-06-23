@@ -997,8 +997,59 @@ export const categories: Category[] = [
         tagline: "Bring drawings to life",
         description: "Make 2D animations using free tools — no art-school degree needed.",
         searchKeywords: ["animation", "animate", "cartoon", "motion", "2d"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "anim-1",
+            title: "The 12 Principles of Animation",
+            intro:
+              "Every Pixar, Disney and anime animator learns the same 12 principles — squash & stretch, anticipation, timing. Alan Becker's animated explainer is the best 24-minute crash course on the internet. Watch it once and you'll spot these in every cartoon for the rest of your life.",
+            description: "The DNA of all animation.",
+            videoUrl: yt("uDqjIdI4bF4"),
+            challenge: "Pick any animated movie clip. Try to identify 3 of the 12 principles in action.",
+            duration: "~24 min",
+          },
+          {
+            id: "anim-2",
+            title: "FlipaClip — Animate on Your Phone",
+            intro:
+              "FlipaClip is a free app that lets you animate frame-by-frame on a phone. No tablet, no laptop, no excuses. It's how many young animators got started, including some now working professionally.",
+            description: "Your studio fits in your pocket.",
+            videoUrl: yt("fAf38GpZa3Y"),
+            challenge: "Download FlipaClip. Create a 12-frame animation of a bouncing ball — that's the classic exercise.",
+            duration: "~16 min",
+          },
+          {
+            id: "anim-3",
+            title: "FlipaClip — Going Deeper",
+            intro:
+              "Once you've made your first bouncing ball, this fuller guide teaches layers, onion-skin, sound and exporting. By the end you'll have everything to make a 30-second short film on your phone.",
+            description: "From doodle to short film.",
+            videoUrl: yt("_qhYMKzPQjE"),
+            challenge: "Make a 5-second animation with a character that walks, then waves. Export it.",
+            duration: "~10 min",
+          },
+          {
+            id: "anim-4",
+            title: "Krita — Free Pro Tool",
+            intro:
+              "Krita is fully free, runs on any laptop, and includes a real animation timeline. If you ever move from phone to laptop, this is where to go next — without paying anything.",
+            description: "Step up to the laptop.",
+            videoUrl: yt("-B3LDBlkFWU"),
+            challenge: "Download Krita (free). Just open it and explore the brushes for 10 minutes.",
+            duration: "~25 min",
+          },
+          {
+            id: "anim-5",
+            title: "Blender 2D — The Ultimate Free Studio",
+            intro:
+              "Blender's Grease Pencil turns the famous 3D tool into a full 2D animation studio. It's what many studios use for hybrid 2D/3D work, and it's 100% free forever.",
+            description: "Free, professional, future-proof.",
+            videoUrl: yt("5epzCprCdGc"),
+            challenge: "Install Blender (free). Open it and watch the first 10 minutes of the tutorial — no need to animate yet.",
+            duration: "~50 min (skip around)",
+          },
+        ],
       },
       {
         id: "photography",
@@ -1007,8 +1058,59 @@ export const categories: Category[] = [
         tagline: "Shoot great photos",
         description: "Take photos people want to look at — using a phone or any camera.",
         searchKeywords: ["photo", "photography", "camera", "shoot", "picture"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "photo-1",
+            title: "13 Smartphone Photography Tips",
+            intro:
+              "Jamie Windsor is a real photographer who proves that the phone in your pocket is enough to take stunning photos. Lighting, composition and timing matter way more than the camera body itself.",
+            description: "Your phone is enough — really.",
+            videoUrl: yt("_ZYGsx1i5L8"),
+            challenge: "Take 3 photos of the same object with: morning light, midday light, evening light. Compare.",
+            duration: "~18 min",
+          },
+          {
+            id: "photo-2",
+            title: "8 Tips to Kill It on Mobile",
+            intro:
+              "Practical mobile photography techniques — angle, gridlines, HDR, portrait mode. Quick wins you can apply tomorrow on the way to school or work.",
+            description: "Quick wins for today.",
+            videoUrl: yt("HXIVNdp_SoM"),
+            challenge: "Turn on the gridlines in your camera app. Take 5 photos using them.",
+            duration: "~11 min",
+          },
+          {
+            id: "photo-3",
+            title: "Rule of Thirds (The One Composition Rule)",
+            intro:
+              "If you learn only one composition rule, learn this one. Divide the frame into 3x3 and place your subject on the lines or intersections — instantly more interesting photos.",
+            description: "One rule, every shot.",
+            videoUrl: yt("I1OK3yeuO_s"),
+            challenge: "Take 5 photos using rule of thirds. Then 5 with subject dead-center. Compare which feel better.",
+            duration: "~15 min",
+          },
+          {
+            id: "photo-4",
+            title: "Editing with Snapseed (Free)",
+            intro:
+              "A great edit can turn a 6/10 phone shot into an 8/10 portfolio piece. Snapseed is Google's free pro-grade editor — and it runs even on entry-level Android phones.",
+            description: "Free edits that look paid.",
+            videoUrl: yt("WB-NrT-XyG0"),
+            challenge: "Pick one of your photos. Edit it in Snapseed: tune image, crop, selective brightness. Post the before/after.",
+            duration: "~15 min",
+          },
+          {
+            id: "photo-5",
+            title: "11 Tips for Professional Phone Photos",
+            intro:
+              "A deeper dive into shooting professional-quality phone photography — from settings to staging. Bring it all together and start posting work people will actually pay for.",
+            description: "From hobby to portfolio.",
+            videoUrl: yt("Bmn_GI4xZBQ"),
+            challenge: "Shoot a small series of 5 photos around one theme (food, friends, nature). That's your first mini-portfolio.",
+            duration: "~22 min",
+          },
+        ],
       },
       {
         id: "music-production",
@@ -1017,8 +1119,59 @@ export const categories: Category[] = [
         tagline: "Make your own beats",
         description: "Produce music in free tools like BandLab and GarageBand.",
         searchKeywords: ["music", "beats", "produce", "song", "audio", "fl studio"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "music-1",
+            title: "Make Music on Your Phone",
+            intro:
+              "You don't need a studio. You don't need a laptop. BandLab is a free app that lets you produce real songs directly on your phone — drums, melodies, vocals, mixing. It's how thousands of Kenyan producers started.",
+            description: "Your studio is in your pocket.",
+            videoUrl: yt("0QSigM67sDE"),
+            challenge: "Download BandLab. Open it and tap through one drum kit pattern.",
+            duration: "~8 min",
+          },
+          {
+            id: "music-2",
+            title: "BandLab — The Full Tour",
+            intro:
+              "BandLab's official tutorial walks you through every panel: tracks, effects, the mix editor. Take it slow — pause and try each thing as you go.",
+            description: "Learn the tool properly.",
+            videoUrl: yt("NmUaIoydldg"),
+            challenge: "Create a project. Add at least 2 tracks (a drum loop and one instrument).",
+            duration: "~16 min",
+          },
+          {
+            id: "music-3",
+            title: "Make Your First Beat",
+            intro:
+              "Theory is fun, but making something is better. This tutorial walks you through producing a complete beat from scratch in BandLab's free web studio. By the end you'll have something you can post.",
+            description: "From silence to a finished beat.",
+            videoUrl: yt("S96P06ml8Cg"),
+            challenge: "Finish ONE 30-second beat. Doesn't matter if it's bad. Just finish it.",
+            duration: "~11 min",
+          },
+          {
+            id: "music-4",
+            title: "Music Theory in 30 Minutes",
+            intro:
+              "Andrew Huang teaches more usable music theory in 30 minutes than most music schools teach in a term. Scales, chords, keys — explained so anyone can apply them to a beat tonight.",
+            description: "The shortcut to better-sounding music.",
+            videoUrl: yt("rgaTLrZGlk0"),
+            challenge: "Find the key of one of your favourite songs (Google or use an app). Make one beat in that same key.",
+            duration: "~32 min",
+          },
+          {
+            id: "music-5",
+            title: "Full BandLab Production Workflow",
+            intro:
+              "Putting it all together: arranging, mixing, exporting. Once you can finish a song from idea to MP3, you're a producer — not a beginner.",
+            description: "Finish a real, postable song.",
+            videoUrl: yt("6sLGYiRXEqs"),
+            challenge: "Export one of your beats as an MP3. Share it with one friend or on your WhatsApp status.",
+            duration: "~17 min",
+          },
+        ],
       },
     ],
   },
