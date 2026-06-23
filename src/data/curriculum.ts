@@ -302,8 +302,59 @@ export const categories: Category[] = [
         tagline: "Design beautiful apps",
         description: "Design how apps and websites look and feel using free tools like Figma.",
         searchKeywords: ["ui", "ux", "design", "figma", "interface", "user experience"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "ux-1",
+            title: "UI vs UX (And Why Both Matter)",
+            intro:
+              "UI is how it looks. UX is how it works. A pretty app nobody can use has good UI and bad UX. A clunky-looking app you can't stop using has bad UI and great UX. The best products nail both.",
+            description: "The difference everyone confuses.",
+            videoUrl: yt("SRec90j6lTY"),
+            challenge: "Open 3 apps on your phone. For each, write 1 thing that's great UX and 1 that's frustrating.",
+            duration: "~12 min",
+          },
+          {
+            id: "ux-2",
+            title: "Figma in 13 Minutes",
+            intro:
+              "Figma is the design tool the whole industry uses. It's free, works in your browser (even on weak laptops), and is the only design tool you need to know for the next few years.",
+            description: "The tool you'll actually use.",
+            videoUrl: yt("jQ1sfKIl50E"),
+            challenge: "Sign up for Figma (free). Create one frame and drag in 3 shapes — that's it.",
+            duration: "~13 min",
+          },
+          {
+            id: "ux-3",
+            title: "The Full Figma Crash Course",
+            intro:
+              "Once you've poked around, this longer course teaches frames, components, auto-layout and prototyping — the four superpowers of Figma. You don't need to watch it all at once.",
+            description: "Go deeper at your own pace.",
+            videoUrl: yt("ezldKx-jPag"),
+            challenge: "Recreate one screen from any app you love (Instagram login, M-Pesa home, etc.) in Figma.",
+            duration: "~30 min (skip around)",
+          },
+          {
+            id: "ux-4",
+            title: "Design a Real Website",
+            intro:
+              "Designing a full landing page forces you to use everything: grids, typography, color, hierarchy. The point isn't perfection — it's making 100 small decisions and learning from each one.",
+            description: "Apply everything to one project.",
+            videoUrl: yt("clSHs94hNNc"),
+            challenge: "Design a single-page website in Figma for a fake (or real) Kenyan business — a barber, kibanda, tutor.",
+            duration: "~40 min",
+          },
+          {
+            id: "ux-5",
+            title: "Build a Portfolio That Gets You Hired",
+            intro:
+              "Designers get hired from portfolios, not certificates. 3 strong projects beat 10 weak ones. Show your thinking — not just final screens.",
+            description: "Turn your work into income.",
+            videoUrl: yt("mmgxspm9JWs"),
+            challenge: "List the 3 design projects you'll put in your first portfolio (real or self-initiated).",
+            duration: "~17 min",
+          },
+        ],
       },
       {
         id: "cybersecurity",
@@ -312,8 +363,59 @@ export const categories: Category[] = [
         tagline: "Learn ethical hacking",
         description: "Understand how systems get attacked — and how to protect them.",
         searchKeywords: ["security", "hacking", "cyber", "ethical", "hacker", "protect"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "cyber-1",
+            title: "What Cybersecurity Actually Is",
+            intro:
+              "Cybersecurity is the job of keeping data, money and identities safe from people trying to steal them. Every bank, hospital and school in Kenya now hires for this. It's not just hacking — it's defence.",
+            description: "The field in 7 minutes.",
+            videoUrl: yt("inWWhr5tnEA"),
+            challenge: "Check haveibeenpwned.com with your email. If it's been in a breach, change those passwords.",
+            duration: "~7 min",
+          },
+          {
+            id: "cyber-2",
+            title: "Why Strong Passwords Matter",
+            intro:
+              "Modern computers can guess billions of passwords per second. 'Password123' lasts 0.1 seconds. A long passphrase (4 random words) lasts longer than your lifetime. This one habit blocks 80% of real attacks.",
+            description: "The math behind weak vs strong.",
+            videoUrl: yt("3NjQ9b3pgIg"),
+            challenge: "Replace your weakest password with a 4-word passphrase like 'mango-river-bicycle-cloud'.",
+            duration: "~12 min",
+          },
+          {
+            id: "cyber-3",
+            title: "How Passwords Get Cracked",
+            intro:
+              "Seeing the actual cracking process — billions of guesses per second on a GPU — makes you take security seriously for life. It's also the foundation for understanding why hashing, salting and 2FA exist.",
+            description: "The attack you're defending against.",
+            videoUrl: yt("7U-RbOKanYs"),
+            challenge: "Turn on 2-factor authentication for your Gmail / WhatsApp / M-Pesa. Today.",
+            duration: "~20 min",
+          },
+          {
+            id: "cyber-4",
+            title: "Phishing — The #1 Attack in Kenya",
+            intro:
+              "Most real-world breaches don't use crazy hacking — they use phishing: fake emails, fake M-Pesa SMS, fake job offers. Seeing how easy these are to make is the best vaccine against falling for them.",
+            description: "Spot the trap before you click.",
+            videoUrl: yt("u9dBGWVwMMA"),
+            challenge: "Find one suspicious SMS or email in your phone. Spot 3 red flags (urgency, weird link, bad grammar).",
+            duration: "~18 min",
+          },
+          {
+            id: "cyber-5",
+            title: "Becoming a Cybersecurity Pro",
+            intro:
+              "Cybersecurity has more open jobs than people to fill them — globally and in Kenya. The Google Cybersecurity Certificate is a real, recognised entry point. This intro shows you exactly what the field looks like.",
+            description: "A real path into the field.",
+            videoUrl: yt("_DVVNOGYtmU"),
+            challenge: "Browse the Google Cybersecurity Certificate on Coursera. Note 3 skills you'd need to learn.",
+            duration: "~60 min (skip around)",
+          },
+        ],
       },
     ],
   },
