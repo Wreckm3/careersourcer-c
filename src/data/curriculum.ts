@@ -180,8 +180,59 @@ export const categories: Category[] = [
         tagline: "Build phone apps",
         description: "Make apps for Android and iPhone using a single codebase.",
         searchKeywords: ["app", "mobile", "phone", "android", "ios", "flutter", "react native"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "app-1",
+            title: "What App Development Actually Is",
+            intro:
+              "An app is just a program that runs on a phone. You can build one app that runs on both Android and iPhone using tools like Flutter (by Google) or React Native. No need to learn two languages. Pick one tool — Flutter is the friendliest start.",
+            description: "Understand what you're about to build.",
+            videoUrl: yt("lHhRhPV--G0"),
+            challenge: "Search the Play Store for 'Flutter Gallery'. Install it and tap around — every screen there is built with Flutter.",
+            duration: "~3 min",
+          },
+          {
+            id: "app-2",
+            title: "Your First Flutter Setup",
+            intro:
+              "Setup is the hardest part of app development — once Flutter is installed, everything else is faster. You need Flutter SDK + Android Studio. On a slow connection it can take 1–2 hours, but you only do it once.",
+            description: "Install the tools you'll use forever.",
+            videoUrl: yt("1ukSR1GRtMU"),
+            challenge: "Install Flutter and run `flutter doctor` in the terminal. Aim to see at least one green checkmark.",
+            duration: "~12 min",
+          },
+          {
+            id: "app-3",
+            title: "Build Your First Widget",
+            intro:
+              "Everything in Flutter is a 'widget' — text, buttons, layouts. You build apps by combining widgets like Lego blocks. This sounds abstract until you build one — then it clicks.",
+            description: "The Lego-block thinking behind Flutter.",
+            videoUrl: yt("W1pNjxmNHNQ"),
+            challenge: "Create a new Flutter project. Change the default text to your own name and hot-reload it.",
+            duration: "~10 min",
+          },
+          {
+            id: "app-4",
+            title: "Build a Real App",
+            intro:
+              "Now stitch widgets, screens and a bit of logic into something that feels like a real app. Even a counter, todo or tip-calculator app teaches you 80% of what real production apps use.",
+            description: "From single screen to multi-screen app.",
+            videoUrl: yt("x0uinJvhNxI"),
+            challenge: "Pick ONE small idea (calculator, tip splitter, BMI tool). Build it — even if it's ugly.",
+            duration: "~30 min (skip around)",
+          },
+          {
+            id: "app-5",
+            title: "Ship It to Real Users",
+            intro:
+              "Building an app you never share is just practice. Getting it on a friend's phone — even as a test APK — changes everything. Later you can publish to Play Store (about KSh 3,000 one-time fee).",
+            description: "From your laptop to a real phone.",
+            videoUrl: yt("pTJJsmejUOQ"),
+            challenge: "Build a release APK with `flutter build apk`. Send it to one friend on WhatsApp and have them install it.",
+            duration: "~25 min (skip around)",
+          },
+        ],
       },
       {
         id: "ai-automation",
@@ -251,8 +302,59 @@ export const categories: Category[] = [
         tagline: "Design beautiful apps",
         description: "Design how apps and websites look and feel using free tools like Figma.",
         searchKeywords: ["ui", "ux", "design", "figma", "interface", "user experience"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "ux-1",
+            title: "UI vs UX (And Why Both Matter)",
+            intro:
+              "UI is how it looks. UX is how it works. A pretty app nobody can use has good UI and bad UX. A clunky-looking app you can't stop using has bad UI and great UX. The best products nail both.",
+            description: "The difference everyone confuses.",
+            videoUrl: yt("SRec90j6lTY"),
+            challenge: "Open 3 apps on your phone. For each, write 1 thing that's great UX and 1 that's frustrating.",
+            duration: "~12 min",
+          },
+          {
+            id: "ux-2",
+            title: "Figma in 13 Minutes",
+            intro:
+              "Figma is the design tool the whole industry uses. It's free, works in your browser (even on weak laptops), and is the only design tool you need to know for the next few years.",
+            description: "The tool you'll actually use.",
+            videoUrl: yt("jQ1sfKIl50E"),
+            challenge: "Sign up for Figma (free). Create one frame and drag in 3 shapes — that's it.",
+            duration: "~13 min",
+          },
+          {
+            id: "ux-3",
+            title: "The Full Figma Crash Course",
+            intro:
+              "Once you've poked around, this longer course teaches frames, components, auto-layout and prototyping — the four superpowers of Figma. You don't need to watch it all at once.",
+            description: "Go deeper at your own pace.",
+            videoUrl: yt("ezldKx-jPag"),
+            challenge: "Recreate one screen from any app you love (Instagram login, M-Pesa home, etc.) in Figma.",
+            duration: "~30 min (skip around)",
+          },
+          {
+            id: "ux-4",
+            title: "Design a Real Website",
+            intro:
+              "Designing a full landing page forces you to use everything: grids, typography, color, hierarchy. The point isn't perfection — it's making 100 small decisions and learning from each one.",
+            description: "Apply everything to one project.",
+            videoUrl: yt("clSHs94hNNc"),
+            challenge: "Design a single-page website in Figma for a fake (or real) Kenyan business — a barber, kibanda, tutor.",
+            duration: "~40 min",
+          },
+          {
+            id: "ux-5",
+            title: "Build a Portfolio That Gets You Hired",
+            intro:
+              "Designers get hired from portfolios, not certificates. 3 strong projects beat 10 weak ones. Show your thinking — not just final screens.",
+            description: "Turn your work into income.",
+            videoUrl: yt("mmgxspm9JWs"),
+            challenge: "List the 3 design projects you'll put in your first portfolio (real or self-initiated).",
+            duration: "~17 min",
+          },
+        ],
       },
       {
         id: "cybersecurity",
@@ -261,8 +363,59 @@ export const categories: Category[] = [
         tagline: "Learn ethical hacking",
         description: "Understand how systems get attacked — and how to protect them.",
         searchKeywords: ["security", "hacking", "cyber", "ethical", "hacker", "protect"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "cyber-1",
+            title: "What Cybersecurity Actually Is",
+            intro:
+              "Cybersecurity is the job of keeping data, money and identities safe from people trying to steal them. Every bank, hospital and school in Kenya now hires for this. It's not just hacking — it's defence.",
+            description: "The field in 7 minutes.",
+            videoUrl: yt("inWWhr5tnEA"),
+            challenge: "Check haveibeenpwned.com with your email. If it's been in a breach, change those passwords.",
+            duration: "~7 min",
+          },
+          {
+            id: "cyber-2",
+            title: "Why Strong Passwords Matter",
+            intro:
+              "Modern computers can guess billions of passwords per second. 'Password123' lasts 0.1 seconds. A long passphrase (4 random words) lasts longer than your lifetime. This one habit blocks 80% of real attacks.",
+            description: "The math behind weak vs strong.",
+            videoUrl: yt("3NjQ9b3pgIg"),
+            challenge: "Replace your weakest password with a 4-word passphrase like 'mango-river-bicycle-cloud'.",
+            duration: "~12 min",
+          },
+          {
+            id: "cyber-3",
+            title: "How Passwords Get Cracked",
+            intro:
+              "Seeing the actual cracking process — billions of guesses per second on a GPU — makes you take security seriously for life. It's also the foundation for understanding why hashing, salting and 2FA exist.",
+            description: "The attack you're defending against.",
+            videoUrl: yt("7U-RbOKanYs"),
+            challenge: "Turn on 2-factor authentication for your Gmail / WhatsApp / M-Pesa. Today.",
+            duration: "~20 min",
+          },
+          {
+            id: "cyber-4",
+            title: "Phishing — The #1 Attack in Kenya",
+            intro:
+              "Most real-world breaches don't use crazy hacking — they use phishing: fake emails, fake M-Pesa SMS, fake job offers. Seeing how easy these are to make is the best vaccine against falling for them.",
+            description: "Spot the trap before you click.",
+            videoUrl: yt("u9dBGWVwMMA"),
+            challenge: "Find one suspicious SMS or email in your phone. Spot 3 red flags (urgency, weird link, bad grammar).",
+            duration: "~18 min",
+          },
+          {
+            id: "cyber-5",
+            title: "Becoming a Cybersecurity Pro",
+            intro:
+              "Cybersecurity has more open jobs than people to fill them — globally and in Kenya. The Google Cybersecurity Certificate is a real, recognised entry point. This intro shows you exactly what the field looks like.",
+            description: "A real path into the field.",
+            videoUrl: yt("_DVVNOGYtmU"),
+            challenge: "Browse the Google Cybersecurity Certificate on Coursera. Note 3 skills you'd need to learn.",
+            duration: "~60 min (skip around)",
+          },
+        ],
       },
     ],
   },
@@ -405,8 +558,59 @@ export const categories: Category[] = [
         tagline: "Start your first business",
         description: "Turn a small idea into a real business — even with little money.",
         searchKeywords: ["business", "startup", "founder", "entrepreneur", "company"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "entre-1",
+            title: "Start With Why",
+            intro:
+              "Every successful business answers one question clearly: WHY does this exist? People don't buy what you do, they buy why you do it. This idea — from Simon Sinek — has shaped a generation of founders.",
+            description: "The foundation under every great business.",
+            videoUrl: yt("u4ZoJKF_VuA"),
+            challenge: "Write ONE sentence: 'My business exists because…'. Don't overthink it — just write it.",
+            duration: "~18 min",
+          },
+          {
+            id: "entre-2",
+            title: "How to Find a Real Idea",
+            intro:
+              "Most beginner founders fail because they fall in love with an idea nobody wants. The best ideas come from real problems you (or people around you) already have. Michael Seibel from Y Combinator breaks down exactly how to test that.",
+            description: "Ideas come from problems, not brainstorming.",
+            videoUrl: yt("vDXkpJw16os"),
+            challenge: "List 5 problems you or your friends complain about every week. One of them is an idea.",
+            duration: "~17 min",
+          },
+          {
+            id: "entre-3",
+            title: "Build the Smallest Thing First (MVP)",
+            intro:
+              "An MVP — minimum viable product — is the tiniest version of your idea that proves people want it. It is meant to be ugly, simple and embarrassing. If you wait until it's perfect, you'll never launch.",
+            description: "Launch ugly, learn fast.",
+            videoUrl: yt("QRZ_l7cVzzU"),
+            challenge: "Describe your MVP in ONE sentence: 'It's a [thing] that lets [people] do [action].'",
+            duration: "~17 min",
+          },
+          {
+            id: "entre-4",
+            title: "Getting Your First Customers",
+            intro:
+              "Your first 10 customers won't come from ads — they'll come from you DM-ing people, calling friends, posting in WhatsApp groups. Founders who can't sell die. Founders who can sell survive long enough to figure the rest out.",
+            description: "Do things that don't scale.",
+            videoUrl: yt("hyYCn_kAngI"),
+            challenge: "Message 3 people today and pitch your idea in 2 sentences. Note their reactions.",
+            duration: "~25 min",
+          },
+          {
+            id: "entre-5",
+            title: "Register Your Business in Kenya",
+            intro:
+              "Once your idea has even one paying customer, register it. In Kenya it costs under KSh 1,000 and takes about an hour on eCitizen. You get a real business name, the right to invoice, and the foundation to grow.",
+            description: "Make it official — Kenya edition.",
+            videoUrl: yt("4dbTC9J5sE4"),
+            challenge: "Log into eCitizen and do a name search for your business — even just to reserve it.",
+            duration: "~3 min",
+          },
+        ],
       },
       {
         id: "digital-marketing",
@@ -415,8 +619,59 @@ export const categories: Category[] = [
         tagline: "Get attention online",
         description: "Learn how brands grow on Instagram, TikTok, Google and email.",
         searchKeywords: ["marketing", "ads", "promotion", "sales", "growth", "seo"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "mkt-1",
+            title: "Digital Marketing in 10 Tips",
+            intro:
+              "Digital marketing is just getting the right message to the right person at the right time — using the internet. Neil Patel's 10 essentials cover the whole landscape: SEO, email, paid ads, social — in one short sitting.",
+            description: "The 30,000-foot view first.",
+            videoUrl: yt("4abNIEHj-10"),
+            challenge: "Pick ONE channel (SEO, email, TikTok, Instagram) that fits your business best. Just one.",
+            duration: "~11 min",
+          },
+          {
+            id: "mkt-2",
+            title: "SEO — Free Traffic Forever",
+            intro:
+              "Search engine optimisation is how you appear on Google when someone searches. Get it right and you receive free customers for years. Ahrefs' beginner intro is the cleanest explanation on the internet.",
+            description: "Why one blog post can pay you for years.",
+            videoUrl: yt("DvwS7cV9GmQ"),
+            challenge: "Type your business idea into Google. Note the top 3 results — they are your competition.",
+            duration: "~20 min",
+          },
+          {
+            id: "mkt-3",
+            title: "Email Marketing — The Hidden Goldmine",
+            intro:
+              "Every Ksh 1 spent on email returns about Ksh 40. Email isn't dead — it's just boring and that's why it works. Build a small list early and you own a direct line to your customers that no algorithm can take away.",
+            description: "The channel no one can shut down on you.",
+            videoUrl: yt("J0CEiuOfON0"),
+            challenge: "Sign up for MailerLite (free up to 1,000 contacts). Create your first list.",
+            duration: "~17 min",
+          },
+          {
+            id: "mkt-4",
+            title: "The Art of Digital Marketing",
+            intro:
+              "Tactics change every year — TikTok today, something else next year. But the underlying art of marketing — empathy, positioning, storytelling — never changes. Neil Patel covers what stays the same.",
+            description: "Beyond tactics — into strategy.",
+            videoUrl: yt("ExV24jFfi_g"),
+            challenge: "Write down: who is your ONE ideal customer? Age, struggle, where they hang out online.",
+            duration: "~35 min",
+          },
+          {
+            id: "mkt-5",
+            title: "Turn It Into a Career",
+            intro:
+              "You don't need a marketing degree. Most digital marketers learned online and built a portfolio of small wins. A single 'I grew this account from 0 to 1,000 followers' case study can get you hired.",
+            description: "From learning to earning.",
+            videoUrl: yt("DoLzQN1m7sU"),
+            challenge: "Offer to manage one social account for a friend's business — free — for 30 days. That's your case study.",
+            duration: "~6 min",
+          },
+        ],
       },
       {
         id: "e-commerce",
@@ -425,8 +680,59 @@ export const categories: Category[] = [
         tagline: "Sell products online",
         description: "Set up your own online shop and start selling.",
         searchKeywords: ["ecommerce", "shop", "store", "sell", "shopify", "online store"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "ecom-1",
+            title: "How E-Commerce Actually Works",
+            intro:
+              "An online store is 4 simple things: a product, a website, a way to take payment, a way to deliver. That's it. In Kenya you can use Shopify, WooCommerce, or even just a WhatsApp catalog to start.",
+            description: "The 4 pieces of any online store.",
+            videoUrl: yt("RWI59fC7Z48"),
+            challenge: "List 3 products you could realistically source or make and sell from home.",
+            duration: "~19 min",
+          },
+          {
+            id: "ecom-2",
+            title: "Build Your Shopify Store",
+            intro:
+              "Shopify is the most beginner-friendly way to launch a real store. The free trial is enough to set up everything before you pay a cent. This full walkthrough has helped thousands of people launch.",
+            description: "From signup to live store.",
+            videoUrl: yt("uorQJ_ucDhg"),
+            challenge: "Start the Shopify free trial. Set up your store name and homepage — that's enough today.",
+            duration: "~40 min (skip around)",
+          },
+          {
+            id: "ecom-3",
+            title: "Design a Store That Sells",
+            intro:
+              "A pretty store doesn't sell — a CLEAR store sells. Good product photos, simple navigation, trust signals (reviews, return policy), fast checkout. This step-by-step shows you the difference.",
+            description: "What separates a real store from a hobby site.",
+            videoUrl: yt("PVufWxoWfkI"),
+            challenge: "Add your first product to your store with: 3 photos, a clear title, and a benefit-driven description.",
+            duration: "~45 min (skip around)",
+          },
+          {
+            id: "ecom-4",
+            title: "The Complete Shopify Guide",
+            intro:
+              "Once you've launched, this complete guide fills in the gaps — taxes, shipping zones, apps, abandoned cart emails. Treat it like a reference, not a one-sitting watch.",
+            description: "Your reference manual.",
+            videoUrl: yt("ferhOYx1NMo"),
+            challenge: "Set up your shipping zones (start with just 'Nairobi' and 'Rest of Kenya').",
+            duration: "~60 min (skip around)",
+          },
+          {
+            id: "ecom-5",
+            title: "Get Your First Sale",
+            intro:
+              "Your first sale is psychologically huge — and it almost never comes from ads. It comes from your WhatsApp status, your friends, a TikTok. Focus all energy on getting ONE stranger to buy.",
+            description: "Stop tweaking. Start selling.",
+            videoUrl: yt("4abNIEHj-10"),
+            challenge: "Post your store link on WhatsApp status + one Instagram story today. Just once.",
+            duration: "~11 min",
+          },
+        ],
       },
       {
         id: "personal-finance",
@@ -435,8 +741,59 @@ export const categories: Category[] = [
         tagline: "Manage your money well",
         description: "Save, budget and invest from a teenager's pocket money up.",
         searchKeywords: ["finance", "money", "save", "budget", "invest", "savings"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "fin-1",
+            title: "The 50/30/20 Rule",
+            intro:
+              "The simplest budget on earth: 50% of income to needs, 30% to wants, 20% to savings. It works whether you earn KSh 2,000 a month or KSh 200,000. Master this once and you'll never be broke from confusion again.",
+            description: "One rule, every income level.",
+            videoUrl: yt("OZQQMYfaBT4"),
+            challenge: "Take your last KSh 1,000. Split it: KSh 500 needs, KSh 300 wants, KSh 200 savings.",
+            duration: "~10 min",
+          },
+          {
+            id: "fin-2",
+            title: "Budgeting When You're Young",
+            intro:
+              "Most adults wish someone taught them this at 16. Track every shilling for one month and you'll be shocked where it goes. Awareness alone fixes 50% of money problems.",
+            description: "The skill that compounds for life.",
+            videoUrl: yt("sNocjsSSRkE"),
+            challenge: "Write down every shilling you spent yesterday. Total it.",
+            duration: "~3 min",
+          },
+          {
+            id: "fin-3",
+            title: "Compound Interest — The 8th Wonder",
+            intro:
+              "Money grows on money. KSh 1,000 saved every month at 10% becomes over KSh 2 million in 30 years. Einstein supposedly called compound interest 'the most powerful force in the universe'. Understand it once and you'll save earlier for life.",
+            description: "Why starting today matters so much.",
+            videoUrl: yt("Rm6UdfRs3gw"),
+            challenge: "Open M-Shwari Lock Savings. Lock KSh 100 for 1 month — just to feel how it works.",
+            duration: "~7 min",
+          },
+          {
+            id: "fin-4",
+            title: "Investing for Beginners",
+            intro:
+              "Saving protects your money. Investing GROWS it. Ali Abdaal's beginner guide explains index funds, stocks and what's actually worth your time when you're starting with little money.",
+            description: "From saver to investor.",
+            videoUrl: yt("lNdOtlpmH5U"),
+            challenge: "Research one Kenyan investment option — money market fund, T-bill, or Sanlam Money Market. Just learn what it is.",
+            duration: "~20 min",
+          },
+          {
+            id: "fin-5",
+            title: "The Only Investing Video You'll Ever Need",
+            intro:
+              "Mark Tilbury's video is one of the most respected beginner investing breakdowns on YouTube. By the end you'll understand index funds, diversification and why most 'get rich' YouTubers are wrong.",
+            description: "Lock in the long view.",
+            videoUrl: yt("Ay4fmZdZqJE"),
+            challenge: "Write down one investing rule you'll stick to: e.g. 'I save 20% of every paycheck before spending'.",
+            duration: "~21 min",
+          },
+        ],
       },
     ],
   },
@@ -640,8 +997,59 @@ export const categories: Category[] = [
         tagline: "Bring drawings to life",
         description: "Make 2D animations using free tools — no art-school degree needed.",
         searchKeywords: ["animation", "animate", "cartoon", "motion", "2d"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "anim-1",
+            title: "The 12 Principles of Animation",
+            intro:
+              "Every Pixar, Disney and anime animator learns the same 12 principles — squash & stretch, anticipation, timing. Alan Becker's animated explainer is the best 24-minute crash course on the internet. Watch it once and you'll spot these in every cartoon for the rest of your life.",
+            description: "The DNA of all animation.",
+            videoUrl: yt("uDqjIdI4bF4"),
+            challenge: "Pick any animated movie clip. Try to identify 3 of the 12 principles in action.",
+            duration: "~24 min",
+          },
+          {
+            id: "anim-2",
+            title: "FlipaClip — Animate on Your Phone",
+            intro:
+              "FlipaClip is a free app that lets you animate frame-by-frame on a phone. No tablet, no laptop, no excuses. It's how many young animators got started, including some now working professionally.",
+            description: "Your studio fits in your pocket.",
+            videoUrl: yt("fAf38GpZa3Y"),
+            challenge: "Download FlipaClip. Create a 12-frame animation of a bouncing ball — that's the classic exercise.",
+            duration: "~16 min",
+          },
+          {
+            id: "anim-3",
+            title: "FlipaClip — Going Deeper",
+            intro:
+              "Once you've made your first bouncing ball, this fuller guide teaches layers, onion-skin, sound and exporting. By the end you'll have everything to make a 30-second short film on your phone.",
+            description: "From doodle to short film.",
+            videoUrl: yt("_qhYMKzPQjE"),
+            challenge: "Make a 5-second animation with a character that walks, then waves. Export it.",
+            duration: "~10 min",
+          },
+          {
+            id: "anim-4",
+            title: "Krita — Free Pro Tool",
+            intro:
+              "Krita is fully free, runs on any laptop, and includes a real animation timeline. If you ever move from phone to laptop, this is where to go next — without paying anything.",
+            description: "Step up to the laptop.",
+            videoUrl: yt("-B3LDBlkFWU"),
+            challenge: "Download Krita (free). Just open it and explore the brushes for 10 minutes.",
+            duration: "~25 min",
+          },
+          {
+            id: "anim-5",
+            title: "Blender 2D — The Ultimate Free Studio",
+            intro:
+              "Blender's Grease Pencil turns the famous 3D tool into a full 2D animation studio. It's what many studios use for hybrid 2D/3D work, and it's 100% free forever.",
+            description: "Free, professional, future-proof.",
+            videoUrl: yt("5epzCprCdGc"),
+            challenge: "Install Blender (free). Open it and watch the first 10 minutes of the tutorial — no need to animate yet.",
+            duration: "~50 min (skip around)",
+          },
+        ],
       },
       {
         id: "photography",
@@ -650,8 +1058,59 @@ export const categories: Category[] = [
         tagline: "Shoot great photos",
         description: "Take photos people want to look at — using a phone or any camera.",
         searchKeywords: ["photo", "photography", "camera", "shoot", "picture"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "photo-1",
+            title: "13 Smartphone Photography Tips",
+            intro:
+              "Jamie Windsor is a real photographer who proves that the phone in your pocket is enough to take stunning photos. Lighting, composition and timing matter way more than the camera body itself.",
+            description: "Your phone is enough — really.",
+            videoUrl: yt("_ZYGsx1i5L8"),
+            challenge: "Take 3 photos of the same object with: morning light, midday light, evening light. Compare.",
+            duration: "~18 min",
+          },
+          {
+            id: "photo-2",
+            title: "8 Tips to Kill It on Mobile",
+            intro:
+              "Practical mobile photography techniques — angle, gridlines, HDR, portrait mode. Quick wins you can apply tomorrow on the way to school or work.",
+            description: "Quick wins for today.",
+            videoUrl: yt("HXIVNdp_SoM"),
+            challenge: "Turn on the gridlines in your camera app. Take 5 photos using them.",
+            duration: "~11 min",
+          },
+          {
+            id: "photo-3",
+            title: "Rule of Thirds (The One Composition Rule)",
+            intro:
+              "If you learn only one composition rule, learn this one. Divide the frame into 3x3 and place your subject on the lines or intersections — instantly more interesting photos.",
+            description: "One rule, every shot.",
+            videoUrl: yt("I1OK3yeuO_s"),
+            challenge: "Take 5 photos using rule of thirds. Then 5 with subject dead-center. Compare which feel better.",
+            duration: "~15 min",
+          },
+          {
+            id: "photo-4",
+            title: "Editing with Snapseed (Free)",
+            intro:
+              "A great edit can turn a 6/10 phone shot into an 8/10 portfolio piece. Snapseed is Google's free pro-grade editor — and it runs even on entry-level Android phones.",
+            description: "Free edits that look paid.",
+            videoUrl: yt("WB-NrT-XyG0"),
+            challenge: "Pick one of your photos. Edit it in Snapseed: tune image, crop, selective brightness. Post the before/after.",
+            duration: "~15 min",
+          },
+          {
+            id: "photo-5",
+            title: "11 Tips for Professional Phone Photos",
+            intro:
+              "A deeper dive into shooting professional-quality phone photography — from settings to staging. Bring it all together and start posting work people will actually pay for.",
+            description: "From hobby to portfolio.",
+            videoUrl: yt("Bmn_GI4xZBQ"),
+            challenge: "Shoot a small series of 5 photos around one theme (food, friends, nature). That's your first mini-portfolio.",
+            duration: "~22 min",
+          },
+        ],
       },
       {
         id: "music-production",
@@ -660,8 +1119,59 @@ export const categories: Category[] = [
         tagline: "Make your own beats",
         description: "Produce music in free tools like BandLab and GarageBand.",
         searchKeywords: ["music", "beats", "produce", "song", "audio", "fl studio"],
-        featured: false,
-        lessons: [],
+        featured: true,
+        lessons: [
+          {
+            id: "music-1",
+            title: "Make Music on Your Phone",
+            intro:
+              "You don't need a studio. You don't need a laptop. BandLab is a free app that lets you produce real songs directly on your phone — drums, melodies, vocals, mixing. It's how thousands of Kenyan producers started.",
+            description: "Your studio is in your pocket.",
+            videoUrl: yt("0QSigM67sDE"),
+            challenge: "Download BandLab. Open it and tap through one drum kit pattern.",
+            duration: "~8 min",
+          },
+          {
+            id: "music-2",
+            title: "BandLab — The Full Tour",
+            intro:
+              "BandLab's official tutorial walks you through every panel: tracks, effects, the mix editor. Take it slow — pause and try each thing as you go.",
+            description: "Learn the tool properly.",
+            videoUrl: yt("NmUaIoydldg"),
+            challenge: "Create a project. Add at least 2 tracks (a drum loop and one instrument).",
+            duration: "~16 min",
+          },
+          {
+            id: "music-3",
+            title: "Make Your First Beat",
+            intro:
+              "Theory is fun, but making something is better. This tutorial walks you through producing a complete beat from scratch in BandLab's free web studio. By the end you'll have something you can post.",
+            description: "From silence to a finished beat.",
+            videoUrl: yt("S96P06ml8Cg"),
+            challenge: "Finish ONE 30-second beat. Doesn't matter if it's bad. Just finish it.",
+            duration: "~11 min",
+          },
+          {
+            id: "music-4",
+            title: "Music Theory in 30 Minutes",
+            intro:
+              "Andrew Huang teaches more usable music theory in 30 minutes than most music schools teach in a term. Scales, chords, keys — explained so anyone can apply them to a beat tonight.",
+            description: "The shortcut to better-sounding music.",
+            videoUrl: yt("rgaTLrZGlk0"),
+            challenge: "Find the key of one of your favourite songs (Google or use an app). Make one beat in that same key.",
+            duration: "~32 min",
+          },
+          {
+            id: "music-5",
+            title: "Full BandLab Production Workflow",
+            intro:
+              "Putting it all together: arranging, mixing, exporting. Once you can finish a song from idea to MP3, you're a producer — not a beginner.",
+            description: "Finish a real, postable song.",
+            videoUrl: yt("6sLGYiRXEqs"),
+            challenge: "Export one of your beats as an MP3. Share it with one friend or on your WhatsApp status.",
+            duration: "~17 min",
+          },
+        ],
       },
     ],
   },
