@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Compass, BookOpen, BarChart3, Target, Zap, User, LogIn } from "lucide-react";
+import { ArrowRight, Compass, BookOpen, BarChart3, Target, Zap, User, LogIn, Users } from "lucide-react";
 import { useProgress } from "@/hooks/useProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
@@ -174,6 +174,32 @@ export default function Landing() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ─── COLLABORATION POOL ─── */}
+      <section className="py-24 px-6 border-t border-border">
+        <motion.div
+          className="max-w-3xl mx-auto p-8 sm:p-10 rounded-3xl border border-border bg-gradient-to-br from-accent-blue/10 via-accent-purple/10 to-accent-emerald/10 text-center"
+          {...sectionFade()}
+        >
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-accent-blue/15 mb-5">
+            <Users className="w-6 h-6 text-accent-blue" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-3">
+            Don't build alone.
+          </h2>
+          <p className="text-muted-foreground text-base max-w-lg mx-auto mb-6">
+            Game devs, app devs, freelancers, entrepreneurs — find people in your branch and start something together in the Collaboration Pool.
+          </p>
+          <motion.button
+            onClick={() => navigate("/pool")}
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-foreground text-background font-semibold text-base"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Explore the Pool <ArrowRight className="w-4 h-4" />
+          </motion.button>
+        </motion.div>
       </section>
 
       {/* ─── FINAL CTA ─── */}
