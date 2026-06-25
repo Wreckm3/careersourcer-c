@@ -15,6 +15,7 @@ interface Progress {
   completedSessions: string[];
   streakCurrent: number;
   streakLastDate: string | null;
+  streakDays: string[];
 }
 
 const STORAGE_KEY = "career-compass-progress";
@@ -25,6 +26,7 @@ const empty: Progress = {
   completedSessions: [],
   streakCurrent: 0,
   streakLastDate: null,
+  streakDays: [],
 };
 
 function loadLocal(): Progress {
@@ -58,7 +60,8 @@ async function persistCloud(userId: string, p: Progress) {
       completed_sessions: p.completedSessions,
       streak_current: p.streakCurrent,
       streak_last_date: p.streakLastDate,
-    },
+      streak_days: p.streakDays,
+    } as never,
     { onConflict: "user_id" }
   );
 }
@@ -105,13 +108,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
       const local = loadLocal();
       if (data) {
+        const d = data as typeof data & { streak_days?: string[] | null };
         const cloud: Progress = {
-          selectedPath: data.selected_path,
-          completedSessions: Array.isArray(data.completed_sessions)
-            ? (data.completed_sessions as string[])
+          selectedPath: d.selected_path,
+          completedSessions: Array.isArray(d.completed_sessions)
+            ? (d.completed_sessions as string[])
             : [],
-          streakCurrent: data.streak_current ?? 0,
-          streakLastDate: data.streak_last_date,
+          streakCurrent: d.streak_current ?? 0,
+          streakLastDate: d.streak_last_date,
+          streakDays: Array.isArray(d.streak_days) ? d.streak_days : [],
         };
         const merged: Progress = {
           selectedPath: cloud.selectedPath ?? local.selectedPath,
@@ -120,6 +125,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           ),
           streakCurrent: Math.max(cloud.streakCurrent, local.streakCurrent),
           streakLastDate: cloud.streakLastDate ?? local.streakLastDate,
+          streakDays: Array.from(
+            new Set([...cloud.streakDays, ...local.streakDays])
+          ).sort(),
         };
         setProgress(merged);
         isHydrated.current = true;
@@ -167,11 +175,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         streakCurrent = streakLastDate === yesterday ? streakCurrent + 1 : 1;
         streakLastDate = today;
       }
+      const streakDays = prev.streakDays.includes(today)
+        ? prev.streakDays
+        : [...prev.streakDays, today].sort().slice(-60);
       return {
         ...prev,
         completedSessions: [...prev.completedSessions, sessionId],
         streakCurrent,
         streakLastDate,
+        streakDays,
       };
     });
   }, []);

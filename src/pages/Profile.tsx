@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trophy, Flame, CheckCircle2, LogOut, Mail, Pencil, Check, Monitor, Briefcase, Palette } from "lucide-react";
+import { ArrowLeft, Trophy, Flame, CheckCircle2, LogOut, Mail, Pencil, Check, Monitor, Briefcase, Palette, Users, ArrowRight } from "lucide-react";
 import { useProgress } from "@/hooks/useProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/curriculum";
+import { StreakCalendar } from "@/components/career/StreakCalendar";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -133,20 +134,46 @@ export default function Profile() {
           ))}
         </motion.div>
 
-        <motion.div className="mb-10" {...fadeUp(0.2)}>
+        <motion.div className="mb-6" {...fadeUp(0.2)}>
           <div className="flex justify-between text-sm mb-2">
             <span className="font-semibold text-foreground">Overall Progress</span>
             <span className="text-muted-foreground">{completedCount}/{totalLessons} lessons</span>
           </div>
-          <div className="h-3 rounded-full bg-muted overflow-hidden">
+          <div className="h-3 rounded-full bg-muted overflow-hidden relative">
             <motion.div
-              className="h-full rounded-full bg-accent-blue"
+              className="h-full rounded-full bg-gradient-to-r from-accent-blue via-accent-purple to-accent-emerald relative overflow-hidden"
               initial={{ width: 0 }}
               animate={{ width: `${overallPercent}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
-            />
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                animate={{ x: ["-100%", "200%"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+              />
+            </motion.div>
           </div>
         </motion.div>
+
+        <motion.div className="mb-6" {...fadeUp(0.23)}>
+          <StreakCalendar streakDays={progress.streakDays} streakCurrent={streakCurrent} />
+        </motion.div>
+
+        <motion.button
+          onClick={() => navigate("/pool")}
+          className="w-full mb-10 p-4 rounded-2xl border border-border bg-gradient-to-r from-accent-blue/10 via-accent-purple/10 to-accent-emerald/10 hover:border-accent-blue/40 transition-colors flex items-center gap-4 text-left"
+          whileHover={{ y: -2 }}
+          {...fadeUp(0.26)}
+        >
+          <div className="w-11 h-11 rounded-xl bg-accent-blue/15 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5 text-accent-blue" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-foreground">Collaboration Pool</p>
+            <p className="text-xs text-muted-foreground">Find people in your branch and build together</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
+        </motion.button>
 
         <motion.h2 className="text-lg font-bold text-foreground mb-4" {...fadeUp(0.25)}>
           Category Breakdown

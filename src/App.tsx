@@ -7,6 +7,7 @@ import Category from "./pages/Category";
 import Branch from "./pages/Branch";
 import FocusMode from "./pages/FocusMode";
 import Profile from "./pages/Profile";
+import Pool from "./pages/Pool";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -33,6 +34,7 @@ export default function App() {
               <Route path="/branch/:categoryId/:branchId" element={<Branch />} />
               <Route path="/session/:pathId/:sessionId" element={<FocusMode />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/pool" element={<Pool />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>

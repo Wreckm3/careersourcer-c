@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      pool_profiles: {
+        Row: {
+          bio: string | null
+          branches: string[]
+          contact_link: string | null
+          created_at: string
+          display_name: string
+          headline: string | null
+          looking_for: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          branches?: string[]
+          contact_link?: string | null
+          created_at?: string
+          display_name: string
+          headline?: string | null
+          looking_for?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          branches?: string[]
+          contact_link?: string | null
+          created_at?: string
+          display_name?: string
+          headline?: string | null
+          looking_for?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -43,6 +79,7 @@ export type Database = {
           completed_sessions: Json
           selected_path: string | null
           streak_current: number
+          streak_days: string[]
           streak_last_date: string | null
           updated_at: string
           user_id: string
@@ -51,6 +88,7 @@ export type Database = {
           completed_sessions?: Json
           selected_path?: string | null
           streak_current?: number
+          streak_days?: string[]
           streak_last_date?: string | null
           updated_at?: string
           user_id: string
@@ -59,6 +97,7 @@ export type Database = {
           completed_sessions?: Json
           selected_path?: string | null
           streak_current?: number
+          streak_days?: string[]
           streak_last_date?: string | null
           updated_at?: string
           user_id?: string
