@@ -107,7 +107,7 @@ export default function Auth() {
           email: parsed.data.email,
           password: parsed.data.password,
           options: {
-            emailRedirectTo: `${getAuthOrigin()}/paths`,
+            emailRedirectTo: `${getAuthOrigin()}${nextPath}`,
             data: { display_name: parsed.data.displayName },
           },
         });
