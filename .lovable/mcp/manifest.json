@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://vgpeuihrkwwrckhzoemw.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "careersourcer-mcp",
+      "version": "0.1.0",
+      "title": "CareerSourcer MCP"
+    },
+    "tools": [
+      {
+        "name": "list_categories",
+        "title": "List learning categories",
+        "description": "List CareerSourcer's learning categories and their branches (id, title, featured status, lesson count).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_branch",
+        "title": "Get branch details",
+        "description": "Get a branch (learning track) with its full lesson list — titles, intros, video URLs, and challenges.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "categoryId": {
+              "type": "string",
+              "description": "Category id, e.g. 'technology'."
+            },
+            "branchId": {
+              "type": "string",
+              "description": "Branch id, e.g. 'web-development'."
+            }
+          },
+          "required": [
+            "categoryId",
+            "branchId"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_progress",
+        "title": "Get my progress",
+        "description": "Get the signed-in user's CareerSourcer progress: selected path, completed sessions, current streak, and streak days.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_pool",
+        "title": "Search collaboration pool",
+        "description": "Search the CareerSourcer collaboration pool for other users. Optionally filter by branch id (e.g. 'web-development') or a free-text query matched against display name, headline, and bio.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "branch": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional branch id to filter by (e.g. 'game-development')."
+            },
+            "query": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional free-text search over name/headline/bio."
+            },
+            "limit": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Max results (default 20)."
+            }
+          },
+          "required": [
+            "branch",
+            "query",
+            "limit"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "upsert_my_pool_profile",
+        "title": "Create or update my pool profile",
+        "description": "Create or update the signed-in user's collaboration pool profile so others can find them.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "display_name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60
+            },
+            "headline": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "bio": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 600
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "branches": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Branch ids the user is interested in."
+            },
+            "looking_for": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "contact_link": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "URL, email, or handle."
+            }
+          },
+          "required": [
+            "display_name",
+            "headline",
+            "bio",
+            "branches",
+            "looking_for",
+            "contact_link"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
