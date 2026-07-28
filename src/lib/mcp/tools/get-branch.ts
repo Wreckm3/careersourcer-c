@@ -1,6 +1,6 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { categories } from "../../data/curriculum";
+import { categories } from "../../../data/curriculum";
 
 export default defineTool({
   name: "get_branch",
