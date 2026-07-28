@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import Pool from "./pages/Pool";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import OAuthConsent from "./pages/OAuthConsent";
 import NotFound from "./pages/NotFound";
 import { AnimatedBackground } from "./components/career/AnimatedBackground";
 import { ThemeToggle } from "./components/career/ThemeToggle";
@@ -29,6 +30,7 @@ export default function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="/paths" element={<PathSelection />} />
               <Route path="/category/:categoryId" element={<Category />} />
               <Route path="/branch/:categoryId/:branchId" element={<Branch />} />
