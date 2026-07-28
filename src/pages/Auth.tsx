@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { InputHTMLAttributes } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { z } from "zod";
@@ -63,6 +63,10 @@ function mapAuthError(message: string): string {
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const rawNext = searchParams.get("next");
+  const nextPath =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/paths";
   const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<Mode>("signin");
   const [displayName, setDisplayName] = useState("");
@@ -73,8 +77,8 @@ export default function Auth() {
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!authLoading && user) navigate("/paths", { replace: true });
-  }, [user, authLoading, navigate]);
+    if (!authLoading && user) navigate(nextPath, { replace: true });
+  }, [user, authLoading, navigate, nextPath]);
 
   useEffect(() => {
     return () => {
@@ -96,14 +100,14 @@ export default function Auth() {
       if (mode === "signup") {
         const parsed = signUpSchema.safeParse({ displayName, email, password });
         if (!parsed.success) {
-          toast.error(parsed.error.errors[0].message);
+          toast.error(parsed.error.issues[0].message);
           return;
         }
         const { data, error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
           options: {
-            emailRedirectTo: `${getAuthOrigin()}/paths`,
+            emailRedirectTo: `${getAuthOrigin()}${nextPath}`,
             data: { display_name: parsed.data.displayName },
           },
         });
@@ -120,7 +124,7 @@ export default function Auth() {
       } else if (mode === "signin") {
         const parsed = signInSchema.safeParse({ email, password });
         if (!parsed.success) {
-          toast.error(parsed.error.errors[0].message);
+          toast.error(parsed.error.issues[0].message);
           return;
         }
         const { error } = await supabase.auth.signInWithPassword({
