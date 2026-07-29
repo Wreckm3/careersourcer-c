@@ -1,4 +1,4 @@
-// Runs before `vite dev` and `vite build` (predev/prebuild hooks); writes public/sitemap.xml.
+// Runs before `vite dev` and `vite build`; writes public/sitemap.xml.
 
 import { writeFileSync } from "fs";
 import { resolve } from "path";
@@ -12,26 +12,27 @@ interface SitemapEntry {
   priority?: string;
 }
 
-const entries: SitemapEntry[] = [
+const staticEntries: SitemapEntry[] = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
-  { path: "/auth", changefreq: "monthly", priority: "0.5" },
   { path: "/paths", changefreq: "weekly", priority: "0.9" },
-  { path: "/pool", changefreq: "weekly", priority: "0.7" },
+  { path: "/pricing", changefreq: "monthly", priority: "0.8" },
+  { path: "/pool", changefreq: "weekly", priority: "0.6" },
+  { path: "/auth", changefreq: "yearly", priority: "0.3" },
 ];
 
-for (const category of categories) {
-  entries.push({ path: `/category/${category.id}`, changefreq: "weekly", priority: "0.8" });
-  for (const branch of category.branches) {
-    entries.push({
-      path: `/branch/${category.id}/${branch.id}`,
-      changefreq: "weekly",
-      priority: "0.7",
-    });
-  }
-}
+const dynamicEntries: SitemapEntry[] = categories.flatMap((cat) => [
+  { path: `/category/${cat.id}`, changefreq: "monthly", priority: "0.7" },
+  ...cat.branches.map((b) => ({
+    path: `/branch/${cat.id}/${b.id}`,
+    changefreq: "monthly" as const,
+    priority: "0.6",
+  })),
+]);
 
-function generateSitemap(entries: SitemapEntry[]) {
-  const urls = entries.map((e) =>
+const entries = [...staticEntries, ...dynamicEntries];
+
+function toXml(list: SitemapEntry[]) {
+  const urls = list.map((e) =>
     [
       `  <url>`,
       `    <loc>${BASE_URL}${e.path}</loc>`,
@@ -40,9 +41,8 @@ function generateSitemap(entries: SitemapEntry[]) {
       `  </url>`,
     ]
       .filter(Boolean)
-      .join("\n"),
+      .join("\n")
   );
-
   return [
     `<?xml version="1.0" encoding="UTF-8"?>`,
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
@@ -51,5 +51,5 @@ function generateSitemap(entries: SitemapEntry[]) {
   ].join("\n");
 }
 
-writeFileSync(resolve("public/sitemap.xml"), generateSitemap(entries));
+writeFileSync(resolve("public/sitemap.xml"), toXml(entries));
 console.log(`sitemap.xml written (${entries.length} entries)`);

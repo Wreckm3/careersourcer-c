@@ -74,6 +74,93 @@ export type Database = {
         }
         Relationships: []
       }
+      project_uploads: {
+        Row: {
+          atlas_feedback: Json | null
+          branch_id: string | null
+          category_id: string | null
+          created_at: string
+          description: string | null
+          external_url: string | null
+          id: string
+          lesson_id: string | null
+          review_status: Database["public"]["Enums"]["upload_review_status"]
+          storage_path: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          atlas_feedback?: Json | null
+          branch_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          id?: string
+          lesson_id?: string | null
+          review_status?: Database["public"]["Enums"]["upload_review_status"]
+          storage_path?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          atlas_feedback?: Json | null
+          branch_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          id?: string
+          lesson_id?: string | null
+          review_status?: Database["public"]["Enums"]["upload_review_status"]
+          storage_path?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          provider: string | null
+          provider_customer_id: string | null
+          provider_subscription_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          provider?: string | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          provider?: string | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           completed_sessions: Json
@@ -104,15 +191,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_tier: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["subscription_tier"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      subscription_status:
+        | "active"
+        | "past_due"
+        | "canceled"
+        | "expired"
+        | "trialing"
+      subscription_tier: "free" | "builder" | "creator" | "visionary"
+      upload_review_status: "pending" | "reviewing" | "reviewed" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -239,6 +365,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      subscription_status: [
+        "active",
+        "past_due",
+        "canceled",
+        "expired",
+        "trialing",
+      ],
+      subscription_tier: ["free", "builder", "creator", "visionary"],
+      upload_review_status: ["pending", "reviewing", "reviewed", "rejected"],
+    },
   },
 } as const
