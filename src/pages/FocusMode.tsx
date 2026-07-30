@@ -40,7 +40,7 @@ function StepIndicator({ current, color }: { current: Step; color: string }) {
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${
                 active ? "text-primary-foreground" : done ? "text-foreground" : "text-muted-foreground"
               }`}
-              style={active ? { backgroundColor: color } : done ? { backgroundColor: `${color}22` } : undefined}
+              style={active ? { backgroundColor: color } : done ? { backgroundColor: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}
             >
               <Icon className="w-3 h-3" />
               <span className="hidden sm:inline">{stepLabels[s]}</span>
@@ -214,7 +214,7 @@ export default function FocusMode() {
             exit={{ opacity: 0, y: -12 }}
             className="space-y-4"
           >
-            <div className="p-6 rounded-2xl border-2 bg-card" style={{ borderColor: `${category.color}40` }}>
+            <div className="p-6 rounded-2xl border-2 bg-card" style={{ borderColor: `color-mix(in srgb, ${category.color} 35%, transparent)` }}>
               <div className="flex items-center gap-2 mb-3">
                 <Target className="w-4 h-4" style={{ color: category.color }} />
                 <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: category.color }}>
