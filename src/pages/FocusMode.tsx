@@ -1,24 +1,28 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle2, ArrowRight, Clock, Sparkles, BookOpen, Play, Target, Check } from "lucide-react";
+import {
+  X, CheckCircle2, ArrowRight, Clock, Sparkles, Play, Target, Check,
+  Flag, Package, Wrench, Lightbulb, Gauge,
+} from "lucide-react";
 import { getLesson, getNextLesson } from "@/data/curriculum";
 import { useProgress } from "@/hooks/useProgress";
 import { VideoEmbed } from "@/components/career/VideoEmbed";
+import { PremiumGate } from "@/components/PremiumGate";
 
-type Step = "intro" | "video" | "challenge" | "confirm";
+type Step = "mission" | "video" | "build" | "confirm";
 
-const stepOrder: Step[] = ["intro", "video", "challenge", "confirm"];
+const stepOrder: Step[] = ["mission", "video", "build", "confirm"];
 const stepLabels: Record<Step, string> = {
-  intro: "Read",
+  mission: "Mission",
   video: "Watch",
-  challenge: "Build",
-  confirm: "Confirm",
+  build: "Build",
+  confirm: "Complete",
 };
 const stepIcons: Record<Step, React.ComponentType<{ className?: string }>> = {
-  intro: BookOpen,
+  mission: Flag,
   video: Play,
-  challenge: Target,
+  build: Target,
   confirm: Check,
 };
 
@@ -36,17 +40,29 @@ function StepIndicator({ current, color }: { current: Step; color: string }) {
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${
                 active ? "text-primary-foreground" : done ? "text-foreground" : "text-muted-foreground"
               }`}
-              style={active ? { backgroundColor: color } : done ? { backgroundColor: `${color}22` } : undefined}
+              style={active ? { backgroundColor: color } : done ? { backgroundColor: `color-mix(in srgb, ${color} 18%, transparent)` } : undefined}
             >
               <Icon className="w-3 h-3" />
               <span className="hidden sm:inline">{stepLabels[s]}</span>
             </div>
-            {i < stepOrder.length - 1 && (
-              <div className="w-3 h-px bg-border" />
-            )}
+            {i < stepOrder.length - 1 && <div className="w-3 h-px bg-border" />}
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function BuilderTip({ tip, color }: { tip: string; color: string }) {
+  return (
+    <div className="flex items-start gap-3 p-4 rounded-xl border border-border bg-muted/30">
+      <Lightbulb className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color }} />
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color }}>
+          Builder tip
+        </p>
+        <p className="text-sm leading-relaxed text-muted-foreground">{tip}</p>
+      </div>
     </div>
   );
 }
@@ -55,7 +71,7 @@ export default function FocusMode() {
   const { pathId: branchId, sessionId: lessonId } = useParams<{ pathId: string; sessionId: string }>();
   const navigate = useNavigate();
   const { completeSession, isCompleted } = useProgress();
-  const [step, setStep] = useState<Step>("intro");
+  const [step, setStep] = useState<Step>("mission");
   const [taskChecked, setTaskChecked] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
 
@@ -63,7 +79,7 @@ export default function FocusMode() {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Lesson not found.</p>
+        <p className="text-muted-foreground">Mission not found.</p>
       </div>
     );
   }
@@ -84,7 +100,7 @@ export default function FocusMode() {
 
   const handleNext = () => {
     if (nextLesson) {
-      setStep("intro");
+      setStep("mission");
       setTaskChecked(false);
       setJustCompleted(false);
       navigate(`/session/${branch.id}/${nextLesson.id}`, { replace: true });
@@ -92,6 +108,216 @@ export default function FocusMode() {
       navigate(`/branch/${category.id}/${branch.id}`);
     }
   };
+
+  const missionBody = (
+    <motion.div
+      className="w-full max-w-2xl space-y-6"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1, duration: 0.35 }}
+      key={lesson.id}
+    >
+      <div className="text-center space-y-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em]" style={{ color: category.color }}>
+          Mission {lessonIndex} of {totalLessons}
+        </p>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{lesson.title}</h1>
+        <p className="text-muted-foreground text-sm">{lesson.mission}</p>
+        <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground pt-1">
+          <span className="inline-flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" /> {lesson.duration}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Gauge className="w-3.5 h-3.5" /> {lesson.difficulty}
+          </span>
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {/* ── STEP 1: MISSION BRIEF ── */}
+        {step === "mission" && (
+          <motion.div
+            key="mission"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className="space-y-4"
+          >
+            <div className="p-6 rounded-2xl border border-border bg-card space-y-4">
+              <p className="text-base leading-relaxed">{lesson.intro}</p>
+
+              <div className="grid sm:grid-cols-2 gap-3 pt-1">
+                <div className="p-3.5 rounded-xl bg-muted/40 border border-border">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider mb-1 flex items-center gap-1.5" style={{ color: category.color }}>
+                    <Package className="w-3.5 h-3.5" /> You'll end up with
+                  </p>
+                  <p className="text-sm leading-relaxed">{lesson.outcome}</p>
+                </div>
+                <div className="p-3.5 rounded-xl bg-muted/40 border border-border">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider mb-1 flex items-center gap-1.5" style={{ color: category.color }}>
+                    <Wrench className="w-3.5 h-3.5" /> Tools you need
+                  </p>
+                  <ul className="text-sm leading-relaxed space-y-0.5">
+                    {lesson.tools.map((t) => (
+                      <li key={t} className="text-muted-foreground">• {t}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <BuilderTip tip={lesson.builderTip} color={category.color} />
+
+            <div className="flex justify-center">
+              <button
+                onClick={goNextStep}
+                className="flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+                style={{ backgroundColor: category.color }}
+              >
+                Start mission <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── STEP 2: WATCH ── */}
+        {step === "video" && (
+          <motion.div
+            key="video"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className="space-y-5"
+          >
+            <p className="text-center text-sm text-muted-foreground">
+              Build along with the video — pause whenever you need to catch up.
+            </p>
+            <VideoEmbed url={lesson.videoUrl} title={lesson.title} onSkip={goNextStep} />
+            <div className="flex justify-center">
+              <button
+                onClick={goNextStep}
+                className="flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+                style={{ backgroundColor: category.color }}
+              >
+                Show me what to build <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── STEP 3: BUILD ── */}
+        {step === "build" && (
+          <motion.div
+            key="build"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className="space-y-4"
+          >
+            <div className="p-6 rounded-2xl border-2 bg-card" style={{ borderColor: `color-mix(in srgb, ${category.color} 35%, transparent)` }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Target className="w-4 h-4" style={{ color: category.color }} />
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: category.color }}>
+                  Your build challenge
+                </p>
+              </div>
+              <p className="text-base leading-relaxed font-medium">{lesson.challenge}</p>
+              <p className="text-xs text-muted-foreground mt-4">
+                Done right, you should now have: {lesson.outcome.toLowerCase()}
+              </p>
+            </div>
+            <BuilderTip tip={lesson.builderTip} color={category.color} />
+            <div className="flex justify-center">
+              <button
+                onClick={goNextStep}
+                className="flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+                style={{ backgroundColor: category.color }}
+              >
+                I built it <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── STEP 4: COMPLETE ── */}
+        {step === "confirm" && (
+          <motion.div
+            key="confirm"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className="space-y-5"
+          >
+            {!done ? (
+              <>
+                <div className="p-6 rounded-2xl border border-border bg-card space-y-4">
+                  <p className="text-sm font-semibold">Confirm your build:</p>
+                  <label className="flex items-start gap-3 p-3 rounded-xl border border-border hover:bg-muted/40 cursor-pointer transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={taskChecked}
+                      onChange={(e) => setTaskChecked(e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded accent-current"
+                      style={{ accentColor: category.color }}
+                    />
+                    <span className="text-sm leading-relaxed">
+                      I actually built it — I have {lesson.outcome.toLowerCase()}.
+                    </span>
+                  </label>
+                </div>
+                <div className="flex justify-center">
+                  <motion.button
+                    onClick={handleComplete}
+                    disabled={!taskChecked}
+                    className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: category.color }}
+                    whileHover={taskChecked ? { scale: 1.02 } : undefined}
+                    whileTap={taskChecked ? { scale: 0.98 } : undefined}
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    Complete mission
+                  </motion.button>
+                </div>
+              </>
+            ) : (
+              <motion.div
+                className="flex flex-col items-center gap-4 text-center"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.35, type: "spring" }}
+              >
+                <motion.div
+                  className="flex items-center gap-2 font-semibold"
+                  style={{ color: category.color }}
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: [0.8, 1.08, 1] }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Mission {lessonIndex} complete — you built something real.
+                  <Sparkles className="w-5 h-5" />
+                </motion.div>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  {lessonIndex === totalLessons
+                    ? `You finished the ${branch.title} track. Everything you built is yours to show off.`
+                    : `${totalLessons - lessonIndex} mission${totalLessons - lessonIndex === 1 ? "" : "s"} left in ${branch.title}. Keep the streak alive.`}
+                </p>
+                <motion.button
+                  onClick={handleNext}
+                  className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-primary-foreground"
+                  style={{ backgroundColor: category.color }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {nextLesson ? <>Next mission <ArrowRight className="w-4 h-4" /></> : "Back to track"}
+                </motion.button>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
 
   return (
     <motion.div
@@ -117,181 +343,27 @@ export default function FocusMode() {
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+      {/* Mission progress bar */}
+      <div className="h-1 w-full bg-muted">
         <motion.div
-          className="w-full max-w-2xl space-y-6"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.35 }}
-          key={lesson.id}
-        >
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{lesson.title}</h1>
-            <p className="text-muted-foreground text-sm">{lesson.description}</p>
-            <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-              <Clock className="w-3.5 h-3.5" /> {lesson.duration}
-            </div>
+          className="h-full"
+          style={{ backgroundColor: category.color }}
+          initial={{ width: 0 }}
+          animate={{ width: `${((stepOrder.indexOf(step) + 1) / stepOrder.length) * 100}%` }}
+          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        />
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+        {lesson.premium ? (
+          <div className="w-full max-w-2xl">
+            <PremiumGate required="builder" featureName={`Mission ${lessonIndex}: ${lesson.title}`}>
+              {missionBody}
+            </PremiumGate>
           </div>
-
-          <AnimatePresence mode="wait">
-            {/* ── STEP 1: INTRO ── */}
-            {step === "intro" && (
-              <motion.div
-                key="intro"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                className="space-y-5"
-              >
-                <div className="p-6 rounded-2xl border border-border bg-card">
-                  <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: category.color }}>
-                    Quick intro · 2 min read
-                  </p>
-                  <p className="text-base leading-relaxed">{lesson.intro}</p>
-                </div>
-                <div className="flex justify-center">
-                  <button
-                    onClick={goNextStep}
-                    className="flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-primary-foreground"
-                    style={{ backgroundColor: category.color }}
-                  >
-                    Watch the video <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ── STEP 2: VIDEO ── */}
-            {step === "video" && (
-              <motion.div
-                key="video"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                className="space-y-5"
-              >
-                <VideoEmbed url={lesson.videoUrl} title={lesson.title} onSkip={goNextStep} />
-                <div className="flex justify-center">
-                  <button
-                    onClick={goNextStep}
-                    className="flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-primary-foreground"
-                    style={{ backgroundColor: category.color }}
-                  >
-                    Got it — show the challenge <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ── STEP 3: CHALLENGE ── */}
-            {step === "challenge" && (
-              <motion.div
-                key="challenge"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                className="space-y-5"
-              >
-                <div
-                  className="p-6 rounded-2xl border-2 bg-card"
-                  style={{ borderColor: `${category.color}40` }}
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <Target className="w-4 h-4" style={{ color: category.color }} />
-                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: category.color }}>
-                      Your action challenge
-                    </p>
-                  </div>
-                  <p className="text-base leading-relaxed font-medium">{lesson.challenge}</p>
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Do this now. It only counts if you actually try it.
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <button
-                    onClick={goNextStep}
-                    className="flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-primary-foreground"
-                    style={{ backgroundColor: category.color }}
-                  >
-                    Done — let me confirm <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ── STEP 4: CONFIRM ── */}
-            {step === "confirm" && (
-              <motion.div
-                key="confirm"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                className="space-y-5"
-              >
-                {!done ? (
-                  <>
-                    <div className="p-6 rounded-2xl border border-border bg-card space-y-4">
-                      <p className="text-sm font-semibold">Confirm what you did:</p>
-                      <label className="flex items-start gap-3 p-3 rounded-xl border border-border hover:bg-muted/40 cursor-pointer transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={taskChecked}
-                          onChange={(e) => setTaskChecked(e.target.checked)}
-                          className="mt-1 w-4 h-4 rounded accent-current"
-                          style={{ accentColor: category.color }}
-                        />
-                        <span className="text-sm leading-relaxed">
-                          I actually attempted the challenge — not just read it.
-                        </span>
-                      </label>
-                    </div>
-                    <div className="flex justify-center">
-                      <motion.button
-                        onClick={handleComplete}
-                        disabled={!taskChecked}
-                        className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed"
-                        style={{ backgroundColor: category.color }}
-                        whileHover={taskChecked ? { scale: 1.02 } : undefined}
-                        whileTap={taskChecked ? { scale: 0.98 } : undefined}
-                      >
-                        <CheckCircle2 className="w-5 h-5" />
-                        Mark lesson complete
-                      </motion.button>
-                    </div>
-                  </>
-                ) : (
-                  <motion.div
-                    className="flex flex-col items-center gap-4"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.35, type: "spring" }}
-                  >
-                    <motion.div
-                      className="flex items-center gap-2 font-semibold"
-                      style={{ color: category.color }}
-                      initial={{ scale: 0.8 }}
-                      animate={{ scale: [0.8, 1.08, 1] }}
-                      transition={{ duration: 0.4 }}
-                    >
-                      <Sparkles className="w-5 h-5" />
-                      Today you actually learned something.
-                      <Sparkles className="w-5 h-5" />
-                    </motion.div>
-                    <motion.button
-                      onClick={handleNext}
-                      className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-primary-foreground"
-                      style={{ backgroundColor: category.color }}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {nextLesson ? <>Next lesson <ArrowRight className="w-4 h-4" /></> : "Back to branch"}
-                    </motion.button>
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+        ) : (
+          missionBody
+        )}
       </div>
     </motion.div>
   );
