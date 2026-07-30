@@ -61,7 +61,6 @@ export const business: Category = {
           tools: ["Fiverr"],
           difficulty: "Builder",
           duration: "~12 min",
-          premium: true,
         },
         {
           id: "freelance-4",
@@ -150,7 +149,6 @@ export const business: Category = {
           tools: ["Phone camera", "CapCut"],
           difficulty: "Builder",
           duration: "~12 min",
-          premium: true,
         },
         {
           id: "content-4",
@@ -239,7 +237,6 @@ export const business: Category = {
           tools: ["Notes app"],
           difficulty: "Builder",
           duration: "~12 min",
-          premium: true,
         },
         {
           id: "entre-4",
@@ -328,7 +325,6 @@ export const business: Category = {
           tools: ["MailerLite"],
           difficulty: "Builder",
           duration: "~14 min",
-          premium: true,
         },
         {
           id: "mkt-4",
@@ -417,7 +413,6 @@ export const business: Category = {
           tools: ["Shopify", "Canva"],
           difficulty: "Builder",
           duration: "~15 min",
-          premium: true,
         },
         {
           id: "ecom-4",
@@ -506,7 +501,6 @@ export const business: Category = {
           tools: ["M-Shwari"],
           difficulty: "Builder",
           duration: "~12 min",
-          premium: true,
         },
         {
           id: "fin-4",

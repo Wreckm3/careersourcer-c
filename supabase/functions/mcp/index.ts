@@ -580,8 +580,7 @@ var business = {
           builderTip: "Screenshot the 3 gigs you like most into one folder \u2014 you'll steal their structure next mission.",
           tools: ["Fiverr"],
           difficulty: "Builder",
-          duration: "~12 min",
-          premium: true
+          duration: "~12 min"
         },
         {
           id: "freelance-4",
@@ -664,8 +663,7 @@ var business = {
           builderTip: "Use CapCut (free) to trim the start/end and add captions in under 5 minutes.",
           tools: ["Phone camera", "CapCut"],
           difficulty: "Builder",
-          duration: "~12 min",
-          premium: true
+          duration: "~12 min"
         },
         {
           id: "content-4",
@@ -748,8 +746,7 @@ var business = {
           builderTip: "If it can be a WhatsApp message, a form, or a spreadsheet instead of an app \u2014 build that first.",
           tools: ["Notes app"],
           difficulty: "Builder",
-          duration: "~12 min",
-          premium: true
+          duration: "~12 min"
         },
         {
           id: "entre-4",
@@ -832,8 +829,7 @@ var business = {
           builderTip: "Add a simple signup form link to your Instagram bio so people can join your list today.",
           tools: ["MailerLite"],
           difficulty: "Builder",
-          duration: "~14 min",
-          premium: true
+          duration: "~14 min"
         },
         {
           id: "mkt-4",
@@ -916,8 +912,7 @@ var business = {
           builderTip: "Use Canva to clean up product photos with a plain background before uploading.",
           tools: ["Shopify", "Canva"],
           difficulty: "Builder",
-          duration: "~15 min",
-          premium: true
+          duration: "~15 min"
         },
         {
           id: "ecom-4",
@@ -1000,8 +995,7 @@ var business = {
           builderTip: "Set the lock to auto-renew so the habit continues without you having to remember.",
           tools: ["M-Shwari"],
           difficulty: "Builder",
-          duration: "~12 min",
-          premium: true
+          duration: "~12 min"
         },
         {
           id: "fin-4",
@@ -1179,8 +1173,7 @@ var creative = {
           builderTip: "In CapCut, use the 'Speed' tool to speed through slow parts instead of deleting them entirely \u2014 keeps context.",
           tools: ["CapCut (free)"],
           difficulty: "Builder",
-          duration: "~10 min",
-          premium: true
+          duration: "~10 min"
         },
         {
           id: "edit-4",
@@ -1263,8 +1256,7 @@ var creative = {
           builderTip: "Use Blender's Modifiers panel (like 'Bevel' or 'Subdivision Surface') to smooth edges without manually adding geometry.",
           tools: ["Blender (free)"],
           difficulty: "Builder",
-          duration: "~15 min",
-          premium: true
+          duration: "~15 min"
         },
         {
           id: "blender-4",
@@ -1347,8 +1339,7 @@ var creative = {
           builderTip: "Use separate layers for the body and limbs in FlipaClip \u2014 it lets you redraw an arm without redrawing the whole character.",
           tools: ["FlipaClip (free)"],
           difficulty: "Builder",
-          duration: "~14 min",
-          premium: true
+          duration: "~14 min"
         },
         {
           id: "anim-4",
@@ -1431,8 +1422,7 @@ var creative = {
           builderTip: "Your phone's gridlines from Mission 2 double as rule-of-thirds guides \u2014 line your subject up on an intersection point.",
           tools: ["Any smartphone camera"],
           difficulty: "Builder",
-          duration: "~12 min",
-          premium: true
+          duration: "~12 min"
         },
         {
           id: "photo-4",
@@ -1515,8 +1505,7 @@ var creative = {
           builderTip: "Set a timer for 20 minutes and force yourself to stop tweaking \u2014 finishing beats fast is the actual skill, not perfecting one forever.",
           tools: ["BandLab (free)"],
           difficulty: "Builder",
-          duration: "~14 min",
-          premium: true
+          duration: "~14 min"
         },
         {
           id: "music-4",

@@ -149,7 +149,6 @@ export const creative: Category = {
           tools: ["CapCut (free)"],
           difficulty: "Builder",
           duration: "~10 min",
-          premium: true,
         },
         {
           id: "edit-4",
@@ -238,7 +237,6 @@ export const creative: Category = {
           tools: ["Blender (free)"],
           difficulty: "Builder",
           duration: "~15 min",
-          premium: true,
         },
         {
           id: "blender-4",
@@ -327,7 +325,6 @@ export const creative: Category = {
           tools: ["FlipaClip (free)"],
           difficulty: "Builder",
           duration: "~14 min",
-          premium: true,
         },
         {
           id: "anim-4",
@@ -416,7 +413,6 @@ export const creative: Category = {
           tools: ["Any smartphone camera"],
           difficulty: "Builder",
           duration: "~12 min",
-          premium: true,
         },
         {
           id: "photo-4",
@@ -505,7 +501,6 @@ export const creative: Category = {
           tools: ["BandLab (free)"],
           difficulty: "Builder",
           duration: "~14 min",
-          premium: true,
         },
         {
           id: "music-4",
