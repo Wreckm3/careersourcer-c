@@ -6,7 +6,7 @@ export const creative: Category = {
   emoji: "🎨",
   description: "Design, edit, animate, shoot. Build a portfolio you can show.",
   icon: "Palette",
-  color: "var(--accent-purple)",
+  color: "hsl(var(--accent-purple))",
   branches: [
     {
       id: "graphic-design",

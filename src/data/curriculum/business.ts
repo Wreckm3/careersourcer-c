@@ -6,7 +6,7 @@ export const business: Category = {
   emoji: "🚀",
   description: "Earn online, build a brand, and turn skills into income.",
   icon: "Briefcase",
-  color: "var(--accent-emerald)",
+  color: "hsl(var(--accent-emerald))",
   branches: [
     {
       id: "freelancing",

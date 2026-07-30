@@ -6,7 +6,7 @@ export const technology: Category = {
   emoji: "💻",
   description: "Build real things with code. Websites, games, apps, AI tools.",
   icon: "Monitor",
-  color: "var(--accent-blue)",
+  color: "hsl(var(--accent-blue))",
   branches: [
     {
       id: "web-development",

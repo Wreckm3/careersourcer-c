@@ -19,7 +19,7 @@ var technology = {
   emoji: "\u{1F4BB}",
   description: "Build real things with code. Websites, games, apps, AI tools.",
   icon: "Monitor",
-  color: "var(--accent-blue)",
+  color: "hsl(var(--accent-blue))",
   branches: [
     {
       id: "web-development",
@@ -529,7 +529,7 @@ var business = {
   emoji: "\u{1F680}",
   description: "Earn online, build a brand, and turn skills into income.",
   icon: "Briefcase",
-  color: "var(--accent-emerald)",
+  color: "hsl(var(--accent-emerald))",
   branches: [
     {
       id: "freelancing",
@@ -1039,7 +1039,7 @@ var creative = {
   emoji: "\u{1F3A8}",
   description: "Design, edit, animate, shoot. Build a portfolio you can show.",
   icon: "Palette",
-  color: "var(--accent-purple)",
+  color: "hsl(var(--accent-purple))",
   branches: [
     {
       id: "graphic-design",
