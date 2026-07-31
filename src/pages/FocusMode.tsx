@@ -1,16 +1,22 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, CheckCircle2, ArrowRight, Clock, Sparkles, Play, Target, Check,
-  Flag, Package, Wrench, Lightbulb, Gauge,
+  Flag, Package, Wrench, Lightbulb, Gauge, Pause, Timer, Flame, Trophy,
 } from "lucide-react";
 import { getLesson, getNextLesson } from "@/data/curriculum";
 import { useProgress } from "@/hooks/useProgress";
+import { useSessionTimer, formatClock } from "@/hooks/useSessionTimer";
 import { VideoEmbed } from "@/components/career/VideoEmbed";
 import { PremiumGate } from "@/components/PremiumGate";
+import { EagleActivation } from "@/components/career/EagleActivation";
+import { isEnabled } from "@/config/features";
+import { focusMessage, completionMessage } from "@/lib/motivation";
+import { buildAtlasLessonContext, emitAtlasMission } from "@/lib/atlas/lessonContext";
 
 type Step = "mission" | "video" | "build" | "confirm";
+type Phase = "eagle" | "countdown" | "session";
 
 const stepOrder: Step[] = ["mission", "video", "build", "confirm"];
 const stepLabels: Record<Step, string> = {
@@ -67,16 +73,107 @@ function BuilderTip({ tip, color }: { tip: string; color: string }) {
   );
 }
 
+/** 3 · 2 · 1 lead-in so the session starts deliberately, not accidentally. */
+function Countdown({ color, onDone }: { color: string; onDone: () => void }) {
+  const [n, setN] = useState(3);
+  useEffect(() => {
+    if (n === 0) {
+      const t = setTimeout(onDone, 350);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setN((v) => v - 1), 650);
+    return () => clearTimeout(t);
+  }, [n, onDone]);
+
+  return (
+    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-background gap-4">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={n}
+          className="text-7xl font-bold tabular-nums"
+          style={{ color }}
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.3 }}
+          transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+          {n === 0 ? "Go" : n}
+        </motion.span>
+      </AnimatePresence>
+      <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">
+        Locking in
+      </p>
+      <button onClick={onDone} className="text-xs text-muted-foreground underline underline-offset-4">
+        Skip
+      </button>
+    </div>
+  );
+}
+
+function StatTile({ icon: Icon, label, value, color }: {
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  label: string; value: string; color: string;
+}) {
+  return (
+    <div className="flex-1 min-w-[110px] p-3.5 rounded-xl border border-border bg-muted/30 text-center">
+      <Icon className="w-4 h-4 mx-auto mb-1.5" style={{ color }} />
+      <p className="text-lg font-bold tabular-nums leading-none">{value}</p>
+      <p className="text-[11px] text-muted-foreground mt-1">{label}</p>
+    </div>
+  );
+}
+
 export default function FocusMode() {
   const { pathId: branchId, sessionId: lessonId } = useParams<{ pathId: string; sessionId: string }>();
   const navigate = useNavigate();
-  const { completeSession, isCompleted } = useProgress();
+  const { completeSession, isCompleted, progress } = useProgress();
   const [step, setStep] = useState<Step>("mission");
   const [taskChecked, setTaskChecked] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [phase, setPhase] = useState<Phase>(isEnabled("focusModeEagle") ? "eagle" : "countdown");
+  const [finalTime, setFinalTime] = useState(0);
+
+  const timer = useSessionTimer(false);
+  const { start: startTimer, pause: pauseTimer, resume: resumeTimer, reset: resetTimer } = timer;
 
   const data = getLesson(branchId || "", lessonId || "");
-  if (!data) {
+  const lesson = data?.lesson;
+  const nextLesson = data ? getNextLesson(data.branch.id, data.lesson.id) : null;
+
+  // Start the clock once the lead-in finishes.
+  useEffect(() => {
+    if (phase === "session") startTimer();
+  }, [phase, startTimer]);
+
+  // Fresh clock + fresh lead-in whenever the mission changes.
+  useEffect(() => {
+    resetTimer();
+    setPhase(isEnabled("focusModeEagle") ? "eagle" : "countdown");
+  }, [lessonId, resetTimer]);
+
+  const atlas = useMemo(() => {
+    if (!data) return null;
+    return buildAtlasLessonContext({
+      category: data.category,
+      branch: data.branch,
+      lesson: data.lesson,
+      lessonIndex: data.lessonIndex,
+      totalLessons: data.totalLessons,
+      nextLesson,
+      isCompleted,
+      streakCurrent: progress.streakCurrent,
+    });
+  }, [data, nextLesson, isCompleted, progress.streakCurrent]);
+
+  const emitted = useRef<string | null>(null);
+  useEffect(() => {
+    if (justCompleted && atlas && emitted.current !== atlas.lessonId) {
+      emitted.current = atlas.lessonId;
+      emitAtlasMission({ ...atlas, missionCompleted: true, projectCompleted: lesson?.outcome ?? null });
+    }
+  }, [justCompleted, atlas, lesson]);
+
+  if (!data || !lesson) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-muted-foreground">Mission not found.</p>
@@ -84,8 +181,7 @@ export default function FocusMode() {
     );
   }
 
-  const { category, branch, lesson, lessonIndex, totalLessons } = data;
-  const nextLesson = getNextLesson(branch.id, lesson.id);
+  const { category, branch, lessonIndex, totalLessons } = data;
   const done = isCompleted(lesson.id) || justCompleted;
 
   const goNextStep = () => {
@@ -94,6 +190,8 @@ export default function FocusMode() {
   };
 
   const handleComplete = () => {
+    setFinalTime(timer.elapsed);
+    pauseTimer();
     completeSession(lesson.id);
     setJustCompleted(true);
   };
@@ -227,6 +325,9 @@ export default function FocusMode() {
               </p>
             </div>
             <BuilderTip tip={lesson.builderTip} color={category.color} />
+            <p className="text-center text-xs text-muted-foreground italic">
+              {focusMessage(lesson.id)}
+            </p>
             <div className="flex justify-center">
               <button
                 onClick={goNextStep}
@@ -281,7 +382,7 @@ export default function FocusMode() {
               </>
             ) : (
               <motion.div
-                className="flex flex-col items-center gap-4 text-center"
+                className="flex flex-col items-center gap-5 text-center"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.35, type: "spring" }}
@@ -297,11 +398,36 @@ export default function FocusMode() {
                   Mission {lessonIndex} complete — you built something real.
                   <Sparkles className="w-5 h-5" />
                 </motion.div>
+
+                {/* Session statistics */}
+                <div className="w-full flex flex-wrap gap-3">
+                  <StatTile
+                    icon={Timer}
+                    label="Focused time"
+                    value={formatClock(finalTime || timer.elapsed)}
+                    color={category.color}
+                  />
+                  <StatTile
+                    icon={Flame}
+                    label={`Day streak`}
+                    value={String(progress.streakCurrent)}
+                    color={category.color}
+                  />
+                  <StatTile
+                    icon={Trophy}
+                    label="Missions built"
+                    value={String(progress.completedSessions.length)}
+                    color={category.color}
+                  />
+                </div>
+
                 <p className="text-sm text-muted-foreground max-w-md">
                   {lessonIndex === totalLessons
                     ? `You finished the ${branch.title} track. Everything you built is yours to show off.`
                     : `${totalLessons - lessonIndex} mission${totalLessons - lessonIndex === 1 ? "" : "s"} left in ${branch.title}. Keep the streak alive.`}
                 </p>
+                <p className="text-xs italic text-muted-foreground">{completionMessage(lesson.id)}</p>
+
                 <motion.button
                   onClick={handleNext}
                   className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-primary-foreground"
@@ -326,6 +452,17 @@ export default function FocusMode() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
+      {phase === "eagle" && (
+        <EagleActivation
+          color={category.color}
+          label={`${branch.title} · Focus Mode`}
+          onDone={() => setPhase("countdown")}
+        />
+      )}
+      {phase === "countdown" && (
+        <Countdown color={category.color} onDone={() => setPhase("session")} />
+      )}
+
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-4 min-w-0">
@@ -334,13 +471,26 @@ export default function FocusMode() {
           </span>
           <StepIndicator current={step} color={category.color} />
         </div>
-        <button
-          onClick={() => navigate(`/branch/${category.id}/${branch.id}`)}
-          className="p-2 rounded-lg hover:bg-muted transition-colors"
-          aria-label="Exit"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs tabular-nums text-muted-foreground font-medium hidden xs:inline sm:inline">
+            {formatClock(timer.elapsed)}
+          </span>
+          <button
+            onClick={() => (timer.running ? pauseTimer() : resumeTimer())}
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            aria-label={timer.running ? "Pause session" : "Resume session"}
+            disabled={phase !== "session"}
+          >
+            {timer.running ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={() => navigate(`/branch/${category.id}/${branch.id}`)}
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            aria-label="Exit"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Mission progress bar */}
@@ -365,6 +515,28 @@ export default function FocusMode() {
           missionBody
         )}
       </div>
+
+      {/* Paused overlay — keeps focus honest without losing state */}
+      <AnimatePresence>
+        {phase === "session" && !timer.running && !done && timer.elapsed > 0 && (
+          <motion.div
+            className="fixed inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-background/90 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Pause className="w-8 h-8" style={{ color: category.color }} />
+            <p className="text-sm text-muted-foreground">Session paused · {formatClock(timer.elapsed)}</p>
+            <button
+              onClick={resumeTimer}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-primary-foreground"
+              style={{ backgroundColor: category.color }}
+            >
+              <Play className="w-4 h-4" /> Resume
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
