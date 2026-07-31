@@ -36,15 +36,23 @@ any item does not go live — it gets rewritten or dropped.
 
 Select for teaching quality, not popularity.
 
+**Length is a hard gate.** Ideal 5–12 min · acceptable 12–18 min · maximum 20 min.
+Full courses, crash courses, multi-hour marathons, embedded playlists and lecture
+recordings are never imported. If the only strong resource is long, either link a
+timestamped section or split the topic into two shorter missions.
+
 **Accept** when the video is beginner-friendly, project-driven, well-structured,
-current with modern tools, and starts building quickly.
+current with modern tools, and starts building within the first minute.
 
-**Reject** when it: opens with minutes of self-introduction, spends significant
-time on history or definitions, repeats obvious information, delays hands-on work,
-or relies on paid software when a free alternative teaches the same skill.
+**Reject** when it: exceeds 20 minutes, opens with minutes of self-introduction,
+spends significant time on history or definitions ("What is X?", TED-style talks),
+repeats obvious information, delays hands-on work, or relies on paid software when
+a free alternative teaches the same skill.
 
-Every video URL must be verified live and embeddable before shipping. When
-replacing a video, re-verify via the YouTube oEmbed endpoint.
+Every video must be verified before shipping: embeddable **and** within the length
+gate. Run `python3 scripts/check-videos.py` (duration + embed check) and reject
+anything it marks REJECT.
+
 
 ## Free vs premium
 
