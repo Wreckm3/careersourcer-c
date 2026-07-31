@@ -30,7 +30,7 @@ export const features: FeatureFlags = {
   subscriptions: true,
   pwaInstallPrompt: true,
   atlas: false,
-  focusModeEagle: false,
+  focusModeEagle: true,
   projectUploads: false,
   adminAnalytics: false,
 };
