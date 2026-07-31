@@ -18,7 +18,7 @@ export interface FeatureFlags {
   pwaInstallPrompt: boolean;
   /** Atlas AI mentor (Phase 4). Off until AI service + tier gating is live. */
   atlas: boolean;
-  /** Eagle focus-mode intro animation (Phase 2). Off until animation lands. */
+  /** Eagle focus-mode intro animation (Phase 3). Pure SVG, reduced-motion aware. */
   focusModeEagle: boolean;
   /** Allow users to upload project artifacts for review (Phase 4). */
   projectUploads: boolean;
@@ -30,7 +30,7 @@ export const features: FeatureFlags = {
   subscriptions: true,
   pwaInstallPrompt: true,
   atlas: false,
-  focusModeEagle: false,
+  focusModeEagle: true,
   projectUploads: false,
   adminAnalytics: false,
 };

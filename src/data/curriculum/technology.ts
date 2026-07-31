@@ -25,7 +25,7 @@ export const technology: Category = {
           intro:
             "Every website — YouTube, Safaricom, this one — is built from three things: HTML (structure), CSS (style), JavaScript (behaviour). You need nothing but a browser and a text editor to start building your own today.",
           outcome: "A short list of 3 design choices you want to copy in your own site.",
-          videoUrl: yt("ZxKM3DCV2kE"),
+          videoUrl: yt("s0RI4IXKE_o"),
           challenge:
             "Open any 3 websites you use daily. Right-click → Inspect on each. Note one thing each does well in layout or design.",
           builderTip: "Use Chrome DevTools (right-click → Inspect) — it's a free X-ray for any website.",
