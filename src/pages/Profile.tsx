@@ -6,8 +6,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/curriculum";
 import { StreakCalendar } from "@/components/career/StreakCalendar";
-import { useEffect, useState } from "react";
+import { Achievements } from "@/components/career/Achievements";
+import { ProjectUploads } from "@/components/career/ProjectUploads";
+import { AtlasChat } from "@/components/career/AtlasChat";
+import { buildPortfolio } from "@/lib/achievements";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+
 
 const categoryIcons: Record<string, React.ElementType> = {
   technology: Monitor,
