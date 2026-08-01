@@ -175,9 +175,64 @@ export default function Profile() {
           <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
         </motion.button>
 
-        <motion.h2 className="text-lg font-bold text-foreground mb-4" {...fadeUp(0.25)}>
+        <motion.div className="mb-10" {...fadeUp(0.27)}>
+          <Achievements
+            completedSessions={progress.completedSessions}
+            streakCurrent={streakCurrent}
+            streakDays={progress.streakDays}
+          />
+        </motion.div>
+
+        <motion.section className="mb-10" aria-label="Portfolio" {...fadeUp(0.28)}>
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="text-lg font-bold text-foreground">Portfolio</h2>
+            <span className="text-xs text-muted-foreground">{portfolio.length} artifacts</span>
+          </div>
+          {portfolio.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Finish a mission and what you built shows up here, ready to show off.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {portfolio.slice(0, showAllPortfolio ? portfolio.length : 5).map((item) => (
+                <li
+                  key={item.lessonId}
+                  className="p-4 rounded-2xl border border-border bg-card flex gap-3 items-start"
+                >
+                  <span
+                    className="mt-1 h-2 w-2 rounded-full shrink-0"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-foreground">{item.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{item.outcome}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {item.branchTitle} · {item.tools.slice(0, 3).join(", ")}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {portfolio.length > 5 && (
+            <button
+              onClick={() => setShowAllPortfolio((v) => !v)}
+              className="mt-3 text-sm text-primary hover:underline"
+            >
+              {showAllPortfolio ? "Show less" : `Show all ${portfolio.length}`}
+            </button>
+          )}
+        </motion.section>
+
+        <motion.div className="mb-10" {...fadeUp(0.29)}>
+          <ProjectUploads />
+        </motion.div>
+
+        <motion.h2 className="text-lg font-bold text-foreground mb-4" {...fadeUp(0.3)}>
           Category Breakdown
         </motion.h2>
+
+
 
         <div className="flex flex-col gap-4">
           {categories.map((cat, i) => {
