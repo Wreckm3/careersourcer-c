@@ -66,7 +66,14 @@ export default function Profile() {
 
   const handleSignOut = async () => { await signOut(); navigate("/"); };
 
+  const [showAllPortfolio, setShowAllPortfolio] = useState(false);
+  const portfolio = useMemo(
+    () => buildPortfolio(progress.completedSessions),
+    [progress.completedSessions]
+  );
+
   // Aggregate across all featured lessons
+
   const allLessons = categories.flatMap((c) => c.branches.flatMap((b) => b.lessons));
   const totalLessons = allLessons.length;
   const completedCount = allLessons.filter((l) => progress.completedSessions.includes(l.id)).length;
