@@ -14,6 +14,8 @@ import { EagleActivation } from "@/components/career/EagleActivation";
 import { isEnabled } from "@/config/features";
 import { focusMessage, completionMessage } from "@/lib/motivation";
 import { buildAtlasLessonContext, emitAtlasMission } from "@/lib/atlas/lessonContext";
+import { AtlasChat } from "@/components/career/AtlasChat";
+
 
 type Step = "mission" | "video" | "build" | "confirm";
 type Phase = "eagle" | "countdown" | "session";
@@ -537,6 +539,9 @@ export default function FocusMode() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {phase === "session" && <AtlasChat lessonContext={atlas} />}
     </motion.div>
   );
 }
+
