@@ -201,7 +201,7 @@ export const creative: Category = {
           intro:
             "Blender is 100% free, runs on most laptops, and is used to make professional animations, films, and game assets. The famous 'Donut Tutorial' has launched thousands of careers — you're starting on the same path.",
           outcome: "Blender installed and opened on your laptop.",
-          videoUrl: yt("-tbSCMbJA6o"),
+          videoUrl: yt("Be_9yovWwWA"),
           challenge: "Download Blender (free) from blender.org and install it. Just open it once — no need to build anything yet.",
           builderTip: "Blender.org always has the official, virus-free download — never download Blender from third-party sites.",
           tools: ["Blender (free)"],
@@ -216,7 +216,7 @@ export const creative: Category = {
           intro:
             "Blender looks scary — buttons everywhere. But you only need 6 shortcuts to start: G (grab), R (rotate), S (scale), Tab (edit mode), middle-mouse (orbit), scroll (zoom). Ignore everything else for now.",
           outcome: "Comfort moving, rotating and scaling an object using only keyboard shortcuts.",
-          videoUrl: yt("9NT_1BvV2yw"),
+          videoUrl: yt("1jHZC9b1BxE"),
           challenge: "Open Blender. Practice G, R, S on the default cube. Orbit and zoom around it until it feels natural.",
           builderTip: "Keep one hand on the shortcut keys and the other on the mouse at all times — that's how every fast Blender artist works.",
           tools: ["Blender (free)"],
@@ -231,7 +231,7 @@ export const creative: Category = {
           intro:
             "3D modeling is just pushing vertices, edges and faces around until they look like something. Start simple — a mug, a chair, a sword. Don't aim for realism, aim for recognizable.",
           outcome: "A saved .blend file containing one simple modeled object.",
-          videoUrl: yt("ICBP-7x7Chc"),
+          videoUrl: yt("SyMLR4Me-xM"),
           challenge: "Model one simple object: a mug, table, or pencil. Save your .blend file when done.",
           builderTip: "Use Blender's Modifiers panel (like 'Bevel' or 'Subdivision Surface') to smooth edges without manually adding geometry.",
           tools: ["Blender (free)"],
@@ -246,7 +246,7 @@ export const creative: Category = {
           intro:
             "A great model with bad lighting looks fake. A simple model with good lighting looks real. Three-point lighting and one material will instantly upgrade every render you make.",
           outcome: "One rendered still image of your lit, materialed model.",
-          videoUrl: yt("aafyp5g1CjI"),
+          videoUrl: yt("Aj4MHm499Hk"),
           challenge: "Add one light and one material to your model from Mission 3. Render a still image.",
           builderTip: "Download a free HDRI environment map from Poly Haven — it gives instant realistic lighting with zero setup.",
           tools: ["Blender (free)", "Poly Haven (free HDRIs)"],
@@ -262,7 +262,7 @@ export const creative: Category = {
           intro:
             "ArtStation, Instagram and r/blender are where 3D artists get noticed. One clean render with good lighting beats five rushed ones. Post consistently and feedback makes you better fast.",
           outcome: "A PNG render posted publicly on any platform you choose.",
-          videoUrl: yt("4pSkVBxlGxg"),
+          videoUrl: yt("5cOHqoIqQnw"),
           challenge: "Export your render as PNG. Post it anywhere — Instagram, WhatsApp status, or ArtStation.",
           builderTip: "Add the hashtag #b3d on Instagram or Twitter/X — it's the tag the Blender community actually searches.",
           tools: ["Blender (free)", "Instagram or ArtStation"],
@@ -289,7 +289,7 @@ export const creative: Category = {
           intro:
             "Every Pixar, Disney and anime animator learns the same 12 principles — squash & stretch, anticipation, timing. This is the best free crash course on the internet. Watch it once, spot these forever.",
           outcome: "3 identified animation principles from a real movie clip, written down.",
-          videoUrl: yt("uDqjIdI4bF4"),
+          videoUrl: yt("haa7n3UGyDc"),
           challenge: "Pick any animated movie clip. Identify 3 of the 12 principles in action and note where you saw them.",
           builderTip: "Pause on single frames during fast movement — you'll clearly see 'squash and stretch' exaggeration that's invisible at full speed.",
           tools: ["Any video app"],
@@ -334,7 +334,7 @@ export const creative: Category = {
           intro:
             "Krita is fully free, runs on any laptop, and includes a real animation timeline. If you ever move from phone to laptop, this is where to go next — without paying anything.",
           outcome: "Krita installed with 10 minutes of hands-on brush and timeline exploration.",
-          videoUrl: yt("-B3LDBlkFWU"),
+          videoUrl: yt("oXMCmiT_wxA"),
           challenge: "Download Krita (free). Open it, explore the brushes, and open the animation timeline panel.",
           builderTip: "Krita has built-in animation templates under File > New — start from one instead of a blank canvas to save setup time.",
           tools: ["Krita (free, laptop)"],
@@ -350,7 +350,7 @@ export const creative: Category = {
           intro:
             "Blender's Grease Pencil turns the famous 3D tool into a full 2D animation studio. Studios use it for hybrid 2D/3D work, and it's 100% free forever — the natural next step after Krita.",
           outcome: "Blender installed with the Grease Pencil workspace opened at least once.",
-          videoUrl: yt("5epzCprCdGc"),
+          videoUrl: yt("ZkqZRe9IXQ8"),
           challenge: "Install Blender (free). Open it, switch to the '2D Animation' template, and watch the first 10 minutes of the tutorial.",
           builderTip: "Blender's '2D Animation' start screen (choose it at launch) sets up Grease Pencil automatically — skip the manual setup.",
           tools: ["Blender (free)"],
@@ -438,7 +438,7 @@ export const creative: Category = {
           intro:
             "A deeper dive into professional-quality phone photography — settings and staging. Bring it all together and start posting work people would actually pay for.",
           outcome: "A themed 5-photo set (food, friends, or nature) ready to share as a portfolio.",
-          videoUrl: yt("Bmn_GI4xZBQ"),
+          videoUrl: yt("d8EkwAOKtU0"),
           challenge: "Shoot a small series of 5 photos around one theme (food, friends, nature). That's your first mini-portfolio.",
           builderTip: "Keep all 5 photos in the same edit style (same Snapseed filter or tone) so the set looks intentional, not random.",
           tools: ["Any smartphone camera", "Snapseed (free)"],
@@ -510,7 +510,7 @@ export const creative: Category = {
           intro:
             "Andrew Huang teaches more usable music theory in 30 minutes than most schools teach in a term. Scales, chords, keys — explained so you can apply them to a beat tonight.",
           outcome: "One new beat produced in the same musical key as a favorite song.",
-          videoUrl: yt("rgaTLrZGlk0"),
+          videoUrl: yt("oU4i59Mf8Yo"),
           challenge: "Find the key of one of your favourite songs (Google it or use a key-finder app). Make one beat in that same key.",
           builderTip: "Search '[song name] key' on Google — sites like Tunebat give you the exact key and BPM for almost any song instantly.",
           tools: ["BandLab (free)", "Tunebat or similar key-finder"],

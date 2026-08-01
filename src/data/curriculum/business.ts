@@ -25,7 +25,7 @@ export const business: Category = {
           intro:
             "Freelancing means selling a skill directly to a client — no boss, no office. Kenyans freelance in writing, design, video editing, virtual assistance, coding. You don't need to be an expert, just useful to one person today.",
           outcome: "A ranked list of 3 skills you could sell this month.",
-          videoUrl: yt("utPBI1qitJU"),
+          videoUrl: yt("70rca3DMboY"),
           challenge: "List 3 skills you have, even basic ones (typing, English, design, social media). Rank them by how confident you feel.",
           builderTip: "Open a free Google Doc titled 'Skills Inventory' — you'll keep adding to it as you learn.",
           tools: ["Google Docs"],
@@ -40,7 +40,7 @@ export const business: Category = {
           intro:
             "You don't need to be an expert — just slightly ahead of your client. Pick the skill with the smallest gap to bridge and where buyers already exist: writing, simple design, basic video editing, or data entry.",
           outcome: "One chosen starter skill with a written justification.",
-          videoUrl: yt("FMd67p9pEdo"),
+          videoUrl: yt("153Q52YQdFg"),
           challenge: "Pick ONE skill from your list. Write 3 sentences about why you'd hire yourself for it.",
           builderTip: "Search that skill + 'Fiverr' to see real gigs people already sell for it — proof buyers exist.",
           tools: ["Google Docs"],
@@ -246,7 +246,7 @@ export const business: Category = {
           intro:
             "Your first 10 customers won't come from ads — they'll come from you DM-ing people, calling friends, posting in WhatsApp groups. Founders who can sell survive long enough to figure the rest out.",
           outcome: "3 logged pitches with real reactions written down.",
-          videoUrl: yt("hyYCn_kAngI"),
+          videoUrl: yt("jycgK8EJ7B8"),
           challenge: "Message 3 people today and pitch your idea in 2 sentences. Note their reactions.",
           builderTip: "Ask 'would you pay for this?' directly — polite silence isn't the same as a real yes.",
           tools: ["WhatsApp"],
@@ -334,7 +334,7 @@ export const business: Category = {
           intro:
             "Tactics change every year — TikTok today, something else next year. But the underlying art of marketing — empathy, positioning, storytelling — never changes. Neil Patel covers what stays the same.",
           outcome: "A written ideal-customer profile: age, struggle, where they hang out online.",
-          videoUrl: yt("ExV24jFfi_g"),
+          videoUrl: yt("h95cQkEWBx0"),
           challenge: "Write down: who is your ONE ideal customer? Age, struggle, where they hang out online.",
           builderTip: "Give your ideal customer a name — 'Student Sarah' — it makes every future marketing decision faster.",
           tools: ["Notes app"],
@@ -392,7 +392,7 @@ export const business: Category = {
           intro:
             "Shopify is the most beginner-friendly way to launch a real store. The free trial lets you set up everything before you pay a cent. This walkthrough has helped thousands launch.",
           outcome: "A live Shopify trial store with a name and homepage.",
-          videoUrl: yt("uorQJ_ucDhg"),
+          videoUrl: yt("CpjAHpodQIk"),
           challenge: "Start the Shopify free trial. Set up your store name and homepage — that's enough today.",
           builderTip: "Skip around the video to just the 'store setup' section — you don't need to watch it start to finish.",
           tools: ["Shopify"],
@@ -407,7 +407,7 @@ export const business: Category = {
           intro:
             "A pretty store doesn't sell — a CLEAR store sells. Good product photos, simple navigation, and trust signals like reviews and return policy matter more than fancy design.",
           outcome: "One live product listing with 3 photos, a title, and a description.",
-          videoUrl: yt("PVufWxoWfkI"),
+          videoUrl: yt("GrP-sOgLNnM"),
           challenge: "Add your first product to your store with: 3 photos, a clear title, and a benefit-driven description.",
           builderTip: "Use Canva to clean up product photos with a plain background before uploading.",
           tools: ["Shopify", "Canva"],
@@ -422,7 +422,7 @@ export const business: Category = {
           intro:
             "Once you've launched, this guide fills the gaps — taxes, shipping zones, apps, abandoned cart emails. Treat it like a reference, not a one-sitting watch.",
           outcome: "Working shipping zones for Nairobi and the rest of Kenya.",
-          videoUrl: yt("ferhOYx1NMo"),
+          videoUrl: yt("EfFp_-Vzrkw"),
           challenge: "Set up your shipping zones (start with just 'Nairobi' and 'Rest of Kenya').",
           builderTip: "Skip to the 'Shipping' chapter in the video timestamps instead of watching the full hour.",
           tools: ["Shopify"],
@@ -510,7 +510,7 @@ export const business: Category = {
           intro:
             "Saving protects your money. Investing GROWS it. Ali Abdaal's beginner guide explains index funds, stocks and what's actually worth your time when you're starting with little money.",
           outcome: "A written summary of one Kenyan investment option and its returns.",
-          videoUrl: yt("lNdOtlpmH5U"),
+          videoUrl: yt("oO2SBxpzbmM"),
           challenge: "Research one Kenyan investment option — money market fund, T-bill, or Sanlam Money Market. Just learn what it is.",
           builderTip: "Compare at least 2 options' minimum deposit and interest rate side by side in a table.",
           tools: ["Google Sheets"],
@@ -526,7 +526,7 @@ export const business: Category = {
           intro:
             "Mark Tilbury's video is one of the most respected beginner investing breakdowns on YouTube. By the end you'll understand index funds, diversification and why most 'get rich' YouTubers are wrong.",
           outcome: "One written investing rule you commit to following.",
-          videoUrl: yt("Ay4fmZdZqJE"),
+          videoUrl: yt("XG4AcjPtMiA"),
           challenge: "Write down one investing rule you'll stick to: e.g. 'I save 20% of every paycheck before spending'.",
           builderTip: "Pin the rule somewhere you check often — phone wallpaper works better than a hidden notebook.",
           tools: ["Notes app"],

@@ -251,7 +251,7 @@ export const technology: Category = {
           intro:
             "Stitching widgets, screens and a bit of logic together teaches you 80% of what real production apps use. Pick one small idea and finish it — ugly is fine, finished is what matters.",
           outcome: "A working single-feature app you built end-to-end.",
-          videoUrl: yt("x0uinJvhNxI"),
+          videoUrl: yt("drSyOMgIFEQ"),
           challenge: "Pick ONE small idea (calculator, tip splitter, BMI tool). Build it — even if it's ugly.",
           builderTip: "Use ChatGPT to explain any error message you don't understand — paste it exactly as shown.",
           tools: ["VS Code", "Flutter SDK", "ChatGPT (free)"],
@@ -267,7 +267,7 @@ export const technology: Category = {
           intro:
             "An app you never share is just practice. Getting it onto a friend's phone as a test APK changes everything. Later you can publish to Play Store for a small one-time fee.",
           outcome: "Your app installed and running on someone else's phone.",
-          videoUrl: yt("pTJJsmejUOQ"),
+          videoUrl: yt("1xipg02Wu8s"),
           challenge: "Build a release APK with `flutter build apk`. Send it to one friend on WhatsApp and have them install it.",
           builderTip: "Rename your APK before sending — WhatsApp sometimes blocks generic filenames like app-release.apk.",
           tools: ["Flutter SDK", "WhatsApp"],
@@ -355,7 +355,7 @@ export const technology: Category = {
           intro:
             "People already pay for AI-assisted work — content drafts, image generation, CV polishing. You don't need to be an expert, just useful to one specific person with one specific problem.",
           outcome: "A list of 3 sellable AI services with who'd pay for each.",
-          videoUrl: yt("TyXivx7fFwQ"),
+          videoUrl: yt("htZRCE2GgIs"),
           challenge: "List 3 small AI services you could offer this week (e.g. CV polish, blog drafts, image edits).",
           builderTip: "Offer your first service free to one real person to get a testimonial before charging anyone.",
           tools: ["ChatGPT (free)"],
@@ -412,7 +412,7 @@ export const technology: Category = {
           intro:
             "This build-along covers frames, components, auto-layout and prototyping — Figma's four superpowers. Watch in chunks and recreate as you go instead of all at once.",
           outcome: "A recreated version of a real app screen, built by you in Figma.",
-          videoUrl: yt("ezldKx-jPag"),
+          videoUrl: yt("nZ57MPVbHUg"),
           challenge: "Recreate one screen from any app you love (Instagram login, M-Pesa home, etc.) in Figma.",
           builderTip: "Zoom into the real app screenshot and match spacing pixel-by-pixel — that habit builds a sharp eye fast.",
           tools: ["Figma (free)"],
@@ -427,7 +427,7 @@ export const technology: Category = {
           intro:
             "Designing a full landing page forces you to use everything: grids, typography, colour, hierarchy. The goal isn't perfection — it's making 100 small decisions and learning from each.",
           outcome: "A finished landing page design ready to show off.",
-          videoUrl: yt("clSHs94hNNc"),
+          videoUrl: yt("1ucLq6JTxac"),
           challenge: "Design a single-page website in Figma for a fake (or real) Kenyan business — a barber, kibanda, tutor.",
           builderTip: "Use Google Fonts pairings (like Poppins + Inter) instead of guessing font combinations.",
           tools: ["Figma (free)"],
@@ -500,7 +500,7 @@ export const technology: Category = {
           intro:
             "Seeing real password cracking — billions of guesses per second on a GPU — makes security click for life. It's also why hashing, salting and 2FA exist in the first place.",
           outcome: "2FA switched on for at least one of your real accounts.",
-          videoUrl: yt("7U-RbOKanYs"),
+          videoUrl: yt("K-96JmC2AkE"),
           challenge: "Turn on 2-factor authentication for your Gmail / WhatsApp / M-Pesa. Today.",
           builderTip: "Use an authenticator app (Google Authenticator, free) instead of SMS 2FA where possible — it's harder to intercept.",
           tools: ["Google Authenticator (free)"],
@@ -531,7 +531,7 @@ export const technology: Category = {
           intro:
             "Cybersecurity has more open jobs than people to fill them, globally and in Kenya. The Google Cybersecurity Certificate is a real, recognised entry point worth understanding before you commit.",
           outcome: "A clear 3-skill roadmap toward your first cybersecurity credential.",
-          videoUrl: yt("_DVVNOGYtmU"),
+          videoUrl: yt("jw_Kp2mP2nw"),
           challenge: "Browse the Google Cybersecurity Certificate on Coursera. Note 3 skills you'd need to learn.",
           builderTip: "Coursera offers financial aid on certificates — apply if the fee is a barrier.",
           tools: ["Coursera (free to browse)"],
