@@ -286,6 +286,8 @@ export default function Profile() {
           })}
         </div>
       </div>
+      <AtlasChat />
     </div>
   );
 }
+
