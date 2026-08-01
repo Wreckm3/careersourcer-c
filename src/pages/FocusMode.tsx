@@ -537,6 +537,9 @@ export default function FocusMode() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {phase === "session" && <AtlasChat lessonContext={atlas} />}
     </motion.div>
   );
 }
+
