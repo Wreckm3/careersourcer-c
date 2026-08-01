@@ -29,10 +29,11 @@ export interface FeatureFlags {
 export const features: FeatureFlags = {
   subscriptions: true,
   pwaInstallPrompt: true,
-  atlas: false,
+  atlas: true,
   focusModeEagle: true,
-  projectUploads: false,
+  projectUploads: true,
   adminAnalytics: false,
 };
+
 
 export const isEnabled = (flag: keyof FeatureFlags) => features[flag] === true;
