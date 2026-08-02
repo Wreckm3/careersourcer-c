@@ -101,3 +101,54 @@ export function emitAtlasMission(context: AtlasLessonContext) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent(ATLAS_MISSION_EVENT, { detail: context }));
 }
+
+/**
+ * Learner profile — Atlas's memory surface.
+ *
+ * Premium Atlas will remember progress, suggest projects, break them into
+ * milestones and recommend lessons. That all needs the same input: a compact
+ * projection of what the learner has already built. This builds it from
+ * curriculum data + completed mission ids, with a `goals` slot reserved for
+ * learner-stated goals once they are captured/persisted.
+ */
+export interface AtlasLearnerProfile {
+  missionsCompleted: number;
+  streakCurrent: number;
+  activeBranches: { branchId: string; title: string; completed: number; total: number }[];
+  completedBranches: string[];
+  recentOutcomes: string[];
+  goals?: string[];
+}
+
+export function buildAtlasLearnerProfile(
+  categoriesData: Category[],
+  completedSessions: string[],
+  streakCurrent: number,
+  goals: string[] = [],
+): AtlasLearnerProfile {
+  const done = new Set(completedSessions);
+  const activeBranches: AtlasLearnerProfile["activeBranches"] = [];
+  const completedBranches: string[] = [];
+  const recentOutcomes: string[] = [];
+
+  for (const category of categoriesData) {
+    for (const branch of category.branches) {
+      const completed = branch.lessons.filter((l) => done.has(l.id)).length;
+      if (completed === 0) continue;
+      if (completed === branch.lessons.length) completedBranches.push(branch.title);
+      else activeBranches.push({ branchId: branch.id, title: branch.title, completed, total: branch.lessons.length });
+      for (const lesson of branch.lessons) {
+        if (done.has(lesson.id)) recentOutcomes.push(lesson.outcome);
+      }
+    }
+  }
+
+  return {
+    missionsCompleted: completedSessions.length,
+    streakCurrent,
+    activeBranches: activeBranches.slice(0, 20),
+    completedBranches: completedBranches.slice(0, 30),
+    recentOutcomes: recentOutcomes.slice(-10),
+    goals: goals.length ? goals.slice(0, 5) : undefined,
+  };
+}

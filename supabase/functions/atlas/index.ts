@@ -32,9 +32,29 @@ const LessonContextSchema = z.object({
     .nullable(),
 });
 
+/**
+ * Learner profile — the memory surface Atlas grows into.
+ *
+ * Today it is a projection of local progress sent per request. When Atlas
+ * becomes premium-personalised, this same shape gets loaded server-side from
+ * the learner's row instead, plus stated goals and milestone state — the
+ * prompt contract below does not have to change.
+ */
+const LearnerProfileSchema = z.object({
+  missionsCompleted: z.number(),
+  streakCurrent: z.number(),
+  activeBranches: z
+    .array(z.object({ branchId: z.string(), title: z.string(), completed: z.number(), total: z.number() }))
+    .max(20),
+  completedBranches: z.array(z.string()).max(30),
+  recentOutcomes: z.array(z.string()).max(10),
+  goals: z.array(z.string()).max(5).optional(),
+});
+
 const BodySchema = z.object({
   messages: z.array(MessageSchema).min(1).max(40),
   lessonContext: LessonContextSchema.nullish(),
+  learnerProfile: LearnerProfileSchema.nullish(),
 });
 
 type AtlasLevel = "none" | "lite" | "smart" | "pro";
@@ -55,7 +75,7 @@ const LEVEL_BRIEF: Record<Exclude<AtlasLevel, "none">, string> = {
     "You are Atlas Pro, a long-term growth mentor. Up to 320 words. Connect today's mission to a 3-month roadmap, portfolio quality, and how this becomes income or opportunity.",
 };
 
-function systemPrompt(level: Exclude<AtlasLevel, "none">, ctx: unknown) {
+function systemPrompt(level: Exclude<AtlasLevel, "none">, ctx: unknown, profile: unknown) {
   return [
     "You are Atlas, the mentor inside CareerSourcer — a project-first learning platform for teenagers and beginners.",
     "Principles: every answer moves the learner toward something BUILT. No lecture, no history, no academic definitions.",
@@ -63,8 +83,10 @@ function systemPrompt(level: Exclude<AtlasLevel, "none">, ctx: unknown) {
     "Recommend free tools the learner can actually open now (Lovable, Figma, Canva, VS Code, Blender, CapCut, Google Sheets).",
     "Never invent CareerSourcer lessons or prices. If asked something off-topic, redirect to what they are building.",
     LEVEL_BRIEF[level],
+    "When the learner states a goal, answer as a project plan: name the project, then 3-5 milestones, then the single first step. Reference their completed missions when you can.",
     ctx ? `Current mission context (JSON):\n${JSON.stringify(ctx)}` : "The learner is not inside a mission right now.",
-  ].join("\n\n");
+    profile ? `Learner profile (JSON):\n${JSON.stringify(profile)}` : "",
+  ].filter(Boolean).join("\n\n");
 }
 
 Deno.serve(async (req) => {
@@ -121,7 +143,7 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const { messages, lessonContext } = parsed.data;
+    const { messages, lessonContext, learnerProfile } = parsed.data;
 
     const upstream = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
@@ -134,7 +156,7 @@ Deno.serve(async (req) => {
         model: "openai/gpt-5.6-sol",
         stream: true,
         store: false,
-        instructions: systemPrompt(level, lessonContext ?? null),
+        instructions: systemPrompt(level, lessonContext ?? null, learnerProfile ?? null),
         input: messages.map((m) => ({ role: m.role, content: m.content })),
         reasoning: { effort: "low", summary: "auto" },
       }),

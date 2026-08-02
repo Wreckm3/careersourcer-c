@@ -104,6 +104,24 @@ export default function Branch() {
           </div>
         </motion.div>
 
+        {branch.projectArc && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-6 p-5 rounded-2xl border-2 bg-card"
+            style={{ borderColor: `color-mix(in srgb, ${category.color} 35%, transparent)` }}
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: category.color }}>
+              The project you'll build
+            </p>
+            <p className="text-base font-bold mb-1">{branch.projectArc.projectName}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {branch.projectArc.promise}
+            </p>
+          </motion.div>
+        )}
+
         <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">
           Missions
         </h2>
