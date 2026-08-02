@@ -7,6 +7,7 @@
  */
 
 import { categories } from "@/data/curriculum";
+import { getPortfolioRecord } from "@/lib/portfolio";
 
 export interface Achievement {
   id: string;
@@ -122,8 +123,18 @@ function longestStreak(days: string[]): number {
 export interface PortfolioItem {
   lessonId: string;
   title: string;
+  /** Name of the artifact — what the learner would call it in a portfolio. */
+  projectName: string;
   outcome: string;
   tools: string[];
+  /** Named skills used. Falls back to tools when a mission has none listed. */
+  skills: string[];
+  /** ISO completion date, when recorded. */
+  completedAt: string | null;
+  /** Learner reflection notes. */
+  notes: string | null;
+  /** Reserved for future screenshot uploads. */
+  screenshotUrl: string | null;
   categoryId: string;
   categoryTitle: string;
   branchId: string;
@@ -139,11 +150,17 @@ export function buildPortfolio(completedSessions: string[]): PortfolioItem[] {
     for (const branch of category.branches) {
       for (const lesson of branch.lessons) {
         if (!done.has(lesson.id)) continue;
+        const record = getPortfolioRecord(lesson.id);
         items.push({
           lessonId: lesson.id,
           title: lesson.title,
+          projectName: record?.projectName ?? lesson.outcome,
           outcome: lesson.outcome,
           tools: lesson.tools,
+          skills: lesson.skills ?? lesson.tools,
+          completedAt: record?.completedAt ?? null,
+          notes: record?.notes ?? null,
+          screenshotUrl: record?.screenshotUrl ?? null,
           categoryId: category.id,
           categoryTitle: category.title,
           branchId: branch.id,

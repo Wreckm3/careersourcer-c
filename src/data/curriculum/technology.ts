@@ -16,6 +16,15 @@ export const technology: Category = {
       description: "Make websites people can actually visit. Start with HTML and grow from there.",
       searchKeywords: ["website", "web", "html", "css", "javascript", "frontend", "site"],
       featured: true,
+      projectArc: {
+        projectName: "Your live about-me website",
+        promise: "By mission 5 you'll have a personal website, styled and interactive, published at a real URL you can share with anyone.",
+        whatsNext: [
+          "Add a projects page and link it from your about-me site",
+          "Rebuild a small business's site as a portfolio piece",
+          "Learn a framework like React to build multi-page sites faster",
+        ],
+      },
       lessons: [
         {
           id: "web-1",
@@ -24,11 +33,28 @@ export const technology: Category = {
           description: "Peek under the hood of real sites.",
           intro:
             "Every website — YouTube, Safaricom, this one — is built from three things: HTML (structure), CSS (style), JavaScript (behaviour). You need nothing but a browser and a text editor to start building your own today.",
+          whyItMatters:
+            "You're about to build your own site, so you first need to see how real ones are put together. This mission trains your eye to spot structure, style and behaviour before you write a single line yourself.",
           outcome: "A short list of 3 design choices you want to copy in your own site.",
           videoUrl: yt("s0RI4IXKE_o"),
           challenge:
             "Open any 3 websites you use daily. Right-click → Inspect on each. Note one thing each does well in layout or design.",
           builderTip: "Use Chrome DevTools (right-click → Inspect) — it's a free X-ray for any website.",
+          builderTips: [
+            "Toggle 'Device Toolbar' in DevTools to see how sites adapt to phone screens.",
+            "Try editing text or colours live in the Elements panel — changes vanish on refresh, so it's a safe sandbox.",
+          ],
+          mistakes: [
+            "Only looking at design and ignoring the underlying HTML structure.",
+            "Getting overwhelmed by big sites — start with simple pages, not entire apps.",
+          ],
+          skills: ["Reading HTML structure", "Using browser DevTools"],
+          resources: [
+            { label: "MDN: How the web works", url: "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/How_the_Web_works" },
+            { label: "Chrome DevTools docs", url: "https://developer.chrome.com/docs/devtools/" },
+          ],
+          reflection: "Which of the 3 sites had the cleanest structure when you inspected it, and why?",
+          nextTeaser: "Next you'll stop inspecting other people's sites and write your very first live web page.",
           tools: ["Chrome or Edge browser"],
           difficulty: "Starter",
           duration: "~8 min",
@@ -40,11 +66,28 @@ export const technology: Category = {
           description: "Write your first webpage.",
           intro:
             "HTML is text with tags: <h1> for big titles, <p> for paragraphs. Save a file as index.html and any browser can open it — no install needed. That's the whole trick to getting started.",
+          whyItMatters:
+            "This is the foundation of the site you'll style, animate and publish over the next four missions. Everything you add later builds directly on top of this page.",
           outcome: "A working about-me.html page with a heading, paragraph and image.",
           videoUrl: yt("salY_Sm6mv4"),
           challenge:
             "Create about-me.html with a heading, a paragraph about you, and one image. Open it in your browser.",
           builderTip: "Use VS Code (free) with the 'Live Server' extension to see changes instantly as you type.",
+          builderTips: [
+            "Name your file exactly index.html if you want it to load automatically later on hosting services.",
+            "Keep your image in the same folder as your HTML file so the link doesn't break.",
+          ],
+          mistakes: [
+            "Forgetting closing tags, which can break the whole page's layout.",
+            "Using an absolute file path for images instead of a relative one.",
+          ],
+          skills: ["HTML structure", "Basic file management"],
+          resources: [
+            { label: "MDN: HTML basics", url: "https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML" },
+            { label: "VS Code download", url: "https://code.visualstudio.com/" },
+          ],
+          reflection: "What was the trickiest part of getting your page to look the way you wanted?",
+          nextTeaser: "Next, you'll take this plain page and give it real colour, fonts and layout with CSS.",
           tools: ["VS Code or Notepad", "Web browser"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -56,11 +99,29 @@ export const technology: Category = {
           description: "Add colour, fonts and layout.",
           intro:
             "CSS controls how HTML looks — colours, fonts, spacing. The same page can look totally different with a few CSS lines. Don't memorize properties, just tweak values and watch what changes.",
+          whyItMatters:
+            "The plain page you built last mission works, but it doesn't look like 'you' yet. Styling it now turns a bare structure into something you'd be proud to share.",
           outcome: "Your about-me page redesigned with custom colours, fonts and spacing.",
           videoUrl: yt("OEV8gMkCHXQ"),
           challenge:
             "Add a <style> block to about-me.html. Change the background colour, font, and heading colour.",
           builderTip: "Use coolors.co to grab a free matching colour palette in seconds.",
+          builderTips: [
+            "Use Google Fonts to pick a free custom font instead of the browser default.",
+            "Change one CSS property at a time so you always know what caused a change.",
+          ],
+          mistakes: [
+            "Writing styles directly in the HTML tag instead of a stylesheet, making the page messy.",
+            "Picking clashing colours — test with a palette generator instead of guessing.",
+          ],
+          skills: ["CSS layout", "Colour and typography basics"],
+          resources: [
+            { label: "MDN: CSS first steps", url: "https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps" },
+            { label: "Coolors palette generator", url: "https://coolors.co/" },
+            { label: "Google Fonts", url: "https://fonts.google.com/" },
+          ],
+          reflection: "Does your page now feel like it represents you? What would you still change?",
+          nextTeaser: "Next you'll add a button that actually reacts when someone clicks it, using JavaScript.",
           tools: ["VS Code", "Web browser"],
           difficulty: "Builder",
           duration: "~10 min",
@@ -72,11 +133,28 @@ export const technology: Category = {
           description: "Make your page react to clicks.",
           intro:
             "JavaScript makes pages do things — respond to clicks, update content, validate forms. Start tiny: one button, one action. That single win is enough to unlock the rest of JavaScript later.",
+          whyItMatters:
+            "Your styled page looks great but is still static. Adding one working button proves you can make a page respond to people — the same skill behind every form, game and app feature.",
           outcome: "A page with a working button that greets you by name.",
           videoUrl: yt("DHjqpvDnNGE"),
           challenge:
             "Add a button to your page that shows an alert with your name when clicked.",
           builderTip: "Keep DevTools Console open (F12) — it shows JavaScript errors instantly so you can fix them fast.",
+          builderTips: [
+            "Give your button an id so JavaScript can find it easily with getElementById.",
+            "Test in small steps — get the click detected first, then worry about what it does.",
+          ],
+          mistakes: [
+            "Linking the JavaScript file above the HTML button, so the script runs before the button exists.",
+            "Misspelling the id between HTML and JavaScript, causing silent failures.",
+          ],
+          skills: ["JavaScript basics", "DOM events", "Debugging with the console"],
+          resources: [
+            { label: "MDN: JavaScript first steps", url: "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps" },
+            { label: "MDN: addEventListener", url: "https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener" },
+          ],
+          reflection: "What did seeing your button actually work make you want to build next?",
+          nextTeaser: "Final mission: take this finished page live with a real, shareable URL.",
           tools: ["VS Code", "Web browser"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -89,11 +167,28 @@ export const technology: Category = {
           description: "Put your site online for free.",
           intro:
             "A website only counts once someone else can visit it. Netlify Drop turns a folder into a live URL in seconds — no hosting fees, no card required. This is the moment your project becomes real.",
+          whyItMatters:
+            "You've built, styled and animated this page across four missions — this is the payoff. Publishing it turns a personal file into something real people anywhere can open.",
           outcome: "A live public URL for your site that anyone can open.",
           videoUrl: yt("0P53S34zm44"),
           challenge:
             "Deploy your about-me page using Netlify Drop (drag and drop). Share the link with one friend.",
           builderTip: "Netlify Drop needs zero sign-up for your first deploy — just drag your folder onto the page.",
+          builderTips: [
+            "Double-check your image and file paths are relative before deploying, or they'll break online.",
+            "Save the Netlify link somewhere permanent — you'll want it for job or school applications.",
+          ],
+          mistakes: [
+            "Uploading the wrong folder and getting a blank page.",
+            "Forgetting to actually share the link — a live site nobody sees doesn't build your reputation.",
+          ],
+          skills: ["Web deployment", "Sharing a finished project"],
+          resources: [
+            { label: "Netlify Drop", url: "https://app.netlify.com/drop" },
+            { label: "MDN: Publishing your website", url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Tools_and_setup/Using_GitHub_pages" },
+          ],
+          reflection: "How did it feel seeing your own site open on someone else's phone or laptop?",
+          nextTeaser: "With a live site now published, you can keep growing it into a full portfolio with more pages and projects.",
           tools: ["Netlify Drop (free)"],
           difficulty: "Advanced",
           duration: "~10 min",
@@ -109,6 +204,15 @@ export const technology: Category = {
       description: "Make games people actually play. Start in your browser with no install.",
       searchKeywords: ["game", "games", "unity", "scratch", "play", "gaming", "indie"],
       featured: true,
+      projectArc: {
+        projectName: "Your first shipped game",
+        promise: "By mission 5 you'll go from a game idea on paper to a real, playable game published on itch.io that anyone can play.",
+        whatsNext: [
+          "Rebuild your Scratch prototype properly inside Unity",
+          "Add sound, art and a scoring system to your published game",
+          "Enter a free beginner game jam to build something new on a deadline",
+        ],
+      },
       lessons: [
         {
           id: "game-1",
@@ -117,10 +221,27 @@ export const technology: Category = {
           description: "Understand how indie games are built.",
           intro:
             "Most games — even huge ones — start with one person, one idea, and a free tool like Scratch, GDevelop or Godot. The hard part isn't the engine; it's finishing something tiny. Aim small first.",
+          whyItMatters:
+            "Before you touch any tool, you need a realistic target. Picking small, clonable games now means you'll actually finish something in the missions ahead instead of getting stuck on a huge idea.",
           outcome: "A shortlist of 3 simple games you could clone this week.",
           videoUrl: yt("_eK26atXTds"),
           challenge: "List 3 simple games you'd like to recreate (Pong, Snake, Flappy Bird, etc.)",
           builderTip: "Search '[game name] clone tutorial' on YouTube — someone has already built exactly what you want to make.",
+          builderTips: [
+            "Pick games with one main action (jump, dodge, match) — they're easiest to clone first.",
+            "Write down why each game is fun, not just what it looks like.",
+          ],
+          mistakes: [
+            "Choosing a game far too complex for a first project (open-world, multiplayer, etc.).",
+            "Focusing on graphics instead of the core gameplay idea.",
+          ],
+          skills: ["Game scoping", "Breaking down a game into simple parts"],
+          resources: [
+            { label: "Godot Engine docs", url: "https://docs.godotengine.org/en/stable/" },
+            { label: "GDevelop (free, no-code)", url: "https://gdevelop.io/" },
+          ],
+          reflection: "Which of your 3 game ideas feels the most realistic to finish this week, and why?",
+          nextTeaser: "Next you'll build your first playable prototype with zero code using Scratch.",
           tools: ["Notes app"],
           difficulty: "Starter",
           duration: "~8 min",
@@ -132,10 +253,27 @@ export const technology: Category = {
           description: "Build a playable game with zero code.",
           intro:
             "Scratch is drag-and-drop coding in your browser — no download, no setup. It's what MIT uses to teach programming. You'll have something playable in under 10 minutes.",
+          whyItMatters:
+            "You picked your game ideas last mission — now you turn one into something you can actually press play on. This is your first real, playable prototype.",
           outcome: "A Scratch project where a character moves with arrow keys.",
           videoUrl: yt("jXUZaf5D12A"),
           challenge: "Go to scratch.mit.edu and make a sprite move when you press arrow keys.",
           builderTip: "Scratch's 'Remix' button lets you open anyone's project and study exactly how they built it.",
+          builderTips: [
+            "Use the 'if key pressed' block combined with 'change x/y by' for smooth movement.",
+            "Save your project often — Scratch doesn't always autosave in every browser.",
+          ],
+          mistakes: [
+            "Stacking blocks in the wrong order so nothing happens when you press play.",
+            "Forgetting to put movement code inside a 'forever' loop.",
+          ],
+          skills: ["Visual/block-based coding", "Game logic basics"],
+          resources: [
+            { label: "Scratch", url: "https://scratch.mit.edu/" },
+            { label: "Scratch tutorials (official)", url: "https://scratch.mit.edu/ideas" },
+          ],
+          reflection: "What was the moment your sprite first moved the way you wanted?",
+          nextTeaser: "Next you'll figure out exactly what makes your game fun to keep playing — its core loop.",
           tools: ["scratch.mit.edu (free)"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -147,10 +285,26 @@ export const technology: Category = {
           description: "What makes a game actually fun.",
           intro:
             "Great games aren't about graphics — they're about one core loop that feels good to repeat: jump-and-land, shoot-and-hit, match-and-clear. Nail the loop before adding more code.",
+          whyItMatters:
+            "Your Scratch prototype moves, but movement alone isn't a game. This mission defines exactly what will make it fun, which is what you'll actually build in a real engine next.",
           outcome: "A one-sentence core loop description for your own game idea.",
           videoUrl: yt("216_5nu4aVQ"),
           challenge: "Pick your favourite game. Write down its core loop in one sentence. Then write one for your own idea.",
           builderTip: "Test your loop on paper first — sketch what happens in the first 10 seconds of play.",
+          builderTips: [
+            "If you can't describe your loop in one sentence, it's probably too complicated for now.",
+            "Ask a friend to read your loop description and guess if it sounds fun — that's a fast gut-check.",
+          ],
+          mistakes: [
+            "Designing a loop around a story or graphics instead of a repeatable action.",
+            "Making the loop too complex to build in a beginner engine.",
+          ],
+          skills: ["Game design thinking", "Simplifying an idea to its core"],
+          resources: [
+            { label: "Godot Engine docs", url: "https://docs.godotengine.org/en/stable/" },
+          ],
+          reflection: "Would you actually want to keep playing your own core loop 10 times in a row?",
+          nextTeaser: "Next you'll install Unity, the real engine you'll use to build this loop properly.",
           tools: ["Notes app"],
           difficulty: "Builder",
           duration: "~10 min",
@@ -162,10 +316,27 @@ export const technology: Category = {
           description: "Tour the engine real games are built in.",
           intro:
             "Unity powers games on Play Store, Steam and consoles, and it's free for beginners. The interface looks intimidating at first — this mission just gets you inside and comfortable.",
+          whyItMatters:
+            "Scratch got your idea moving, but Unity is where you'll actually build and eventually publish your game. This mission is just about getting comfortable in the real tool.",
           outcome: "An open, empty 2D Unity project on your machine.",
           videoUrl: yt("IlKaB1etrik"),
           challenge: "Download Unity Hub (free). Create a new 2D project. Just open it and look around.",
           builderTip: "Unity Learn has free official tutorials matched to whatever version you install.",
+          builderTips: [
+            "Install the LTS (Long Term Support) version of Unity — it's the most stable for beginners.",
+            "Don't panic at the number of panels — you'll only need Scene, Hierarchy and Inspector at first.",
+          ],
+          mistakes: [
+            "Installing the wrong Unity version that doesn't match your tutorial.",
+            "Trying to learn every panel at once instead of just exploring.",
+          ],
+          skills: ["Game engine navigation", "Project setup"],
+          resources: [
+            { label: "Unity Hub download", url: "https://unity.com/download" },
+            { label: "Unity Learn (free)", url: "https://learn.unity.com/" },
+          ],
+          reflection: "What part of the Unity interface felt the most familiar coming from Scratch?",
+          nextTeaser: "Final mission: publish a real game to itch.io and see how solo developers launch their work.",
           tools: ["Unity Hub (free)"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -178,10 +349,27 @@ export const technology: Category = {
           description: "Put your game online for free.",
           intro:
             "A game becomes real once someone else plays it. itch.io lets you publish free browser games instantly, no approval process. One link, one friend playing — that's your first shipped game.",
+          whyItMatters:
+            "You've scoped an idea, prototyped it, defined its core loop and opened a real engine — this final mission is about learning how solo developers actually get their work in front of players.",
           outcome: "A live itch.io account and a sense of how to publish your own game later.",
           videoUrl: yt("c2T7GOXR8xo"),
           challenge: "Create a free itch.io account. Browse 3 indie games made by solo developers and note what you like.",
           builderTip: "itch.io lets you set your game price to 'free or donate' — great for your first release.",
+          builderTips: [
+            "Look at how solo devs write their game page description — copy that structure for your own later.",
+            "Note the file formats (web, Windows, etc.) each game supports so you know what to aim for.",
+          ],
+          mistakes: [
+            "Waiting until a game feels 'perfect' before ever publishing anything.",
+            "Ignoring the game page description — it's often what gets someone to click play.",
+          ],
+          skills: ["Publishing a game", "Studying successful indie projects"],
+          resources: [
+            { label: "itch.io", url: "https://itch.io/" },
+            { label: "Godot Engine docs", url: "https://docs.godotengine.org/en/stable/" },
+          ],
+          reflection: "Which indie game page made you want to click 'play' the most, and why?",
+          nextTeaser: "With the fundamentals down, you can now rebuild your Scratch prototype properly inside Unity and publish it for real.",
           tools: ["itch.io (free)"],
           difficulty: "Advanced",
           duration: "~10 min",
@@ -197,6 +385,15 @@ export const technology: Category = {
       description: "Make apps for Android and iPhone using a single codebase.",
       searchKeywords: ["app", "mobile", "phone", "android", "ios", "flutter", "react native"],
       featured: true,
+      projectArc: {
+        projectName: "Your first working phone app",
+        promise: "By mission 5 you'll have a real, working app installed and running on a friend's phone — not just on your laptop.",
+        whatsNext: [
+          "Add a database so your app remembers data between uses",
+          "Publish your app properly to the Google Play Store",
+          "Rebuild a second, more ambitious app idea using what you now know",
+        ],
+      },
       lessons: [
         {
           id: "app-1",
@@ -205,10 +402,27 @@ export const technology: Category = {
           description: "Understand what you're about to build.",
           intro:
             "An app is a program that runs on a phone. Flutter lets you build one app that runs on both Android and iPhone — no need to learn two languages. It's the friendliest way to start.",
+          whyItMatters:
+            "Before installing anything, you should feel what a Flutter app is actually like to use. This gives you a real target to aim for as you build your own over the next four missions.",
           outcome: "Hands-on familiarity with what a Flutter-built app feels like.",
           videoUrl: yt("lHhRhPV--G0"),
           challenge: "Search the Play Store for 'Flutter Gallery'. Install it and tap around — every screen there is built with Flutter.",
           builderTip: "Flutter's official gallery app is open-source — you can read its code later for free.",
+          builderTips: [
+            "Notice how smooth transitions and animations feel — that's a Flutter strength you'll get for free.",
+            "Compare it mentally to a native app you use daily; most people can't tell the difference.",
+          ],
+          mistakes: [
+            "Assuming apps built with a single codebase must feel clunky — modern Flutter apps often don't.",
+            "Skipping this exploration step and jumping straight to installing tools.",
+          ],
+          skills: ["Evaluating app UX", "Understanding cross-platform tools"],
+          resources: [
+            { label: "Flutter official docs", url: "https://docs.flutter.dev/" },
+            { label: "Flutter showcase apps", url: "https://flutter.dev/showcase" },
+          ],
+          reflection: "What surprised you most about how smooth or native the app felt?",
+          nextTeaser: "Next you'll install the actual Flutter toolkit you'll use to build your own app.",
           tools: ["Android phone or emulator"],
           difficulty: "Starter",
           duration: "~8 min",
@@ -220,10 +434,27 @@ export const technology: Category = {
           description: "Install the tools you'll use forever.",
           intro:
             "Setup is the hardest part of app development — once Flutter is installed, everything else moves faster. You need the Flutter SDK plus Android Studio. It takes time once, then never again.",
+          whyItMatters:
+            "You've seen what's possible with Flutter — now you need the actual toolkit installed before you can build anything of your own in the next mission.",
           outcome: "A working Flutter install verified by flutter doctor.",
           videoUrl: yt("1ukSR1GRtMU"),
           challenge: "Install Flutter and run `flutter doctor` in the terminal. Aim to see at least one green checkmark.",
           builderTip: "Run `flutter doctor` again anytime something breaks — it tells you exactly what's missing.",
+          builderTips: [
+            "Set aside real time for this — installs can take 20–40 minutes depending on your internet.",
+            "If Android Studio setup fails, restart your computer before troubleshooting further.",
+          ],
+          mistakes: [
+            "Skipping `flutter doctor` and assuming the install worked.",
+            "Giving up after the first error instead of reading exactly what it says is missing.",
+          ],
+          skills: ["Developer environment setup", "Reading terminal output"],
+          resources: [
+            { label: "Flutter install guide", url: "https://docs.flutter.dev/get-started/install" },
+            { label: "Android Studio", url: "https://developer.android.com/studio" },
+          ],
+          reflection: "What was the first checkmark you got, and what's still missing?",
+          nextTeaser: "Next you'll use this setup to build and instantly update your first real widget.",
           tools: ["Flutter SDK (free)", "Android Studio (free)"],
           difficulty: "Starter",
           duration: "~15 min",
@@ -235,10 +466,26 @@ export const technology: Category = {
           description: "The Lego-block thinking behind Flutter.",
           intro:
             "Everything in Flutter is a 'widget' — text, buttons, layouts — combined like Lego blocks. It sounds abstract until you build one, then it clicks fast.",
+          whyItMatters:
+            "With Flutter installed, this is your first real edit inside it. Seeing your own name appear instantly is proof your whole setup works, and it's the same skill you'll use to build a full app next.",
           outcome: "A running Flutter app displaying your own name.",
           videoUrl: yt("W1pNjxmNHNQ"),
           challenge: "Create a new Flutter project. Change the default text to your own name and hot-reload it.",
           builderTip: "Hot reload (press 'r' in terminal, or save the file) updates your app in under a second — use it constantly.",
+          builderTips: [
+            "Keep the app running in an emulator while you edit so you see hot reload happen live.",
+            "Try changing a colour or font size next, just to get comfortable editing widgets.",
+          ],
+          mistakes: [
+            "Doing a full restart every time instead of using hot reload, which wastes time.",
+            "Editing the wrong widget file and wondering why nothing changes.",
+          ],
+          skills: ["Flutter widgets", "Hot reload workflow"],
+          resources: [
+            { label: "Flutter widgets intro", url: "https://docs.flutter.dev/ui/widgets-intro" },
+          ],
+          reflection: "How did hot reload change the way you experiment with code compared to writing HTML?",
+          nextTeaser: "Next you'll combine widgets like these into one full, real working app.",
           tools: ["VS Code", "Flutter SDK"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -250,10 +497,27 @@ export const technology: Category = {
           description: "From single screen to multi-screen app.",
           intro:
             "Stitching widgets, screens and a bit of logic together teaches you 80% of what real production apps use. Pick one small idea and finish it — ugly is fine, finished is what matters.",
+          whyItMatters:
+            "You now know how widgets work individually — this mission is where you combine them into a complete, functioning app, the exact thing you'll hand to a friend in the final mission.",
           outcome: "A working single-feature app you built end-to-end.",
           videoUrl: yt("drSyOMgIFEQ"),
           challenge: "Pick ONE small idea (calculator, tip splitter, BMI tool). Build it — even if it's ugly.",
           builderTip: "Use ChatGPT to explain any error message you don't understand — paste it exactly as shown.",
+          builderTips: [
+            "Build the logic first with plain numbers before worrying about styling.",
+            "Test edge cases like empty inputs or zero — that's where most beginner apps break.",
+          ],
+          mistakes: [
+            "Trying to add too many features before finishing the core function.",
+            "Spending too long on visual polish before the app even works.",
+          ],
+          skills: ["App logic", "State management basics", "Debugging"],
+          resources: [
+            { label: "Flutter cookbook (recipes)", url: "https://docs.flutter.dev/cookbook" },
+            { label: "ChatGPT", url: "https://chatgpt.com/" },
+          ],
+          reflection: "What was the hardest bug you fixed, and how did you figure it out?",
+          nextTeaser: "Final mission: get this exact app running on a real friend's phone.",
           tools: ["VS Code", "Flutter SDK", "ChatGPT (free)"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -266,10 +530,26 @@ export const technology: Category = {
           description: "From your laptop to a real phone.",
           intro:
             "An app you never share is just practice. Getting it onto a friend's phone as a test APK changes everything. Later you can publish to Play Store for a small one-time fee.",
+          whyItMatters:
+            "You built a real, working app last mission — this is the moment it stops being 'practice' and becomes something a real person outside your laptop actually uses.",
           outcome: "Your app installed and running on someone else's phone.",
           videoUrl: yt("1xipg02Wu8s"),
           challenge: "Build a release APK with `flutter build apk`. Send it to one friend on WhatsApp and have them install it.",
           builderTip: "Rename your APK before sending — WhatsApp sometimes blocks generic filenames like app-release.apk.",
+          builderTips: [
+            "Warn your friend they'll need to allow 'install from unknown sources' for a test APK.",
+            "Ask them for honest feedback on what confused them — that's your first real user research.",
+          ],
+          mistakes: [
+            "Sending a debug build instead of a release build, which can be slower or larger.",
+            "Not testing the APK yourself on a spare device before sending it out.",
+          ],
+          skills: ["App builds and packaging", "Getting real user feedback"],
+          resources: [
+            { label: "Flutter: build and release APK", url: "https://docs.flutter.dev/deployment/android" },
+          ],
+          reflection: "What did your friend say about your app that you hadn't noticed yourself?",
+          nextTeaser: "With one app shipped, you're ready to add real data storage or publish properly to the Play Store.",
           tools: ["Flutter SDK", "WhatsApp"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -285,6 +565,15 @@ export const technology: Category = {
       description: "Use ChatGPT, Claude and no-code AI tools to save time and build things.",
       searchKeywords: ["ai", "chatgpt", "automation", "claude", "gpt", "artificial intelligence"],
       featured: true,
+      projectArc: {
+        projectName: "Your personal AI workflow",
+        promise: "By mission 5 you'll have a working automation, a library of strong prompts, and a plan to turn AI skills into real income.",
+        whatsNext: [
+          "Chain multiple Zaps together into a full automated workflow",
+          "Learn basic prompt engineering techniques for images and code",
+          "Land your first paying client for an AI-powered service",
+        ],
+      },
       lessons: [
         {
           id: "ai-1",
@@ -293,10 +582,26 @@ export const technology: Category = {
           description: "Understand the tool you're about to use.",
           intro:
             "AI tools like ChatGPT predict the next likely word from patterns in huge amounts of text — not magic. Knowing this changes how you use them: clearer instructions in, better answers out.",
+          whyItMatters:
+            "Everything in this branch — better prompts, automations, paid services — depends on you actually understanding what AI is and isn't. This mission gets you your first genuinely useful answer.",
           outcome: "One real, useful answer from AI on a topic you chose.",
           videoUrl: yt("xs3ZyXX7dX0"),
           challenge: "Open ChatGPT (free). Ask it to explain something you actually want to learn today.",
           builderTip: "Ask ChatGPT to 'explain like I'm new to this' if the first answer feels too technical.",
+          builderTips: [
+            "Ask a follow-up question if the first answer isn't quite right — AI chats build on context.",
+            "Try the same question in two different ways and compare which answer helps more.",
+          ],
+          mistakes: [
+            "Assuming every AI answer is automatically correct without double-checking facts.",
+            "Asking a vague question and getting frustrated with a vague answer.",
+          ],
+          skills: ["Basic AI literacy", "Asking clear questions"],
+          resources: [
+            { label: "ChatGPT", url: "https://chatgpt.com/" },
+          ],
+          reflection: "What real problem did AI just help you understand better?",
+          nextTeaser: "Next you'll learn the exact formula that turns a weak prompt into a great one.",
           tools: ["ChatGPT (free)"],
           difficulty: "Starter",
           duration: "~8 min",
@@ -308,10 +613,26 @@ export const technology: Category = {
           description: "The formula behind every great AI answer.",
           intro:
             "A weak prompt gets a weak answer. A strong prompt sets a role, a task, a format and a constraint. That formula alone puts you ahead of most AI users.",
+          whyItMatters:
+            "You got a useful answer last mission, but this is where you learn to get great answers on demand — the skill behind every AI task you'll do from here on.",
           outcome: "Two AI answers side by side — proof that better prompts win.",
           videoUrl: yt("_wPTAeZLd7c"),
           challenge: "Rewrite one bad prompt using: role + task + format + constraint. Compare both answers.",
           builderTip: "Save your best prompts in a notes app — reuse and tweak them instead of starting from scratch each time.",
+          builderTips: [
+            "Give AI a specific audience (e.g. 'explain to a 14-year-old') to instantly sharpen the answer.",
+            "Ask for a specific format like a table or bullet list to make answers easier to use.",
+          ],
+          mistakes: [
+            "Writing prompts as vague requests instead of clear instructions.",
+            "Forgetting to specify a format, so answers come back messier than needed.",
+          ],
+          skills: ["Prompt engineering basics", "Comparing outputs critically"],
+          resources: [
+            { label: "OpenAI prompt engineering guide", url: "https://platform.openai.com/docs/guides/prompt-engineering" },
+          ],
+          reflection: "How much better was your second answer compared to the first?",
+          nextTeaser: "Next you'll put strong prompting to work by automating one real task from your week.",
           tools: ["ChatGPT (free)"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -323,10 +644,26 @@ export const technology: Category = {
           description: "Practical, daily ways to use AI.",
           intro:
             "AI shines at boring tasks: summarising notes, drafting emails, planning your week. Pick one recurring task, let AI produce a first draft, then you edit and stay in control.",
+          whyItMatters:
+            "Now that you can write strong prompts, this mission proves AI can save you real time on something you already do every week — setting you up for full automation next.",
           outcome: "One real weekly task completed faster with an AI-drafted result.",
           videoUrl: yt("Qc6pdR8BhFA"),
           challenge: "Pick one repetitive task this week (notes, emails, planning). Use AI to do it.",
           builderTip: "Give AI an example of your own writing style first — it'll match your tone much better.",
+          builderTips: [
+            "Always review and lightly edit AI drafts before sending — never send them unread.",
+            "Reuse the same prompt each week and refine it slightly each time.",
+          ],
+          mistakes: [
+            "Sending AI-written messages without checking them for mistakes or wrong tone.",
+            "Trying to automate a task that actually needs a personal, human touch.",
+          ],
+          skills: ["Task automation thinking", "Editing AI output"],
+          resources: [
+            { label: "ChatGPT", url: "https://chatgpt.com/" },
+          ],
+          reflection: "How much time did AI actually save you on this task?",
+          nextTeaser: "Next you'll build a real automation that keeps running even when you're not there.",
           tools: ["ChatGPT (free)"],
           difficulty: "Builder",
           duration: "~10 min",
@@ -338,10 +675,27 @@ export const technology: Category = {
           description: "Make apps work for you.",
           intro:
             "Tools like Zapier connect apps so they act automatically — like saving email attachments straight to Drive. No code needed. One automation can save you hours every month.",
+          whyItMatters:
+            "You've been using AI to draft things by hand — this mission takes it further, setting up something that keeps saving you time even after you close your laptop.",
           outcome: "A live, working Zap running in the background for you.",
           videoUrl: yt("JtdUgJGI_Oo"),
           challenge: "Sign up for Zapier free. Build one Zap (even a trivial one) and turn it on.",
           builderTip: "Start with Zapier's pre-built templates — they're faster to launch than building from scratch.",
+          builderTips: [
+            "Test your Zap with a real trigger to confirm it actually works before relying on it.",
+            "Check Zapier's task limit on the free tier so your automation doesn't quietly stop.",
+          ],
+          mistakes: [
+            "Building a Zap and forgetting to turn it on.",
+            "Connecting the wrong accounts, so the automation runs but on the wrong data.",
+          ],
+          skills: ["No-code automation", "Connecting apps together"],
+          resources: [
+            { label: "Zapier", url: "https://zapier.com/" },
+            { label: "Zapier templates", url: "https://zapier.com/apps" },
+          ],
+          reflection: "What repetitive task in your life could this same idea eliminate next?",
+          nextTeaser: "Final mission: turn everything you've learned into a real, sellable AI service.",
           tools: ["Zapier (free tier)"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -354,10 +708,26 @@ export const technology: Category = {
           description: "Earn from what you just learned.",
           intro:
             "People already pay for AI-assisted work — content drafts, image generation, CV polishing. You don't need to be an expert, just useful to one specific person with one specific problem.",
+          whyItMatters:
+            "You now know how to prompt well, save time and automate tasks — this mission turns those exact skills into something you could genuinely get paid for.",
           outcome: "A list of 3 sellable AI services with who'd pay for each.",
           videoUrl: yt("htZRCE2GgIs"),
           challenge: "List 3 small AI services you could offer this week (e.g. CV polish, blog drafts, image edits).",
           builderTip: "Offer your first service free to one real person to get a testimonial before charging anyone.",
+          builderTips: [
+            "Price your first few jobs low just to get real feedback and a portfolio example.",
+            "Post your service idea in one WhatsApp group or community you're already part of.",
+          ],
+          mistakes: [
+            "Trying to offer every AI service at once instead of picking one to get good at.",
+            "Never actually reaching out to a real potential customer.",
+          ],
+          skills: ["Turning a skill into a service", "Basic freelancing thinking"],
+          resources: [
+            { label: "ChatGPT", url: "https://chatgpt.com/" },
+          ],
+          reflection: "Which of your 3 service ideas would you feel most confident offering to a stranger?",
+          nextTeaser: "With one AI workflow built, you can now chain automations together or land your first real client.",
           tools: ["ChatGPT (free)"],
           difficulty: "Advanced",
           duration: "~12 min",
@@ -373,6 +743,15 @@ export const technology: Category = {
       description: "Design how apps and websites look and feel using free tools like Figma.",
       searchKeywords: ["ui", "ux", "design", "figma", "interface", "user experience"],
       featured: true,
+      projectArc: {
+        projectName: "Your first design portfolio plan",
+        promise: "By mission 5 you'll have designed a full landing page in Figma and mapped out the 3-project portfolio that gets you hired.",
+        whatsNext: [
+          "Build all 3 portfolio projects out fully in Figma",
+          "Turn one Figma design into a real coded website",
+          "Get feedback on your portfolio from a designer community online",
+        ],
+      },
       lessons: [
         {
           id: "ux-1",
@@ -381,10 +760,26 @@ export const technology: Category = {
           description: "The difference everyone confuses.",
           intro:
             "UI is how it looks. UX is how it works. A pretty app nobody can use has good UI and bad UX. The best products nail both — and you can train your eye to spot the difference today.",
+          whyItMatters:
+            "Every design decision you make in the next four missions depends on being able to tell good UX from bad. This mission trains that eye before you start designing anything yourself.",
           outcome: "A written mini-audit of 3 apps you use daily.",
           videoUrl: yt("SRec90j6lTY"),
           challenge: "Open 3 apps on your phone. For each, write 1 thing that's great UX and 1 that's frustrating.",
           builderTip: "Screenshot the moments you flag — you'll want them later for a portfolio case study.",
+          builderTips: [
+            "Notice moments where you hesitate or tap the wrong thing — that's usually bad UX.",
+            "Compare a well-funded app to a smaller one to see the difference budget can make.",
+          ],
+          mistakes: [
+            "Confusing 'looks nice' with 'works well' — they're not the same thing.",
+            "Only noticing the bad moments and ignoring what's actually working well.",
+          ],
+          skills: ["UX evaluation", "Critical observation"],
+          resources: [
+            { label: "Nielsen Norman Group: UX basics", url: "https://www.nngroup.com/articles/definition-user-experience/" },
+          ],
+          reflection: "Which app frustrated you the most, and what would you change about it?",
+          nextTeaser: "Next you'll open Figma for the first time and place your very first shapes.",
           tools: ["Your phone"],
           difficulty: "Starter",
           duration: "~12 min",
@@ -396,10 +791,27 @@ export const technology: Category = {
           description: "The tool you'll actually use.",
           intro:
             "Figma is the design tool the whole industry uses — free, browser-based, and the only tool you need to know for years. This mission gets your hands moving inside it immediately.",
+          whyItMatters:
+            "You now know what good and bad UX feels like — this mission gives you the actual tool to start designing your own screens, starting simple with shapes and a frame.",
           outcome: "A Figma frame containing 3 shapes you placed yourself.",
           videoUrl: yt("jQ1sfKIl50E"),
           challenge: "Sign up for Figma (free). Create one frame and drag in 3 shapes — that's it.",
           builderTip: "Press 'F' for frame and 'R' for rectangle — Figma's keyboard shortcuts save huge amounts of time.",
+          builderTips: [
+            "Rename your frame and layers as you go — it keeps bigger projects manageable later.",
+            "Try changing shape colours and corner radius just to get a feel for the panel.",
+          ],
+          mistakes: [
+            "Placing shapes outside the frame boundary by accident.",
+            "Not renaming layers, making it hard to find things as your file grows.",
+          ],
+          skills: ["Figma basics", "Frames and shapes"],
+          resources: [
+            { label: "Figma", url: "https://www.figma.com/" },
+            { label: "Figma basics tutorial", url: "https://help.figma.com/hc/en-us/categories/360002051613-Getting-started" },
+          ],
+          reflection: "What Figma shortcut do you think you'll use the most going forward?",
+          nextTeaser: "Next you'll go further and recreate a real screen from an app you actually love.",
           tools: ["Figma (free)"],
           difficulty: "Starter",
           duration: "~13 min",
@@ -411,10 +823,27 @@ export const technology: Category = {
           description: "Go deeper at your own pace.",
           intro:
             "This build-along covers frames, components, auto-layout and prototyping — Figma's four superpowers. Watch in chunks and recreate as you go instead of all at once.",
+          whyItMatters:
+            "Placing basic shapes was just a warm-up — this mission has you rebuild a real, polished screen, which is exactly the skill you'll need to design your own landing page next.",
           outcome: "A recreated version of a real app screen, built by you in Figma.",
           videoUrl: yt("nZ57MPVbHUg"),
           challenge: "Recreate one screen from any app you love (Instagram login, M-Pesa home, etc.) in Figma.",
           builderTip: "Zoom into the real app screenshot and match spacing pixel-by-pixel — that habit builds a sharp eye fast.",
+          builderTips: [
+            "Use auto-layout so your design doesn't fall apart if you tweak content later.",
+            "Turn repeated elements (like buttons) into components so you can reuse them.",
+          ],
+          mistakes: [
+            "Eyeballing spacing instead of actually measuring the original screenshot.",
+            "Rebuilding everything from scratch instead of reusing components you already made.",
+          ],
+          skills: ["Components", "Auto-layout", "Attention to detail"],
+          resources: [
+            { label: "Figma: auto-layout", url: "https://help.figma.com/hc/en-us/articles/360040451373-Explore-auto-layout-properties" },
+            { label: "Figma: components", url: "https://help.figma.com/hc/en-us/articles/360038662654-Guide-to-components-in-Figma" },
+          ],
+          reflection: "How close did your recreation get to the real app, and where did it differ?",
+          nextTeaser: "Next you'll apply everything so far to design a full landing page from scratch.",
           tools: ["Figma (free)"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -426,10 +855,27 @@ export const technology: Category = {
           description: "Apply everything to one project.",
           intro:
             "Designing a full landing page forces you to use everything: grids, typography, colour, hierarchy. The goal isn't perfection — it's making 100 small decisions and learning from each.",
+          whyItMatters:
+            "You've practiced on a small recreated screen — now you'll design something complete and original, the exact kind of project that becomes the centerpiece of your portfolio next.",
           outcome: "A finished landing page design ready to show off.",
           videoUrl: yt("1ucLq6JTxac"),
           challenge: "Design a single-page website in Figma for a fake (or real) Kenyan business — a barber, kibanda, tutor.",
           builderTip: "Use Google Fonts pairings (like Poppins + Inter) instead of guessing font combinations.",
+          builderTips: [
+            "Sketch the layout on paper first so you're not designing and deciding structure at the same time.",
+            "Keep a consistent spacing scale (like multiples of 8px) throughout the page.",
+          ],
+          mistakes: [
+            "Using too many fonts or colours, making the page feel unfocused.",
+            "Skipping a clear call-to-action button, which every landing page needs.",
+          ],
+          skills: ["Layout and hierarchy", "Typography pairing", "Full-page design"],
+          resources: [
+            { label: "Google Fonts", url: "https://fonts.google.com/" },
+            { label: "Figma community (free templates)", url: "https://www.figma.com/community" },
+          ],
+          reflection: "If a real business owner saw this page, would they want it built for real?",
+          nextTeaser: "Final mission: turn this and past work into a 3-project portfolio built to get you hired.",
           tools: ["Figma (free)"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -442,10 +888,26 @@ export const technology: Category = {
           description: "Turn your work into income.",
           intro:
             "Designers get hired from portfolios, not certificates. 3 strong projects beat 10 weak ones. Show your thinking, not just the final screens.",
+          whyItMatters:
+            "You've built a recreated screen and a full landing page across the last two missions — this mission turns that real work into a portfolio plan that can actually get you hired.",
           outcome: "A defined 3-project portfolio plan ready to build out.",
           videoUrl: yt("mmgxspm9JWs"),
           challenge: "List the 3 design projects you'll put in your first portfolio (real or self-initiated).",
           builderTip: "Use Figma's free 'Share' link as your live portfolio — no separate website needed to start.",
+          builderTips: [
+            "For each project, write one sentence about the problem it solved, not just what it looks like.",
+            "Include your landing page from the last mission as one of your 3 projects.",
+          ],
+          mistakes: [
+            "Including too many small, unfinished projects instead of 3 strong ones.",
+            "Showing only final screens with no explanation of your design decisions.",
+          ],
+          skills: ["Portfolio building", "Explaining design decisions"],
+          resources: [
+            { label: "Figma: sharing your file", url: "https://help.figma.com/hc/en-us/articles/360040531773-Share-files-and-prototypes" },
+          ],
+          reflection: "Which of your 3 chosen projects are you proudest to show someone right now?",
+          nextTeaser: "With your portfolio plan set, you can now build all 3 projects out fully and start sharing them for feedback.",
           tools: ["Figma (free)"],
           difficulty: "Advanced",
           duration: "~17 min",
@@ -461,6 +923,15 @@ export const technology: Category = {
       description: "Understand how systems get attacked — and how to protect them.",
       searchKeywords: ["security", "hacking", "cyber", "ethical", "hacker", "protect"],
       featured: true,
+      projectArc: {
+        projectName: "Your personal security lockdown",
+        promise: "By mission 5 you'll have checked, upgraded and locked down your own real accounts — and mapped a real path into the cybersecurity field.",
+        whatsNext: [
+          "Learn basic networking to understand how attacks actually travel",
+          "Try a beginner-friendly ethical hacking platform like TryHackMe",
+          "Start working toward the Google Cybersecurity Certificate",
+        ],
+      },
       lessons: [
         {
           id: "cyber-1",
@@ -469,10 +940,27 @@ export const technology: Category = {
           description: "The field in 7 minutes.",
           intro:
             "Cybersecurity is the job of keeping data, money and identities safe from theft. Every bank, hospital and school in Kenya now hires for this. It's not just hacking — it's defence.",
+          whyItMatters:
+            "Before learning to defend anything else, you need to know if your own accounts are already exposed. This mission is the starting checkpoint for the security lockdown you'll build over the next four missions.",
           outcome: "Confirmation your accounts are checked, with any exposed passwords changed.",
           videoUrl: yt("inWWhr5tnEA"),
           challenge: "Check haveibeenpwned.com with your email. If it's been in a breach, change those passwords.",
           builderTip: "Use a free password manager like Bitwarden so you never reuse a password again.",
+          builderTips: [
+            "Check every email address you actually use, not just your main one.",
+            "If a password shows up in a breach, change it everywhere else you reused it too.",
+          ],
+          mistakes: [
+            "Assuming you're safe just because you haven't heard about a breach in the news.",
+            "Changing a breached password to something only slightly different.",
+          ],
+          skills: ["Breach awareness", "Account hygiene"],
+          resources: [
+            { label: "Have I Been Pwned", url: "https://haveibeenpwned.com/" },
+            { label: "Bitwarden (free password manager)", url: "https://bitwarden.com/" },
+          ],
+          reflection: "Were any of your accounts flagged, and how did that make you feel about your own security?",
+          nextTeaser: "Next you'll fix your weakest password properly using a technique attackers can't easily crack.",
           tools: ["haveibeenpwned.com"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -484,10 +972,26 @@ export const technology: Category = {
           description: "The math behind weak vs strong.",
           intro:
             "Modern computers guess billions of passwords per second — 'Password123' lasts 0.1 seconds. A long passphrase of 4 random words can outlast your lifetime. One habit blocks most attacks.",
+          whyItMatters:
+            "You just checked whether your accounts were exposed — this mission fixes the root cause by replacing weak passwords with ones that are actually hard to crack.",
           outcome: "One real account upgraded to a strong, memorable passphrase.",
           videoUrl: yt("3NjQ9b3pgIg"),
           challenge: "Replace your weakest password with a 4-word passphrase like 'mango-river-bicycle-cloud'.",
           builderTip: "Pick 4 totally unrelated words — related words are easier for cracking tools to guess.",
+          builderTips: [
+            "Add a number or symbol somewhere in the passphrase for extra strength.",
+            "Store the new passphrase in a password manager instead of trying to memorise every account's.",
+          ],
+          mistakes: [
+            "Using words that are personally guessable, like your name or birth year.",
+            "Reusing the same new passphrase across multiple accounts.",
+          ],
+          skills: ["Password strength theory", "Building strong passphrases"],
+          resources: [
+            { label: "Bitwarden password strength testing", url: "https://bitwarden.com/password-strength/" },
+          ],
+          reflection: "How much longer do you think your new passphrase would take to crack?",
+          nextTeaser: "Next you'll watch a real password get cracked live and lock your accounts down with 2FA.",
           tools: ["Password manager (optional)"],
           difficulty: "Starter",
           duration: "~12 min",
@@ -499,10 +1003,26 @@ export const technology: Category = {
           description: "The attack you're defending against.",
           intro:
             "Seeing real password cracking — billions of guesses per second on a GPU — makes security click for life. It's also why hashing, salting and 2FA exist in the first place.",
+          whyItMatters:
+            "Even a strong password can eventually fail — 2FA is the second lock on the door. This mission adds that layer to the accounts you already strengthened.",
           outcome: "2FA switched on for at least one of your real accounts.",
           videoUrl: yt("K-96JmC2AkE"),
           challenge: "Turn on 2-factor authentication for your Gmail / WhatsApp / M-Pesa. Today.",
           builderTip: "Use an authenticator app (Google Authenticator, free) instead of SMS 2FA where possible — it's harder to intercept.",
+          builderTips: [
+            "Save your backup codes somewhere safe in case you lose your phone.",
+            "Turn on 2FA for your email first — it's the account that can reset everything else.",
+          ],
+          mistakes: [
+            "Losing access to 2FA codes with no backup method saved.",
+            "Only enabling 2FA on one account and skipping your most important ones.",
+          ],
+          skills: ["Two-factor authentication", "Understanding attack methods"],
+          resources: [
+            { label: "Google Authenticator", url: "https://support.google.com/accounts/answer/1066447" },
+          ],
+          reflection: "Which account did you protect with 2FA first, and why did you choose it?",
+          nextTeaser: "Next you'll learn to spot the phishing scams that try to bypass all of this.",
           tools: ["Google Authenticator (free)"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -514,10 +1034,26 @@ export const technology: Category = {
           description: "Spot the trap before you click.",
           intro:
             "Most real breaches don't need fancy hacking — they use phishing: fake emails, fake M-Pesa SMS, fake job offers. Seeing how easy these are to fake is the best defence against falling for one.",
+          whyItMatters:
+            "Strong passwords and 2FA won't help if you hand over your details willingly. This mission trains you to spot the scams designed to trick you into doing exactly that.",
           outcome: "A real message you've reviewed and correctly flagged as safe or a scam.",
           videoUrl: yt("u9dBGWVwMMA"),
           challenge: "Find one suspicious SMS or email in your phone. Spot 3 red flags (urgency, weird link, bad grammar).",
           builderTip: "Hover over links before clicking (or long-press on mobile) to preview the real destination URL.",
+          builderTips: [
+            "Check the sender's actual email address, not just the display name.",
+            "Be extra suspicious of any message that pressures you to act immediately.",
+          ],
+          mistakes: [
+            "Trusting a message just because it uses a familiar logo or brand name.",
+            "Clicking a link to 'check if it's safe' instead of inspecting it first.",
+          ],
+          skills: ["Phishing detection", "Spotting social engineering"],
+          resources: [
+            { label: "Google: how to recognize phishing", url: "https://support.google.com/mail/answer/8253" },
+          ],
+          reflection: "What was the biggest giveaway in the suspicious message you found?",
+          nextTeaser: "Final mission: turn everything you've locked down into a real path toward a cybersecurity career.",
           tools: ["Your phone or email inbox"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -530,10 +1066,26 @@ export const technology: Category = {
           description: "A real path into the field.",
           intro:
             "Cybersecurity has more open jobs than people to fill them, globally and in Kenya. The Google Cybersecurity Certificate is a real, recognised entry point worth understanding before you commit.",
+          whyItMatters:
+            "You've spent four missions locking down your own accounts — this final mission turns that hands-on experience into a real plan for a career defending others.",
           outcome: "A clear 3-skill roadmap toward your first cybersecurity credential.",
           videoUrl: yt("jw_Kp2mP2nw"),
           challenge: "Browse the Google Cybersecurity Certificate on Coursera. Note 3 skills you'd need to learn.",
           builderTip: "Coursera offers financial aid on certificates — apply if the fee is a barrier.",
+          builderTips: [
+            "Check if your skills from earlier missions (2FA, phishing detection) already overlap with the syllabus.",
+            "Look up one real job posting in cybersecurity to see what skills employers actually ask for.",
+          ],
+          mistakes: [
+            "Assuming you need a fancy degree before you can start learning cybersecurity skills.",
+            "Picking a certificate without checking if it's recognised by real employers.",
+          ],
+          skills: ["Career planning", "Researching credentials"],
+          resources: [
+            { label: "Google Cybersecurity Certificate", url: "https://www.coursera.org/professional-certificates/google-cybersecurity" },
+          ],
+          reflection: "Which of the 3 skills you noted feels the most exciting to actually learn next?",
+          nextTeaser: "With your own accounts secured, you're ready to try a beginner ethical hacking platform like TryHackMe.",
           tools: ["Coursera (free to browse)"],
           difficulty: "Advanced",
           duration: "~15 min",

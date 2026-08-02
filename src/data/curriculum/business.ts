@@ -16,6 +16,15 @@ export const business: Category = {
       description: "Land your first client and get paid online — even from Kenya.",
       searchKeywords: ["freelance", "client", "money", "income", "fiverr", "upwork", "earn"],
       featured: true,
+      projectArc: {
+        projectName: "Your first paid freelance gig",
+        promise: "By the end of this branch you'll have picked a sellable skill, built a real Fiverr gig around it, and sent it out to real clients.",
+        whatsNext: [
+          "Deliver your first order and ask for a 5-star review",
+          "Raise your price once you have 3 reviews",
+          "Add a second gig to double your chances of landing work",
+        ],
+      },
       lessons: [
         {
           id: "freelance-1",
@@ -24,10 +33,27 @@ export const business: Category = {
           description: "Spot the skill you can sell now.",
           intro:
             "Freelancing means selling a skill directly to a client — no boss, no office. Kenyans freelance in writing, design, video editing, virtual assistance, coding. You don't need to be an expert, just useful to one person today.",
+          whyItMatters:
+            "This is the starting point of the whole branch — every gig, pitch and payment you build later depends on picking the right skill first. Get this right and everything after it gets easier.",
           outcome: "A ranked list of 3 skills you could sell this month.",
           videoUrl: yt("70rca3DMboY"),
           challenge: "List 3 skills you have, even basic ones (typing, English, design, social media). Rank them by how confident you feel.",
           builderTip: "Open a free Google Doc titled 'Skills Inventory' — you'll keep adding to it as you learn.",
+          builderTips: [
+            "Ask a friend what they'd pay you to help with — outside opinions reveal skills you overlook.",
+            "Don't rank by passion, rank by 'could I do this for a stranger today?'",
+          ],
+          mistakes: [
+            "Waiting until you feel like an 'expert' before listing anything.",
+            "Only listing skills you enjoy, ignoring skills people actually pay for.",
+          ],
+          skills: ["Self-assessment", "Market awareness"],
+          resources: [
+            { label: "Fiverr categories (see what sells)", url: "https://www.fiverr.com/categories" },
+            { label: "Upwork skill marketplace", url: "https://www.upwork.com/nx/find-work/" },
+          ],
+          reflection: "Which of your 3 skills surprised you the most once you wrote it down?",
+          nextTeaser: "Next, you'll narrow this list down to the ONE skill you'll actually try to sell first.",
           tools: ["Google Docs"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -39,10 +65,27 @@ export const business: Category = {
           description: "Choose what to sell first.",
           intro:
             "You don't need to be an expert — just slightly ahead of your client. Pick the skill with the smallest gap to bridge and where buyers already exist: writing, simple design, basic video editing, or data entry.",
+          whyItMatters:
+            "You listed 3 skills last mission — now you need one to actually build a business around. Committing here stops you from spreading thin across gigs that never get finished.",
           outcome: "One chosen starter skill with a written justification.",
           videoUrl: yt("153Q52YQdFg"),
           challenge: "Pick ONE skill from your list. Write 3 sentences about why you'd hire yourself for it.",
           builderTip: "Search that skill + 'Fiverr' to see real gigs people already sell for it — proof buyers exist.",
+          builderTips: [
+            "If two skills tie, pick the one with more competing gigs already — that proves demand.",
+            "Say the skill out loud as 'I help people with ___' — if it sounds awkward, it's the wrong pick.",
+          ],
+          mistakes: [
+            "Choosing the 'coolest' skill instead of the one with buyers already searching for it.",
+            "Picking a skill you have zero proof or sample work for.",
+          ],
+          skills: ["Decision-making", "Niche selection"],
+          resources: [
+            { label: "Fiverr seller search", url: "https://www.fiverr.com/" },
+            { label: "Upwork categories", url: "https://www.upwork.com/nx/find-work/" },
+          ],
+          reflection: "What made you finally choose this skill over the other two?",
+          nextTeaser: "Next, you'll turn this chosen skill into a real, live profile buyers can find.",
           tools: ["Google Docs"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -54,10 +97,27 @@ export const business: Category = {
           description: "Create your first gig or profile.",
           intro:
             "Fiverr and Upwork both pay in ways that reach M-Pesa. Fiverr is faster to start since you set what you offer. Before publishing, study how sellers in your skill present themselves.",
+          whyItMatters:
+            "With your skill chosen, this is where it becomes a real, searchable listing. Studying 10 competitors now means your gig won't look amateur when you write it next mission.",
           outcome: "A live Fiverr account with notes on 10 competitor gigs.",
           videoUrl: yt("mVdyKy2Hn0U"),
           challenge: "Create a free account on Fiverr. Don't publish yet — explore 10 gigs in your skill and note their pricing.",
           builderTip: "Screenshot the 3 gigs you like most into one folder — you'll steal their structure next mission.",
+          builderTips: [
+            "Use a real profile photo, not a logo — buyers trust faces more on new accounts.",
+            "Note the price range of the top 10 gigs so you don't undersell yourself later.",
+          ],
+          mistakes: [
+            "Publishing a gig before researching what top sellers actually offer.",
+            "Copying a competitor's exact wording instead of just their structure.",
+          ],
+          skills: ["Competitive research", "Platform setup"],
+          resources: [
+            { label: "Fiverr seller sign up", url: "https://www.fiverr.com/start_selling" },
+            { label: "Upwork sign up", url: "https://www.upwork.com/nx/signup/" },
+          ],
+          reflection: "What's one thing the top-rated gigs all had in common?",
+          nextTeaser: "Next, you'll use what you learned to write your own gig that's built to convert.",
           tools: ["Fiverr"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -69,10 +129,27 @@ export const business: Category = {
           description: "What makes clients click 'order'.",
           intro:
             "Clients scan, they don't read. Your title, image, and first sentence do 90% of the work. Copy the FORMAT of top-rated gigs in your category — never copy their words.",
+          whyItMatters:
+            "Your account and research from last mission are useless without a gig clients actually want to click. This draft becomes the exact thing you publish in the final mission.",
           outcome: "A drafted gig title, image plan, and 3-line description.",
           videoUrl: yt("rLfAImFUwds"),
           challenge: "Write a draft gig title and 3-line description for your skill using the format you saved earlier.",
           builderTip: "Use Canva's free templates to mock up a simple gig cover image in under 5 minutes.",
+          builderTips: [
+            "Lead your title with the result the client gets, not just the task you do.",
+            "Read your draft out loud — if it's confusing to say, it's confusing to read too.",
+          ],
+          mistakes: [
+            "Writing a vague title like 'I will do design' instead of a specific outcome.",
+            "Skipping the gig image — listings without one get far fewer clicks.",
+          ],
+          skills: ["Copywriting", "Basic visual design"],
+          resources: [
+            { label: "Canva (free design tool)", url: "https://www.canva.com/" },
+            { label: "Fiverr seller guide", url: "https://www.fiverr.com/resources/guides" },
+          ],
+          reflection: "Would YOU click your own gig title if you saw it as a stranger?",
+          nextTeaser: "Next, you'll publish this gig or pitch it directly to land your very first paying client.",
           tools: ["Fiverr", "Canva"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -85,10 +162,27 @@ export const business: Category = {
           description: "Land that first paying job.",
           intro:
             "The first client is the hardest. Most beginners win it by pricing low, replying fast, and over-delivering on one small job. One 5-star review makes the next job much easier.",
+          whyItMatters:
+            "This is the payoff of the whole branch — the gig you drafted last mission finally goes live and gets in front of real buyers who can pay you.",
           outcome: "A published gig or 5 sent proposals, tracked in a sheet.",
           videoUrl: yt("AomSFPbUMHQ"),
           challenge: "Publish your gig OR send 5 personalised proposals on Upwork this week. Log each one in a spreadsheet.",
           builderTip: "Keep a simple Google Sheet: client name, date pitched, follow-up date. Follow up after 3 days.",
+          builderTips: [
+            "Personalise the first line of every proposal — mention their actual project by name.",
+            "Reply to messages within an hour if you can — speed wins beginner clients.",
+          ],
+          mistakes: [
+            "Sending the same copy-pasted proposal to every client.",
+            "Giving up after zero replies to the first 2-3 pitches.",
+          ],
+          skills: ["Sales outreach", "Client communication", "Follow-up systems"],
+          resources: [
+            { label: "Upwork proposal tips", url: "https://www.upwork.com/resources/how-to-write-a-proposal" },
+            { label: "Google Sheets", url: "https://www.google.com/sheets/about/" },
+          ],
+          reflection: "What was the hardest part of putting yourself out there for a client?",
+          nextTeaser: "You've landed your shot at a first client — next, focus on delivering great work to earn a 5-star review and repeat business.",
           tools: ["Fiverr", "Upwork", "Google Sheets"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -104,6 +198,15 @@ export const business: Category = {
       description: "Make videos, posts and content that grow a real following.",
       searchKeywords: ["content", "youtube", "tiktok", "instagram", "creator", "audience", "social"],
       featured: true,
+      projectArc: {
+        projectName: "Your first published, hook-driven video",
+        promise: "By the end of this branch you'll have a niche, a filmed and edited clip, and a real posting schedule live on your account.",
+        whatsNext: [
+          "Post consistently for 30 days and track which hooks perform best",
+          "Reach out to a small brand for your first paid collaboration",
+          "Repurpose your best clip across TikTok, Instagram, and YouTube Shorts",
+        ],
+      },
       lessons: [
         {
           id: "content-1",
@@ -112,10 +215,27 @@ export const business: Category = {
           description: "Understand the real opportunity.",
           intro:
             "Content creation isn't just for famous people. Small accounts under 10k followers earn from brand deals, affiliate links, services, and digital products. Consistency on one platform beats spreading thin.",
+          whyItMatters:
+            "Before you post anything, you need proof your idea can actually work. Finding creators who already prove it lowers the risk of wasting weeks on a dead niche.",
           outcome: "A shortlist of 2 small creators worth studying weekly.",
           videoUrl: yt("gXfLl3qYy0k"),
           challenge: "Name 2 small creators (under 50k followers) you'd happily watch every week. Note what they post about.",
           builderTip: "Save their content into a TikTok/Instagram 'inspiration' collection so it's easy to revisit.",
+          builderTips: [
+            "Look at their comments, not just their views — real engagement is a better signal.",
+            "Note how often they post — consistency matters more than production quality.",
+          ],
+          mistakes: [
+            "Only studying huge, famous creators whose growth path doesn't apply to you.",
+            "Picking creators outside your interests just because they're popular.",
+          ],
+          skills: ["Market research", "Trend spotting"],
+          resources: [
+            { label: "TikTok Creator Portal", url: "https://www.tiktok.com/creators/creator-portal/" },
+            { label: "Instagram Creators hub", url: "https://creators.instagram.com/" },
+          ],
+          reflection: "What do your 2 chosen creators have in common that makes them work?",
+          nextTeaser: "Next, you'll use what you learned here to lock in your own specific niche.",
           tools: ["TikTok or Instagram"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -127,10 +247,27 @@ export const business: Category = {
           description: "Find the topic only you can own.",
           intro:
             "Niches grow faster than general accounts. 'Cooking Kenyan student meals' beats 'cooking'. Pick a topic you can post about for 30 days without getting bored.",
+          whyItMatters:
+            "The creators you scouted last mission all won by owning a specific lane — now it's your turn to define yours before you ever pick up your phone to film.",
           outcome: "One chosen niche, circled and written down.",
           videoUrl: yt("TLCuJRivmhU"),
           challenge: "Write down 3 niche ideas. Circle the one you'd post about every day for free.",
           builderTip: "Test the niche name in TikTok search — if related videos already get views, the niche is alive.",
+          builderTips: [
+            "Make your niche specific enough to describe in one sentence to a stranger.",
+            "Pick something you can talk about even on a boring, low-energy day.",
+          ],
+          mistakes: [
+            "Choosing a niche that's too broad to stand out in search or the feed.",
+            "Picking a niche based on trends instead of something you can sustain.",
+          ],
+          skills: ["Positioning", "Niche validation"],
+          resources: [
+            { label: "TikTok search", url: "https://www.tiktok.com/search" },
+            { label: "Google Trends", url: "https://trends.google.com/trends/" },
+          ],
+          reflection: "Could you honestly post about this niche every day for 30 days?",
+          nextTeaser: "Next, you'll stop planning and film your very first clip in this niche.",
           tools: ["TikTok or Instagram"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -142,10 +279,27 @@ export const business: Category = {
           description: "Shoot good video with what you have.",
           intro:
             "Every modern phone shoots great video. What matters: natural light (face a window), steady framing (lean on something), and clear audio (record close to your mouth or use earphones).",
+          whyItMatters:
+            "Your niche from last mission is just an idea until it exists on camera. This raw clip is the first real asset of your content brand.",
           outcome: "One raw 30-second video clip saved to your phone.",
           videoUrl: yt("vfgXdSaaSPQ"),
           challenge: "Record one 30-second clip of yourself talking about your niche. Just one — don't aim for perfect.",
           builderTip: "Use CapCut (free) to trim the start/end and add captions in under 5 minutes.",
+          builderTips: [
+            "Film 2-3 takes so you have options to choose from when editing.",
+            "Prop your phone against something steady instead of holding it — shaky video loses viewers fast.",
+          ],
+          mistakes: [
+            "Re-filming endlessly chasing 'perfect' instead of finishing one usable take.",
+            "Recording with background noise that drowns out your voice.",
+          ],
+          skills: ["Filming basics", "Lighting and framing"],
+          resources: [
+            { label: "CapCut (free editor)", url: "https://www.capcut.com/" },
+            { label: "TikTok filming tips", url: "https://www.tiktok.com/creators/creator-portal/" },
+          ],
+          reflection: "What felt hardest about filming yourself — and how could you fix it next time?",
+          nextTeaser: "Next, you'll write hooks that make sure this footage actually gets watched.",
           tools: ["Phone camera", "CapCut"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -157,10 +311,27 @@ export const business: Category = {
           description: "The most important 3 seconds.",
           intro:
             "The first 3 seconds decide everything. Strong hooks: ask a question, state a bold claim, show the end result first, or break a pattern. No hook means no views, no matter how good the rest is.",
+          whyItMatters:
+            "The clip you filmed last mission won't get watched without a strong opening line — this is what turns your raw footage into something worth publishing.",
           outcome: "5 written hook options ready to test.",
           videoUrl: yt("LmXpbP7dD48"),
           challenge: "Write 5 different hook lines for the same video idea. Pick your favorite and say it on camera.",
           builderTip: "Use ChatGPT (free) to generate 10 more hook variations, then pick the punchiest ones yourself.",
+          builderTips: [
+            "Say each hook out loud — the one that grabs YOUR attention is usually the strongest.",
+            "Steal hook structures (not words) from viral videos in your niche.",
+          ],
+          mistakes: [
+            "Starting the video with 'Hi guys, welcome back' instead of the hook.",
+            "Writing hooks that are clever but don't relate to the actual video content.",
+          ],
+          skills: ["Copywriting", "Attention-grabbing storytelling"],
+          resources: [
+            { label: "ChatGPT (free)", url: "https://chat.openai.com/" },
+            { label: "TikTok Creator Portal", url: "https://www.tiktok.com/creators/creator-portal/" },
+          ],
+          reflection: "Which of your 5 hooks would make YOU stop scrolling, and why?",
+          nextTeaser: "Next, you'll put a hook to work by publishing on a real, repeatable schedule.",
           tools: ["CapCut", "ChatGPT"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -173,10 +344,27 @@ export const business: Category = {
           description: "How creators actually grow.",
           intro:
             "The algorithm rewards rhythm. 3 posts a week for 3 months beats 30 posts in one week. Pick a schedule you can actually hold — even 2 posts a week — and protect it.",
+          whyItMatters:
+            "Everything so far — niche, footage, hook — has been building toward this moment: your first video going live, backed by a schedule that keeps the momentum going.",
           outcome: "One published video and a written posting schedule.",
           videoUrl: yt("VdBY8Tv-s2Q"),
           challenge: "Decide a posting schedule, write it where you'll see it daily, and publish your first video today.",
           builderTip: "Set a recurring phone reminder for your posting days so consistency isn't left to willpower.",
+          builderTips: [
+            "Batch-film 2-3 videos in one sitting so you always have a backlog ready to post.",
+            "Track views and watch-time weekly — that data tells you what to make next.",
+          ],
+          mistakes: [
+            "Posting inconsistently for a week then quitting after low views.",
+            "Judging your first video's performance instead of judging your first 10.",
+          ],
+          skills: ["Consistency systems", "Basic analytics reading"],
+          resources: [
+            { label: "TikTok analytics guide", url: "https://www.tiktok.com/creators/creator-portal/" },
+            { label: "Instagram Insights guide", url: "https://help.instagram.com/1533933820244654" },
+          ],
+          reflection: "What schedule can you realistically keep for the next 30 days, no excuses?",
+          nextTeaser: "With a published video and schedule live, you're ready to grow toward your first brand deal or collaboration.",
           tools: ["TikTok or Instagram", "CapCut"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -192,6 +380,15 @@ export const business: Category = {
       description: "Turn a small idea into a real business — even with little money.",
       searchKeywords: ["business", "startup", "founder", "entrepreneur", "company"],
       featured: true,
+      projectArc: {
+        projectName: "Your first validated, registered business idea",
+        promise: "By the end of this branch you'll have a clear 'why', a real problem to solve, a testable MVP, real customer feedback, and an officially reserved business name.",
+        whatsNext: [
+          "Get your first paying customer using the pitch reactions you collected",
+          "Fully register your business and open a business bank account",
+          "Build a simple one-page website to make your business look official",
+        ],
+      },
       lessons: [
         {
           id: "entre-1",
@@ -200,10 +397,27 @@ export const business: Category = {
           description: "The foundation under every great business.",
           intro:
             "Every successful business answers one question clearly: WHY does this exist? People don't buy what you do, they buy why you do it — an idea from Simon Sinek that has shaped a generation of founders.",
+          whyItMatters:
+            "This 'why' becomes the filter for every decision in this branch — which problem you chase, which MVP you build, and who you'll pitch it to.",
           outcome: "One written 'why' sentence for your business idea.",
           videoUrl: yt("u4ZoJKF_VuA"),
           challenge: "Write ONE sentence: 'My business exists because…'. Don't overthink it — just write it.",
           builderTip: "Pin that sentence to your phone lock screen for the week — it'll sharpen as you keep testing it.",
+          builderTips: [
+            "Write 3 rough versions before picking your final one — the first draft is rarely the best.",
+            "Read your 'why' to a friend and see if it actually makes sense out loud.",
+          ],
+          mistakes: [
+            "Writing a 'why' about making money instead of solving a problem.",
+            "Making the sentence too vague to guide any real decision later.",
+          ],
+          skills: ["Vision-setting", "Clear writing"],
+          resources: [
+            { label: "Simon Sinek — Start With Why (talk)", url: "https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action" },
+            { label: "Notion (free notes)", url: "https://www.notion.so/" },
+          ],
+          reflection: "Does your 'why' sentence excite you, or does it sound like everyone else's?",
+          nextTeaser: "Next, you'll go find the real problem your 'why' is actually meant to solve.",
           tools: ["Notes app"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -215,10 +429,27 @@ export const business: Category = {
           description: "Ideas come from problems, not brainstorming.",
           intro:
             "Most beginner founders fail because they fall in love with an idea nobody wants. The best ideas come from real problems you or people around you already have. Michael Seibel of Y Combinator breaks down how to test that.",
+          whyItMatters:
+            "Your 'why' from last mission needs a real problem to attach to — without one, it's just a nice sentence with nothing to build on.",
           outcome: "A list of 5 real problems with one circled as your idea.",
           videoUrl: yt("vDXkpJw16os"),
           challenge: "List 5 problems you or your friends complain about every week. Circle one — that's your idea.",
           builderTip: "Ask 3 friends 'what's annoying about doing X?' — real quotes beat guessing every time.",
+          builderTips: [
+            "Circle problems people complain about repeatedly, not just once.",
+            "Prefer problems you personally experience — you'll understand the fix better.",
+          ],
+          mistakes: [
+            "Choosing a problem that only you have ever noticed.",
+            "Picking a problem too big to test with zero budget.",
+          ],
+          skills: ["Problem discovery", "Customer empathy"],
+          resources: [
+            { label: "Y Combinator Startup School", url: "https://www.startupschool.org/" },
+            { label: "Notion (free notes)", url: "https://www.notion.so/" },
+          ],
+          reflection: "Which of the 5 problems did the most people around you relate to?",
+          nextTeaser: "Next, you'll shrink this problem down into the smallest thing you could build to test it.",
           tools: ["Notes app"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -230,10 +461,27 @@ export const business: Category = {
           description: "Launch ugly, learn fast.",
           intro:
             "An MVP — minimum viable product — is the tiniest version of your idea that proves people want it. It's meant to be ugly, simple and embarrassing. If you wait until it's perfect, you'll never launch.",
+          whyItMatters:
+            "The problem you circled last mission is still just a theory — an MVP turns it into something real people can actually try this week.",
           outcome: "One-sentence MVP description ready to build.",
           videoUrl: yt("QRZ_l7cVzzU"),
           challenge: "Describe your MVP in ONE sentence: 'It's a [thing] that lets [people] do [action].'",
           builderTip: "If it can be a WhatsApp message, a form, or a spreadsheet instead of an app — build that first.",
+          builderTips: [
+            "Cut every feature that isn't required to test the core problem.",
+            "Set yourself a deadline of this week — MVPs die in endless planning.",
+          ],
+          mistakes: [
+            "Trying to build a polished app before testing if anyone wants it.",
+            "Adding too many features instead of testing one core action.",
+          ],
+          skills: ["Scoping", "Lean product thinking"],
+          resources: [
+            { label: "Y Combinator — How to Build an MVP", url: "https://www.startupschool.org/" },
+            { label: "Google Forms (fast MVP tool)", url: "https://www.google.com/forms/about/" },
+          ],
+          reflection: "What's the ONE core action your MVP needs to prove people want?",
+          nextTeaser: "Next, you'll take this MVP idea and pitch it to 3 real people to see how they react.",
           tools: ["Notes app"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -245,10 +493,27 @@ export const business: Category = {
           description: "Do things that don't scale.",
           intro:
             "Your first 10 customers won't come from ads — they'll come from you DM-ing people, calling friends, posting in WhatsApp groups. Founders who can sell survive long enough to figure the rest out.",
+          whyItMatters:
+            "The MVP you defined last mission is worthless until real people react to it — this is the first honest signal of whether your idea actually works.",
           outcome: "3 logged pitches with real reactions written down.",
           videoUrl: yt("jycgK8EJ7B8"),
           challenge: "Message 3 people today and pitch your idea in 2 sentences. Note their reactions.",
           builderTip: "Ask 'would you pay for this?' directly — polite silence isn't the same as a real yes.",
+          builderTips: [
+            "Pitch people outside your close friend group too — they're less likely to just be nice.",
+            "Write down their exact words, not your summary of what they meant.",
+          ],
+          mistakes: [
+            "Only pitching people who will automatically say yes to be supportive.",
+            "Treating polite interest as a confirmed 'yes, I'd pay for that'.",
+          ],
+          skills: ["Pitching", "Handling rejection", "Customer validation"],
+          resources: [
+            { label: "Y Combinator Startup School", url: "https://www.startupschool.org/" },
+            { label: "WhatsApp Business", url: "https://www.whatsapp.com/business/" },
+          ],
+          reflection: "What reaction surprised you most, and what does it tell you about your idea?",
+          nextTeaser: "With real reactions in hand, next you'll make the business official by reserving your name.",
           tools: ["WhatsApp"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -261,10 +526,27 @@ export const business: Category = {
           description: "Make it official — Kenya edition.",
           intro:
             "Once your idea has even one paying customer, register it. In Kenya it costs under KSh 1,000 and takes about an hour on eCitizen. You get a real business name and the right to invoice.",
+          whyItMatters:
+            "The real reactions you collected last mission proved your idea has legs — reserving a name now turns it from 'an idea I tested' into a real, official business.",
           outcome: "A reserved business name on the eCitizen platform.",
           videoUrl: yt("4dbTC9J5sE4"),
           challenge: "Log into eCitizen and do a name search for your business — even just to reserve it.",
           builderTip: "Prepare 3 name options before searching — your first choice is often already taken.",
+          builderTips: [
+            "Keep the name short and easy to say out loud on a phone call.",
+            "Avoid names too close to existing registered businesses to prevent rejection.",
+          ],
+          mistakes: [
+            "Registering before validating the idea has real demand.",
+            "Picking a name that's hard to spell or search for online.",
+          ],
+          skills: ["Business registration", "Official process navigation"],
+          resources: [
+            { label: "eCitizen portal", url: "https://www.ecitizen.go.ke/" },
+            { label: "Business Registration Service (Kenya)", url: "https://brs.go.ke/" },
+          ],
+          reflection: "How did it feel to see your business name become official for the first time?",
+          nextTeaser: "With a reserved name, you're ready to chase your first real paying customer and build your business bank account.",
           tools: ["eCitizen"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -280,6 +562,15 @@ export const business: Category = {
       description: "Learn how brands grow on Instagram, TikTok, Google and email.",
       searchKeywords: ["marketing", "ads", "promotion", "sales", "growth", "seo"],
       featured: true,
+      projectArc: {
+        projectName: "Your first case-study marketing win",
+        promise: "By the end of this branch you'll have chosen a channel, scouted competitors, started an email list, defined your ideal customer, and landed a free case-study client.",
+        whatsNext: [
+          "Turn your case study results into a portfolio page or PDF",
+          "Pitch a small business a paid version of the same service",
+          "Grow your email list into a weekly habit for a real business",
+        ],
+      },
       lessons: [
         {
           id: "mkt-1",
@@ -288,10 +579,27 @@ export const business: Category = {
           description: "The 30,000-foot view first.",
           intro:
             "Digital marketing is getting the right message to the right person at the right time, using the internet. Neil Patel's 10 essentials cover the whole landscape: SEO, email, paid ads, social — in one short sitting.",
+          whyItMatters:
+            "Every mission in this branch builds on the channel you choose here — pick it deliberately, since it shapes your research, your list-building, and your case study.",
           outcome: "One chosen marketing channel, written down with a reason.",
           videoUrl: yt("4abNIEHj-10"),
           challenge: "Pick ONE channel (SEO, email, TikTok, Instagram) that fits your business best. Just one.",
           builderTip: "Pick the channel where your ideal customer already spends time, not the one that's trendiest.",
+          builderTips: [
+            "Write down why you rejected the other channels — it clarifies your reasoning.",
+            "Favor the channel you'd actually enjoy showing up to weekly.",
+          ],
+          mistakes: [
+            "Trying to do all channels at once instead of mastering one first.",
+            "Picking a channel because it's trendy, not because your customer is there.",
+          ],
+          skills: ["Strategic focus", "Channel evaluation"],
+          resources: [
+            { label: "Neil Patel — Digital Marketing basics", url: "https://neilpatel.com/what-is-digital-marketing/" },
+            { label: "HubSpot Marketing Basics", url: "https://www.hubspot.com/marketing" },
+          ],
+          reflection: "Why is this channel the right first bet for your business specifically?",
+          nextTeaser: "Next, you'll scout what your competitors are already doing on Google in this space.",
           tools: ["Notes app"],
           difficulty: "Starter",
           duration: "~11 min",
@@ -303,10 +611,27 @@ export const business: Category = {
           description: "Why one blog post can pay you for years.",
           intro:
             "Search engine optimisation is how you appear on Google when someone searches. Get it right and you receive free customers for years. Ahrefs' beginner intro is the cleanest explanation on the internet.",
+          whyItMatters:
+            "Now that you've picked your channel, you need to know who's already winning attention in your space before you try to compete for it.",
           outcome: "Notes on your top 3 Google competitors.",
           videoUrl: yt("DvwS7cV9GmQ"),
           challenge: "Type your business idea into Google. Note the top 3 results — they are your competition.",
           builderTip: "Check what keywords are in their page titles — that's a free clue to what Google ranks them for.",
+          builderTips: [
+            "Look at how long their top pages are — long, useful content often ranks best.",
+            "Note what questions they answer that you could answer better.",
+          ],
+          mistakes: [
+            "Assuming there's no competition just because you haven't searched yet.",
+            "Copying competitor content word-for-word instead of improving on it.",
+          ],
+          skills: ["SEO basics", "Competitive analysis"],
+          resources: [
+            { label: "Ahrefs SEO for Beginners", url: "https://ahrefs.com/seo" },
+            { label: "Google Search", url: "https://www.google.com/" },
+          ],
+          reflection: "What gap did you spot that your top 3 competitors are missing?",
+          nextTeaser: "Next, you'll start building a direct channel to customers no algorithm controls — email.",
           tools: ["Google Search"],
           difficulty: "Starter",
           duration: "~12 min",
@@ -318,10 +643,27 @@ export const business: Category = {
           description: "The channel no one can shut down on you.",
           intro:
             "Every KSh 1 spent on email returns about KSh 40. Email isn't dead — it's just boring, and that's why it works. Build a small list early and own a direct line to your customers no algorithm can take away.",
+          whyItMatters:
+            "Competitors won't own your email list — this mission gives you a direct channel to customers, independent of the search rankings you just studied.",
           outcome: "A live MailerLite account with one empty list ready to fill.",
           videoUrl: yt("J0CEiuOfON0"),
           challenge: "Sign up for MailerLite (free up to 1,000 contacts). Create your first list.",
           builderTip: "Add a simple signup form link to your Instagram bio so people can join your list today.",
+          builderTips: [
+            "Name your list clearly so future-you knows exactly who's on it.",
+            "Draft a simple 'welcome' email now so new subscribers get an instant reply.",
+          ],
+          mistakes: [
+            "Building the list but never actually asking anyone to join it.",
+            "Overcomplicating the signup process instead of using one simple link.",
+          ],
+          skills: ["Email marketing setup", "List building"],
+          resources: [
+            { label: "MailerLite", url: "https://www.mailerlite.com/" },
+            { label: "HubSpot Email Marketing guide", url: "https://www.hubspot.com/products/marketing/email" },
+          ],
+          reflection: "Who is the very first person you'll invite to join this list?",
+          nextTeaser: "Next, you'll get crystal clear on exactly who that list — and all your marketing — is for.",
           tools: ["MailerLite"],
           difficulty: "Builder",
           duration: "~14 min",
@@ -333,10 +675,27 @@ export const business: Category = {
           description: "Beyond tactics — into strategy.",
           intro:
             "Tactics change every year — TikTok today, something else next year. But the underlying art of marketing — empathy, positioning, storytelling — never changes. Neil Patel covers what stays the same.",
+          whyItMatters:
+            "Your list and channel only work if they're speaking to the right person — this mission defines exactly who that is so every message actually lands.",
           outcome: "A written ideal-customer profile: age, struggle, where they hang out online.",
           videoUrl: yt("h95cQkEWBx0"),
           challenge: "Write down: who is your ONE ideal customer? Age, struggle, where they hang out online.",
           builderTip: "Give your ideal customer a name — 'Student Sarah' — it makes every future marketing decision faster.",
+          builderTips: [
+            "Base the profile on a real person you know, not a made-up stereotype.",
+            "List their biggest daily frustration — that's often your best marketing angle.",
+          ],
+          mistakes: [
+            "Trying to market to 'everyone' instead of one specific person.",
+            "Describing demographics only, without describing their actual struggle.",
+          ],
+          skills: ["Customer profiling", "Positioning"],
+          resources: [
+            { label: "Neil Patel — Marketing Fundamentals", url: "https://neilpatel.com/what-is-digital-marketing/" },
+            { label: "HubSpot Buyer Persona tool", url: "https://www.hubspot.com/make-my-persona" },
+          ],
+          reflection: "How does knowing this one person change what you'll post or send them?",
+          nextTeaser: "Next, you'll put all four missions to work by landing a free case-study client to prove your skills.",
           tools: ["Notes app"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -349,10 +708,27 @@ export const business: Category = {
           description: "From learning to earning.",
           intro:
             "You don't need a marketing degree. Most digital marketers learned online and built a portfolio of small wins. A single 'I grew this account from 0 to 1,000 followers' case study can get you hired.",
+          whyItMatters:
+            "This is where your channel choice, research, list, and customer profile all come together into real, provable results you can show future clients.",
           outcome: "A confirmed 30-day case study agreement with a real business.",
           videoUrl: yt("DoLzQN1m7sU"),
           challenge: "Offer to manage one social account for a friend's business — free — for 30 days. That's your case study.",
           builderTip: "Track before/after follower counts in a Google Sheet — that screenshot becomes your pitch later.",
+          builderTips: [
+            "Set clear expectations upfront — free for 30 days, then a real conversation about pay.",
+            "Use the ideal customer profile you wrote to guide what you post for them.",
+          ],
+          mistakes: [
+            "Working for free indefinitely instead of setting a clear 30-day limit.",
+            "Not tracking results, so you can't prove your impact afterward.",
+          ],
+          skills: ["Portfolio building", "Client management", "Performance tracking"],
+          resources: [
+            { label: "Meta Business Suite", url: "https://business.facebook.com/" },
+            { label: "Google Sheets", url: "https://www.google.com/sheets/about/" },
+          ],
+          reflection: "What result from these 30 days would you be proudest to show a future client?",
+          nextTeaser: "With a real case study in hand, you're ready to pitch this exact service for paid work.",
           tools: ["Instagram or TikTok", "Google Sheets"],
           difficulty: "Advanced",
           duration: "~12 min",
@@ -368,6 +744,15 @@ export const business: Category = {
       description: "Set up your own online shop and start selling.",
       searchKeywords: ["ecommerce", "shop", "store", "sell", "shopify", "online store"],
       featured: true,
+      projectArc: {
+        projectName: "Your first live online store with a real sale",
+        promise: "By the end of this branch you'll have a product idea, a live Shopify store, a real listing, working shipping, and your first push for a sale.",
+        whatsNext: [
+          "Run a small paid ad to your best-selling product",
+          "Collect and display your first customer reviews",
+          "Add a second product to increase average order value",
+        ],
+      },
       lessons: [
         {
           id: "ecom-1",
@@ -376,10 +761,27 @@ export const business: Category = {
           description: "The 4 pieces of any online store.",
           intro:
             "An online store is 4 simple things: a product, a website, a way to take payment, a way to deliver. In Kenya you can use Shopify, WooCommerce, or even a WhatsApp catalog to start.",
+          whyItMatters:
+            "This is the foundation of the whole branch — the product you shortlist here is what you'll actually build a store, listing, and sale around.",
           outcome: "A list of 3 realistic products you could sell from home.",
           videoUrl: yt("RWI59fC7Z48"),
           challenge: "List 3 products you could realistically source or make and sell from home.",
           builderTip: "Check M-Pesa Till or WhatsApp Business Catalog if you want to test demand before building a full site.",
+          builderTips: [
+            "Pick products you could source or make within a week, not months.",
+            "Favor products you'd be excited to photograph and talk about.",
+          ],
+          mistakes: [
+            "Choosing products with sourcing that's too complicated to start with.",
+            "Picking based on trends instead of things you can realistically deliver.",
+          ],
+          skills: ["Product sourcing", "Feasibility thinking"],
+          resources: [
+            { label: "Shopify — Start Selling Online", url: "https://www.shopify.com/" },
+            { label: "WhatsApp Business Catalog", url: "https://www.whatsapp.com/business/" },
+          ],
+          reflection: "Which of your 3 products could you actually deliver to a customer this week?",
+          nextTeaser: "Next, you'll turn your top product idea into a real, live Shopify store.",
           tools: ["Notes app"],
           difficulty: "Starter",
           duration: "~15 min",
@@ -391,10 +793,27 @@ export const business: Category = {
           description: "From signup to live store.",
           intro:
             "Shopify is the most beginner-friendly way to launch a real store. The free trial lets you set up everything before you pay a cent. This walkthrough has helped thousands launch.",
+          whyItMatters:
+            "The product you chose last mission needs a home online — this is where your idea becomes a real, visitable storefront.",
           outcome: "A live Shopify trial store with a name and homepage.",
           videoUrl: yt("CpjAHpodQIk"),
           challenge: "Start the Shopify free trial. Set up your store name and homepage — that's enough today.",
           builderTip: "Skip around the video to just the 'store setup' section — you don't need to watch it start to finish.",
+          builderTips: [
+            "Choose a store name that matches the product you picked last mission.",
+            "Keep the homepage simple — you can improve the design after your first sale.",
+          ],
+          mistakes: [
+            "Spending hours perfecting the homepage design before adding a single product.",
+            "Picking a store name that's hard to spell or remember.",
+          ],
+          skills: ["E-commerce platform setup"],
+          resources: [
+            { label: "Shopify free trial", url: "https://www.shopify.com/free-trial" },
+            { label: "Shopify Help Center", url: "https://help.shopify.com/" },
+          ],
+          reflection: "Does your store name and homepage match the product you're planning to sell?",
+          nextTeaser: "Next, you'll add your very first real product listing to this store.",
           tools: ["Shopify"],
           difficulty: "Starter",
           duration: "~15 min",
@@ -406,10 +825,27 @@ export const business: Category = {
           description: "What separates a real store from a hobby site.",
           intro:
             "A pretty store doesn't sell — a CLEAR store sells. Good product photos, simple navigation, and trust signals like reviews and return policy matter more than fancy design.",
+          whyItMatters:
+            "Your store from last mission is still empty — this listing is the actual thing customers will click 'buy' on, so it needs to be clear and convincing.",
           outcome: "One live product listing with 3 photos, a title, and a description.",
           videoUrl: yt("GrP-sOgLNnM"),
           challenge: "Add your first product to your store with: 3 photos, a clear title, and a benefit-driven description.",
           builderTip: "Use Canva to clean up product photos with a plain background before uploading.",
+          builderTips: [
+            "Write the description around the benefit, not just the features.",
+            "Take photos in natural daylight for the clearest, most trustworthy look.",
+          ],
+          mistakes: [
+            "Using blurry or dark photos that make the product look untrustworthy.",
+            "Listing features only, without saying why the customer should care.",
+          ],
+          skills: ["Product photography basics", "Persuasive writing"],
+          resources: [
+            { label: "Canva (free design tool)", url: "https://www.canva.com/" },
+            { label: "Shopify product photography guide", url: "https://help.shopify.com/en/manual/products/product-media" },
+          ],
+          reflection: "Would you personally trust and buy from your own listing as a stranger?",
+          nextTeaser: "Next, you'll make sure customers can actually check out by setting up shipping.",
           tools: ["Shopify", "Canva"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -421,10 +857,27 @@ export const business: Category = {
           description: "Your reference manual.",
           intro:
             "Once you've launched, this guide fills the gaps — taxes, shipping zones, apps, abandoned cart emails. Treat it like a reference, not a one-sitting watch.",
+          whyItMatters:
+            "Your listing from last mission looks great, but without shipping set up, no customer can actually complete a purchase — this closes that gap.",
           outcome: "Working shipping zones for Nairobi and the rest of Kenya.",
           videoUrl: yt("EfFp_-Vzrkw"),
           challenge: "Set up your shipping zones (start with just 'Nairobi' and 'Rest of Kenya').",
           builderTip: "Skip to the 'Shipping' chapter in the video timestamps instead of watching the full hour.",
+          builderTips: [
+            "Keep shipping rates simple at first — flat rates are easiest for customers to understand.",
+            "Test your own checkout as a customer to make sure it actually works.",
+          ],
+          mistakes: [
+            "Forgetting to set up shipping at all, blocking every checkout.",
+            "Making shipping costs so high they scare off first-time buyers.",
+          ],
+          skills: ["Store operations", "Checkout configuration"],
+          resources: [
+            { label: "Shopify Shipping setup guide", url: "https://help.shopify.com/en/manual/shipping" },
+            { label: "Shopify Help Center", url: "https://help.shopify.com/" },
+          ],
+          reflection: "Did your test checkout go smoothly, or did you catch a mistake to fix?",
+          nextTeaser: "With checkout working, next you'll push hard to get your very first real sale.",
           tools: ["Shopify"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -437,10 +890,27 @@ export const business: Category = {
           description: "Stop tweaking. Start selling.",
           intro:
             "Your first sale is psychologically huge — and it almost never comes from ads. It comes from your WhatsApp status, your friends, a TikTok. Focus all your energy on getting ONE stranger to buy.",
+          whyItMatters:
+            "Every mission before this — product, store, listing, shipping — was preparation. This is the moment it all gets tested by a real customer with real money.",
           outcome: "Your store link posted publicly and shared for real feedback or a sale.",
           videoUrl: yt("4abNIEHj-10"),
           challenge: "Post your store link on WhatsApp status + one Instagram story today. Just once.",
           builderTip: "Add a small limited-time discount code for your first 10 buyers to push them to act now.",
+          builderTips: [
+            "Ask friends to share your link too — a little extra reach can lead to that first sale.",
+            "Follow up with anyone who viewed but didn't buy — a gentle nudge often works.",
+          ],
+          mistakes: [
+            "Posting once and giving up if there's no immediate sale.",
+            "Not tracking who clicked your link, missing a chance to follow up.",
+          ],
+          skills: ["Launch promotion", "Urgency and offers"],
+          resources: [
+            { label: "Shopify — Marketing your store", url: "https://www.shopify.com/blog/ecommerce-marketing" },
+            { label: "WhatsApp Business", url: "https://www.whatsapp.com/business/" },
+          ],
+          reflection: "What did you learn about your product from how people reacted to your post?",
+          nextTeaser: "With one real sale (or close attempt) done, you're ready to start running small paid ads to grow further.",
           tools: ["Shopify", "WhatsApp", "Instagram"],
           difficulty: "Advanced",
           duration: "~12 min",
@@ -456,6 +926,15 @@ export const business: Category = {
       description: "Save, budget and invest from a teenager's pocket money up.",
       searchKeywords: ["finance", "money", "save", "budget", "invest", "savings"],
       featured: true,
+      projectArc: {
+        projectName: "Your first working budget-to-investing system",
+        promise: "By the end of this branch you'll have a real budget split, a spending record, your first locked savings, and a personal investing rule you'll actually follow.",
+        whatsNext: [
+          "Automate your 50/30/20 split every time you receive money",
+          "Grow your locked savings into a proper emergency fund",
+          "Open a real investment account with the option you researched",
+        ],
+      },
       lessons: [
         {
           id: "fin-1",
@@ -464,10 +943,27 @@ export const business: Category = {
           description: "One rule, every income level.",
           intro:
             "The simplest budget on earth: 50% of income to needs, 30% to wants, 20% to savings. It works whether you earn KSh 2,000 a month or KSh 200,000. Master this once and stop being broke from confusion.",
+          whyItMatters:
+            "This split is the base of everything else in this branch — the savings portion here is exactly what you'll track and lock away in later missions.",
           outcome: "A real split of your last KSh 1,000 into needs, wants, and savings.",
           videoUrl: yt("OZQQMYfaBT4"),
           challenge: "Take your last KSh 1,000. Split it: KSh 500 needs, KSh 300 wants, KSh 200 savings.",
           builderTip: "Use 3 M-Pesa or physical envelopes labeled Needs, Wants, Savings to make the split visible.",
+          builderTips: [
+            "Do this split the moment money arrives, before you're tempted to spend it.",
+            "Adjust the percentages slightly if needs genuinely take up more of your income.",
+          ],
+          mistakes: [
+            "Spending the 'savings' portion because it's not physically separated.",
+            "Treating this as a one-time exercise instead of a repeatable habit.",
+          ],
+          skills: ["Budgeting", "Money discipline"],
+          resources: [
+            { label: "M-Pesa", url: "https://www.safaricom.co.ke/personal/m-pesa" },
+            { label: "50/30/20 rule explainer", url: "https://www.investopedia.com/50-30-20-rule/" },
+          ],
+          reflection: "How did it feel to physically separate your money into 3 clear buckets?",
+          nextTeaser: "Next, you'll track exactly where your spending goes to see if your split matches reality.",
           tools: ["M-Pesa"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -479,10 +975,27 @@ export const business: Category = {
           description: "The skill that compounds for life.",
           intro:
             "Most adults wish someone taught them this at 16. Track every shilling for one month and you'll be shocked where it goes. Awareness alone fixes 50% of money problems.",
+          whyItMatters:
+            "This shows whether your 50/30/20 split from last mission actually matches your real spending, or if your 'wants' are quietly eating your savings.",
           outcome: "A written total of yesterday's spending, shilling by shilling.",
           videoUrl: yt("sNocjsSSRkE"),
           challenge: "Write down every shilling you spent yesterday. Total it.",
           builderTip: "Make a free Google Sheet with one row per expense — reuse it daily for a week.",
+          builderTips: [
+            "Include tiny purchases like snacks or airtime — they add up more than you think.",
+            "Compare your total against your planned 50/30/20 split from last mission.",
+          ],
+          mistakes: [
+            "Rounding numbers instead of writing exact amounts.",
+            "Only tracking big purchases and skipping small daily ones.",
+          ],
+          skills: ["Expense tracking", "Financial awareness"],
+          resources: [
+            { label: "Google Sheets", url: "https://www.google.com/sheets/about/" },
+            { label: "M-Pesa statement guide", url: "https://www.safaricom.co.ke/personal/m-pesa" },
+          ],
+          reflection: "What expense surprised you the most once you actually wrote it down?",
+          nextTeaser: "Next, you'll take a small chunk of that awareness and actually lock it away to grow.",
           tools: ["Google Sheets"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -494,10 +1007,27 @@ export const business: Category = {
           description: "Why starting today matters so much.",
           intro:
             "Money grows on money. KSh 1,000 saved every month at 10% becomes over KSh 2 million in 30 years. Compound interest rewards whoever starts earliest, not whoever earns most.",
+          whyItMatters:
+            "Now that you know exactly where your money goes, this mission puts a real amount out of reach so it can actually grow instead of leaking away.",
           outcome: "KSh 100 locked in M-Shwari Lock Savings for 1 month.",
           videoUrl: yt("Rm6UdfRs3gw"),
           challenge: "Open M-Shwari Lock Savings. Lock KSh 100 for 1 month — just to feel how it works.",
           builderTip: "Set the lock to auto-renew so the habit continues without you having to remember.",
+          builderTips: [
+            "Start small on purpose — the goal here is building the habit, not the amount.",
+            "Increase the locked amount slightly each month as you get comfortable.",
+          ],
+          mistakes: [
+            "Breaking the lock early the first time you want extra spending money.",
+            "Waiting to 'save more first' instead of starting with a small amount now.",
+          ],
+          skills: ["Saving discipline", "Using financial tools"],
+          resources: [
+            { label: "M-Shwari", url: "https://www.safaricom.co.ke/personal/m-pesa/do-more-with-m-pesa/m-shwari" },
+            { label: "Compound interest explainer", url: "https://www.investopedia.com/terms/c/compoundinterest.asp" },
+          ],
+          reflection: "How did it feel to have money you genuinely couldn't touch for a month?",
+          nextTeaser: "Next, you'll go beyond saving and research a real way to make that money grow through investing.",
           tools: ["M-Shwari"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -509,10 +1039,27 @@ export const business: Category = {
           description: "From saver to investor.",
           intro:
             "Saving protects your money. Investing GROWS it. Ali Abdaal's beginner guide explains index funds, stocks and what's actually worth your time when you're starting with little money.",
+          whyItMatters:
+            "You've proven you can lock away savings — now it's time to see how that saved money could actually grow faster through investing.",
           outcome: "A written summary of one Kenyan investment option and its returns.",
           videoUrl: yt("oO2SBxpzbmM"),
           challenge: "Research one Kenyan investment option — money market fund, T-bill, or Sanlam Money Market. Just learn what it is.",
           builderTip: "Compare at least 2 options' minimum deposit and interest rate side by side in a table.",
+          builderTips: [
+            "Check the minimum deposit — many options accept far less than you'd expect.",
+            "Note any withdrawal rules so you know how locked-in your money would be.",
+          ],
+          mistakes: [
+            "Confusing an investment with a savings account — they behave differently.",
+            "Chasing the highest advertised return without checking the real risk.",
+          ],
+          skills: ["Investment literacy", "Comparing financial products"],
+          resources: [
+            { label: "Central Bank of Kenya — Treasury Bills", url: "https://www.centralbank.go.ke/securities/treasury-bills/" },
+            { label: "Investopedia — Money Market Funds", url: "https://www.investopedia.com/terms/m/money-marketfund.asp" },
+          ],
+          reflection: "Would you feel comfortable putting your own money into the option you researched?",
+          nextTeaser: "Next, you'll turn everything you've learned into one personal investing rule you'll follow for life.",
           tools: ["Google Sheets"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -525,10 +1072,27 @@ export const business: Category = {
           description: "Lock in the long view.",
           intro:
             "Mark Tilbury's video is one of the most respected beginner investing breakdowns on YouTube. By the end you'll understand index funds, diversification and why most 'get rich' YouTubers are wrong.",
+          whyItMatters:
+            "The investment option you researched last mission only helps if you actually stick with it — this rule is what turns knowledge into a lifelong habit.",
           outcome: "One written investing rule you commit to following.",
           videoUrl: yt("XG4AcjPtMiA"),
           challenge: "Write down one investing rule you'll stick to: e.g. 'I save 20% of every paycheck before spending'.",
           builderTip: "Pin the rule somewhere you check often — phone wallpaper works better than a hidden notebook.",
+          builderTips: [
+            "Make the rule specific and measurable, not just a vague good intention.",
+            "Revisit and adjust the rule every few months as your income changes.",
+          ],
+          mistakes: [
+            "Writing a rule so strict you'll break it within a week.",
+            "Never actually acting on the rule once it's written down.",
+          ],
+          skills: ["Long-term thinking", "Personal commitment systems"],
+          resources: [
+            { label: "Investopedia — Index Funds explained", url: "https://www.investopedia.com/terms/i/indexfund.asp" },
+            { label: "Notes app / phone reminders", url: "https://www.google.com/keep/" },
+          ],
+          reflection: "Is this a rule you can genuinely see yourself keeping 5 years from now?",
+          nextTeaser: "With your budget, savings and investing rule in place, you're ready to open a real investment account and start growing your money for real.",
           tools: ["Notes app"],
           difficulty: "Advanced",
           duration: "~15 min",

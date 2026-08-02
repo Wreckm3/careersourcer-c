@@ -16,6 +16,15 @@ export const creative: Category = {
       description: "Create designs people pay for using free tools like Canva and Figma.",
       searchKeywords: ["design", "graphic", "logo", "poster", "canva", "photoshop"],
       featured: true,
+      projectArc: {
+        projectName: "A 3-piece brand portfolio",
+        promise: "By the end of this branch you'll have a reference library, an eye for design rules, and 3 matching designs for a fake client — a real portfolio sample you can show anyone.",
+        whatsNext: [
+          "Design for a real friend, family member, or local business for free to build a testimonial",
+          "Learn Figma to move from templates to fully custom layouts",
+          "Start a portfolio site on Behance or Adobe Portfolio to collect your work",
+        ],
+      },
       lessons: [
         {
           id: "design-1",
@@ -24,10 +33,27 @@ export const creative: Category = {
           description: "Build your reference swipe file.",
           intro:
             "Good design isn't talent — it's copying structure from things that already work. This video shows how pros look at layout, color, and spacing. You'll build a folder of references to steal from for the rest of this course.",
+          whyItMatters:
+            "This swipe file becomes the raw material for everything else in this branch. You can't spot design principles or build your own posts without first collecting proof of what already works.",
           outcome: "A folder of 5 saved designs with notes on what makes each one work.",
           videoUrl: yt("YqQx75OPRa0"),
           challenge: "Save 5 designs (logos, posters, posts) you love. Write one sentence per design on what they have in common.",
           builderTip: "Use Pinterest or Instagram Saved folders as your free swipe-file tool — search 'poster design' or 'logo design' to start.",
+          builderTips: [
+            "Create a dedicated Pinterest board called 'Swipe File' so it doesn't get lost among random pins.",
+            "Save designs from different niches (fashion, food, tech) so you notice patterns instead of one style.",
+          ],
+          mistakes: [
+            "Saving only designs in your favorite color, which narrows what you learn from.",
+            "Skipping the notes step — without writing why a design works, you won't remember later.",
+          ],
+          skills: ["Visual research", "Design analysis"],
+          resources: [
+            { label: "Pinterest", url: "https://www.pinterest.com" },
+            { label: "Canva Design School", url: "https://www.canva.com/learn/" },
+          ],
+          reflection: "Which of your 5 saved designs surprised you most once you looked closely at it?",
+          nextTeaser: "Next, you'll turn these saved designs into a checklist of 5 rules you can use on every project.",
           tools: ["Pinterest or Instagram"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -39,10 +65,27 @@ export const creative: Category = {
           description: "Learn the rules pros never break.",
           intro:
             "Almost every design that looks 'professional' is just following 5 principles: alignment, contrast, repetition, hierarchy, white space. Once you can name them, you'll see them everywhere — and start using them on purpose.",
+          whyItMatters:
+            "Now that you have a swipe file from Mission 1, this mission teaches you to read it properly — turning 'I like this' into 'here's exactly why this works,' which you'll need the moment you start designing your own post.",
           outcome: "One design from your swipe file labeled with the principles it uses.",
           videoUrl: yt("a5KYlHNKQB8"),
           challenge: "Pick one saved design. Write down which of the 5 principles it leans on most and why it works.",
           builderTip: "Screenshot the design and annotate it in Canva using text boxes and arrows — it forces you to be specific.",
+          builderTips: [
+            "If you can't spot a principle, squint at the design — it hides detail and reveals layout structure.",
+            "Compare two designs from your swipe file side by side to see which principle each relies on most.",
+          ],
+          mistakes: [
+            "Naming a principle without explaining why it's there — 'it has contrast' isn't specific enough.",
+            "Trying to find all 5 principles in one design when usually 2 or 3 do the heavy lifting.",
+          ],
+          skills: ["Design principles", "Visual critique"],
+          resources: [
+            { label: "Canva Design School: Principles of Design", url: "https://www.canva.com/learn/design-elements-principles/" },
+            { label: "Figma basics", url: "https://help.figma.com/hc/en-us" },
+          ],
+          reflection: "Which principle do you think you rely on least in your own taste, and why?",
+          nextTeaser: "Next, you'll apply these rules yourself by designing your first real Instagram post in Canva.",
           tools: ["Canva"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -54,10 +97,27 @@ export const creative: Category = {
           description: "Make your first real design.",
           intro:
             "Canva is free, browser-based, and used by real professionals — not just beginners. You'll drag, drop, and customize a template into something you'd actually post. This is your first shippable design.",
+          whyItMatters:
+            "You've studied great designs and named the rules behind them — now you put that knowledge into your own hands. This is the first thing you'll actually finish and ship in this branch.",
           outcome: "One exported Instagram post (JPG or PNG) about a topic you care about.",
           videoUrl: yt("jzWxBuvwuwQ"),
           challenge: "Open Canva, pick a template, and customize it into an Instagram post. Export it.",
           builderTip: "Search Canva's template library by the exact word 'Instagram Post' — it filters to the right size automatically.",
+          builderTips: [
+            "Pick a template that already uses the principles from Mission 2 (clear hierarchy, good contrast) so you're editing, not fighting the layout.",
+            "Use Canva's free stock photos tab instead of hunting the internet for images.",
+          ],
+          mistakes: [
+            "Using too many fonts and colors on a first design — stick to what the template already has.",
+            "Forgetting to export before closing the tab, losing the finished file.",
+          ],
+          skills: ["Canva workflow", "Template customization", "Exporting for social media"],
+          resources: [
+            { label: "Canva Help Center", url: "https://www.canva.com/help/" },
+            { label: "Canva Instagram Post templates", url: "https://www.canva.com/templates/?query=instagram-post" },
+          ],
+          reflection: "What's one thing you changed from the original template that made the post feel more 'you'?",
+          nextTeaser: "Next, you'll redesign this exact post using only font changes to see how much power typography really has.",
           tools: ["Canva (free)"],
           difficulty: "Starter",
           duration: "~12 min",
@@ -69,10 +129,27 @@ export const creative: Category = {
           description: "Pick fonts like a pro.",
           intro:
             "90% of beginner designs look off because of font choices, not layout. The fix: max 2 fonts — one bold for headings, one clean for body. Stick to fonts already inside Canva or Google Fonts.",
+          whyItMatters:
+            "You already have a finished post from Mission 3 — this mission proves that one lever (typography) can transform it without touching layout, which is a skill you'll lean on for the final portfolio piece.",
           outcome: "Two versions of the same post — before and after a font-only redesign.",
           videoUrl: yt("QrNi9FmdlxY"),
           challenge: "Duplicate your Instagram post from Mission 3. Change only the fonts. Compare both side by side.",
           builderTip: "In Canva, use the 'Font Pairing' suggestions that pop up when you select a text box — they're curated by designers.",
+          builderTips: [
+            "Limit yourself to 2 fonts max, even if Canva tempts you with more options.",
+            "Use size and weight (bold vs regular) instead of a 3rd font to create contrast.",
+          ],
+          mistakes: [
+            "Picking two fonts that look almost identical, which reads as a mistake rather than a choice.",
+            "Using a decorative script font for body text, which is hard to read at small sizes.",
+          ],
+          skills: ["Typography pairing", "Visual hierarchy with text"],
+          resources: [
+            { label: "Google Fonts", url: "https://fonts.google.com" },
+            { label: "Canva font combinations guide", url: "https://www.canva.com/learn/the-ultimate-guide-to-font-pairing/" },
+          ],
+          reflection: "Which version of your post looks more professional, and can you explain exactly why?",
+          nextTeaser: "Next, you'll combine everything so far into a 3-piece portfolio for a fake client — your final project for this branch.",
           tools: ["Canva (free)"],
           difficulty: "Builder",
           duration: "~10 min",
@@ -85,10 +162,27 @@ export const creative: Category = {
           description: "What clients actually want to see.",
           intro:
             "Clients don't hire your CV — they hire your portfolio. 3 strong, connected pieces beat 20 random ones. Pick a fake brief: a coffee shop, a gym, a music artist — and design as if they hired you.",
+          whyItMatters:
+            "Every skill from this branch — reading references, applying design rules, using Canva, and choosing fonts — comes together here to produce the one thing that actually gets you hired: a consistent, professional portfolio piece.",
           outcome: "3 matching designs (e.g. poster, logo, social post) for one fake brand, exported and ready to share.",
           videoUrl: yt("8M0qxamf1rE"),
           challenge: "Pick one fake client (coffee shop, gym, artist). Design 3 pieces that share the same colors and fonts.",
           builderTip: "Lock your color palette first using Canva's 'Brand Kit' (free tier) so all 3 pieces stay visually consistent.",
+          builderTips: [
+            "Write a one-line fake brief for your client before designing, so all 3 pieces stay on-message.",
+            "Reuse the same 2 fonts you picked in Mission 4 across all 3 designs for consistency.",
+          ],
+          mistakes: [
+            "Designing 3 pieces that don't visually match, which defeats the point of a portfolio.",
+            "Picking a client idea so complex you never finish all 3 pieces.",
+          ],
+          skills: ["Brand consistency", "Portfolio building", "Client-style briefing"],
+          resources: [
+            { label: "Canva Brand Kit", url: "https://www.canva.com/help/brand-kit/" },
+            { label: "Behance (share your portfolio)", url: "https://www.behance.net" },
+          ],
+          reflection: "Looking at your 3 pieces together, do they look like they came from the same designer? Why or why not?",
+          nextTeaser: "You've got a real portfolio now — next, try designing for a real person or business to earn your first testimonial.",
           tools: ["Canva (free)"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -104,6 +198,15 @@ export const creative: Category = {
       description: "Cut, trim and add effects with free tools like CapCut and DaVinci Resolve.",
       searchKeywords: ["video", "edit", "editing", "capcut", "davinci", "premiere", "youtube"],
       featured: true,
+      projectArc: {
+        projectName: "A polished short video, edited on two tools",
+        promise: "By the end of this branch you'll have one video taken from raw phone clips all the way to a tightened, sound-designed cut — then rebuilt inside a laptop-grade editor.",
+        whatsNext: [
+          "Edit a video for a friend's event or a local business for free practice",
+          "Learn color grading inside DaVinci Resolve",
+          "Start posting consistently on YouTube Shorts, TikTok, or Reels to build an audience",
+        ],
+      },
       lessons: [
         {
           id: "edit-1",
@@ -112,10 +215,27 @@ export const creative: Category = {
           description: "Understand the real job.",
           intro:
             "Editing is storytelling with cuts. A good editor turns 30 minutes of raw footage into a 3-minute video people watch to the end. Speed isn't the skill — knowing what to cut is.",
+          whyItMatters:
+            "Before you touch editing software, you need to understand what editing actually does to keep viewers watching. This analysis is the mental model you'll use in every mission that follows.",
           outcome: "A cut-count breakdown of one video's first 30 seconds.",
           videoUrl: yt("g9G218IncLw"),
           challenge: "Watch a short YouTube video or Reel. Count every cut in the first 30 seconds. Write the number down.",
           builderTip: "Use the video's playback speed control (0.25x) to catch fast cuts you'd otherwise miss.",
+          builderTips: [
+            "Pick a video in a niche you actually enjoy so you stay motivated during the count.",
+            "Compare a fast-paced Reel to a slower YouTube vlog — the cut rate difference is huge.",
+          ],
+          mistakes: [
+            "Only counting obvious cuts and missing quick jump cuts between similar shots.",
+            "Watching at normal speed and losing count halfway through.",
+          ],
+          skills: ["Shot analysis", "Pacing awareness"],
+          resources: [
+            { label: "YouTube", url: "https://www.youtube.com" },
+            { label: "Instagram Reels", url: "https://www.instagram.com/reels/" },
+          ],
+          reflection: "Did the number of cuts surprise you? What did that tell you about how fast attention moves online?",
+          nextTeaser: "Next, you'll stop analyzing and start editing — stitching your own phone clips into your first video.",
           tools: ["YouTube or Instagram"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -127,10 +247,27 @@ export const creative: Category = {
           description: "Edit your first video on your phone.",
           intro:
             "CapCut is free, runs on any phone, and is what most TikTok and Reels editors actually use. You can do 80% of pro editing without ever touching a laptop.",
+          whyItMatters:
+            "You now understand why cuts matter — this mission is where you make your first ones. This raw video becomes the project you'll keep refining for the rest of the branch.",
           outcome: "One exported video combining 3 clips from your phone.",
           videoUrl: yt("P51CqlPOE_w"),
           challenge: "Install CapCut. Import any 3 clips from your phone, arrange them, and export the result.",
           builderTip: "Use CapCut's 'Auto Cut' feature to instantly trim silence and dead space from your clips.",
+          builderTips: [
+            "Pick clips that are already interesting on their own — editing can't save boring footage.",
+            "Keep your first project under 30 seconds so it's easy to finish.",
+          ],
+          mistakes: [
+            "Trying to add effects and transitions before the basic cut order even works.",
+            "Forgetting to export in the right aspect ratio for where you'll post it.",
+          ],
+          skills: ["Basic timeline editing", "Clip arranging", "Exporting video"],
+          resources: [
+            { label: "CapCut", url: "https://www.capcut.com" },
+            { label: "How to use CapCut", url: "https://www.capcut.com/resource/how-to-use-capcut" },
+          ],
+          reflection: "What was harder than you expected — choosing the clips, or arranging them?",
+          nextTeaser: "Next, you'll take this exact video and cut it down by 30% to make it hold attention better.",
           tools: ["CapCut (free, phone app)"],
           difficulty: "Starter",
           duration: "~12 min",
@@ -142,10 +279,26 @@ export const creative: Category = {
           description: "Make videos that hold attention.",
           intro:
             "Cuts hide boredom. B-roll (extra footage layered over the main shot) keeps eyes engaged. Pacing — when to slow down vs speed up — separates amateur from pro work.",
+          whyItMatters:
+            "You made a working video in Mission 2 — now you make it good, by ruthlessly cutting the boring parts. This tighter cut is what you'll add sound to next.",
           outcome: "A tighter, re-edited version of your video that's at least 30% shorter.",
           videoUrl: yt("ivhHHoLXy4s"),
           challenge: "Re-edit your Mission 2 video. Cut anything boring. Aim to make it 30% shorter than the original.",
           builderTip: "In CapCut, use the 'Speed' tool to speed through slow parts instead of deleting them entirely — keeps context.",
+          builderTips: [
+            "Watch your video muted first — if you're bored without sound, that section needs cutting.",
+            "Trim from both the start and end of each clip, not just the middle.",
+          ],
+          mistakes: [
+            "Cutting so aggressively the story stops making sense.",
+            "Only trimming the beginning of clips and ignoring dragging endings.",
+          ],
+          skills: ["Pacing", "Ruthless trimming", "Story-focused editing"],
+          resources: [
+            { label: "How to use CapCut", url: "https://www.capcut.com/resource/how-to-use-capcut" },
+          ],
+          reflection: "What's the single cut that improved your video the most?",
+          nextTeaser: "Next, you'll prove that sound alone can make or break this same video.",
           tools: ["CapCut (free)"],
           difficulty: "Builder",
           duration: "~10 min",
@@ -157,10 +310,27 @@ export const creative: Category = {
           description: "Why audio matters more than video.",
           intro:
             "Bad video with great audio is watchable. Great video with bad audio gets closed in 5 seconds. Free music and clean sound design matter more than 4K footage.",
+          whyItMatters:
+            "Your video is tight from Mission 3, but silent footage still feels unfinished. Adding music and sound effects here is what turns your cut into something people actually enjoy watching.",
           outcome: "Your video with background music and at least one sound effect added.",
           videoUrl: yt("Wcxw3BPSt3A"),
           challenge: "Add background music and one sound effect to your edited video from Mission 3.",
           builderTip: "CapCut's built-in sound library and YouTube's free Audio Library both have copyright-safe tracks you can use anywhere.",
+          builderTips: [
+            "Match the music's energy to your video's pacing — fast cuts pair better with upbeat tracks.",
+            "Lower the music volume under any spoken dialogue so it doesn't compete.",
+          ],
+          mistakes: [
+            "Using copyrighted music that gets your video muted or taken down when posted.",
+            "Setting music volume too loud, drowning out sound effects or speech.",
+          ],
+          skills: ["Sound design basics", "Copyright-safe sourcing", "Audio mixing"],
+          resources: [
+            { label: "YouTube Audio Library", url: "https://www.youtube.com/audiolibrary" },
+            { label: "CapCut sound library (in-app)", url: "https://www.capcut.com" },
+          ],
+          reflection: "How different does your video feel with sound compared to silent?",
+          nextTeaser: "Next, you'll rebuild this same video inside DaVinci Resolve — the free tool real films are edited in.",
           tools: ["CapCut (free)", "YouTube Audio Library"],
           difficulty: "Builder",
           duration: "~10 min",
@@ -173,10 +343,27 @@ export const creative: Category = {
           description: "Step up to laptop editing.",
           intro:
             "DaVinci Resolve is what real films are edited in — and the full version is free forever. If you want to edit on a laptop, this is the honest upgrade path, not pirated software.",
+          whyItMatters:
+            "You've built a full video on your phone — this final mission takes that same finished project and moves it to the tool professionals use, so you're ready to grow beyond CapCut.",
           outcome: "DaVinci Resolve installed, with your video imported and one cut made inside it.",
           videoUrl: yt("SrJOE2pEp7A"),
           challenge: "Download DaVinci Resolve (free). Import your CapCut video and make at least one edit inside it.",
           builderTip: "Resolve is heavier than CapCut — export your CapCut project as MP4 first, then drag it straight into Resolve's Media Pool.",
+          builderTips: [
+            "Give your laptop a minute to load Resolve the first time — it's a much bigger program than CapCut.",
+            "Start in the 'Cut' page inside Resolve, not 'Edit' — it's the simplified timeline built for beginners.",
+          ],
+          mistakes: [
+            "Importing a huge, uncompressed video file that lags the whole timeline.",
+            "Getting overwhelmed by every panel at once instead of starting with just cutting.",
+          ],
+          skills: ["Laptop-based editing", "Tool migration", "Timeline fundamentals in Resolve"],
+          resources: [
+            { label: "DaVinci Resolve download", url: "https://www.blackmagicdesign.com/products/davinciresolve" },
+            { label: "DaVinci Resolve support & docs", url: "https://www.blackmagicdesign.com/support/family/davinci-resolve-and-fusion" },
+          ],
+          reflection: "Now that you've used both CapCut and Resolve, which feels better for your workflow, and why?",
+          nextTeaser: "You've gone from raw clips to a laptop-edited video — next, try color grading or editing for someone else's project.",
           tools: ["DaVinci Resolve (free, laptop)"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -192,6 +379,15 @@ export const creative: Category = {
       description: "Learn Blender, the free 3D tool used by pros and studios worldwide.",
       searchKeywords: ["blender", "3d", "modeling", "animation", "render", "sculpting"],
       featured: true,
+      projectArc: {
+        projectName: "A lit, rendered 3D object you publish publicly",
+        promise: "By the end of this branch you'll go from installing Blender to publishing a rendered, lit, modeled object of your own — a real piece for a 3D portfolio.",
+        whatsNext: [
+          "Model a more complex scene with multiple objects",
+          "Learn basic animation to make your model move",
+          "Join r/blender or a Discord community to get feedback on future renders",
+        ],
+      },
       lessons: [
         {
           id: "blender-1",
@@ -200,10 +396,27 @@ export const creative: Category = {
           description: "Meet the free tool studios actually use.",
           intro:
             "Blender is 100% free, runs on most laptops, and is used to make professional animations, films, and game assets. The famous 'Donut Tutorial' has launched thousands of careers — you're starting on the same path.",
+          whyItMatters:
+            "Everything you build in this branch — shortcuts, models, lighting, renders — happens inside Blender, so getting it installed correctly is the first non-negotiable step.",
           outcome: "Blender installed and opened on your laptop.",
           videoUrl: yt("Be_9yovWwWA"),
           challenge: "Download Blender (free) from blender.org and install it. Just open it once — no need to build anything yet.",
           builderTip: "Blender.org always has the official, virus-free download — never download Blender from third-party sites.",
+          builderTips: [
+            "Check your laptop meets Blender's minimum requirements before installing to avoid crashes later.",
+            "Pick the 'LTS' (long-term support) version for the most stable experience as a beginner.",
+          ],
+          mistakes: [
+            "Downloading Blender from a random search result instead of the official site.",
+            "Panicking at the default interface instead of just clicking around for a few minutes first.",
+          ],
+          skills: ["Software installation", "3D tool setup"],
+          resources: [
+            { label: "Blender official download", url: "https://www.blender.org/download/" },
+            { label: "Blender Manual", url: "https://docs.blender.org/manual/en/latest/" },
+          ],
+          reflection: "What's your first impression of Blender's interface — exciting or intimidating, and why?",
+          nextTeaser: "Next, you'll learn the only 6 shortcuts you need to stop feeling lost in that interface.",
           tools: ["Blender (free)"],
           difficulty: "Starter",
           duration: "~12 min",
@@ -215,10 +428,26 @@ export const creative: Category = {
           description: "Stop being scared of the UI.",
           intro:
             "Blender looks scary — buttons everywhere. But you only need 6 shortcuts to start: G (grab), R (rotate), S (scale), Tab (edit mode), middle-mouse (orbit), scroll (zoom). Ignore everything else for now.",
+          whyItMatters:
+            "Now that Blender is installed, these 6 shortcuts are the controls you'll use in every mission from here — modeling, lighting, and rendering are impossible without them feeling automatic.",
           outcome: "Comfort moving, rotating and scaling an object using only keyboard shortcuts.",
           videoUrl: yt("1jHZC9b1BxE"),
           challenge: "Open Blender. Practice G, R, S on the default cube. Orbit and zoom around it until it feels natural.",
           builderTip: "Keep one hand on the shortcut keys and the other on the mouse at all times — that's how every fast Blender artist works.",
+          builderTips: [
+            "Practice typing a number after G, R or S (like G then X then 2) to move precisely along an axis.",
+            "Press Ctrl+Z liberally — undo is your safety net while learning shortcuts.",
+          ],
+          mistakes: [
+            "Using the on-screen menus for everything instead of building shortcut muscle memory.",
+            "Forgetting which axis (X, Y, Z) you're moving on and getting frustrated with 'random' results.",
+          ],
+          skills: ["Blender navigation", "Keyboard shortcut fluency"],
+          resources: [
+            { label: "Blender Manual: Basic Controls", url: "https://docs.blender.org/manual/en/latest/editors/3dview/navigate/index.html" },
+          ],
+          reflection: "Which of the 6 shortcuts felt most natural, and which will need more practice?",
+          nextTeaser: "Next, you'll put these shortcuts to work modeling your first real object from scratch.",
           tools: ["Blender (free)"],
           difficulty: "Starter",
           duration: "~12 min",
@@ -230,10 +459,27 @@ export const creative: Category = {
           description: "Build something you can show.",
           intro:
             "3D modeling is just pushing vertices, edges and faces around until they look like something. Start simple — a mug, a chair, a sword. Don't aim for realism, aim for recognizable.",
+          whyItMatters:
+            "With the shortcuts from Mission 2 now in your hands, this is where you build the actual object you'll light and render in the missions ahead — the centerpiece of your final project.",
           outcome: "A saved .blend file containing one simple modeled object.",
           videoUrl: yt("SyMLR4Me-xM"),
           challenge: "Model one simple object: a mug, table, or pencil. Save your .blend file when done.",
           builderTip: "Use Blender's Modifiers panel (like 'Bevel' or 'Subdivision Surface') to smooth edges without manually adding geometry.",
+          builderTips: [
+            "Start from a basic shape (cube, cylinder) closest to your object's overall form before adding detail.",
+            "Save your file early and often — Ctrl+S becomes a habit fast in Blender.",
+          ],
+          mistakes: [
+            "Trying to model something too complex for a first object, like a full character.",
+            "Forgetting to save the .blend file, losing progress after closing Blender.",
+          ],
+          skills: ["Basic 3D modeling", "Vertex/edge/face editing"],
+          resources: [
+            { label: "Blender Manual: Modeling", url: "https://docs.blender.org/manual/en/latest/modeling/index.html" },
+            { label: "Blender Guru (Donut Tutorial)", url: "https://www.youtube.com/@blenderguru" },
+          ],
+          reflection: "What part of your object took the most attempts to get right?",
+          nextTeaser: "Next, you'll make this exact model look real by adding lighting and material.",
           tools: ["Blender (free)"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -245,10 +491,27 @@ export const creative: Category = {
           description: "Make your 3D look real.",
           intro:
             "A great model with bad lighting looks fake. A simple model with good lighting looks real. Three-point lighting and one material will instantly upgrade every render you make.",
+          whyItMatters:
+            "The object you modeled in Mission 3 is still flat and grey — this mission is what actually makes it look like a real, finished thing worth showing, right before you publish it.",
           outcome: "One rendered still image of your lit, materialed model.",
           videoUrl: yt("Aj4MHm499Hk"),
           challenge: "Add one light and one material to your model from Mission 3. Render a still image.",
           builderTip: "Download a free HDRI environment map from Poly Haven — it gives instant realistic lighting with zero setup.",
+          builderTips: [
+            "Try moving your light source around before rendering — angle changes the mood completely.",
+            "Use the 'Rendered' viewport shading mode to preview lighting changes live, before doing a full render.",
+          ],
+          mistakes: [
+            "Using only one light with no fill, leaving half the object in harsh shadow.",
+            "Skipping materials entirely and rendering a flat grey object.",
+          ],
+          skills: ["Lighting fundamentals", "Materials & shading", "Rendering"],
+          resources: [
+            { label: "Poly Haven (free HDRIs)", url: "https://polyhaven.com" },
+            { label: "Blender Manual: Lighting", url: "https://docs.blender.org/manual/en/latest/render/lights/index.html" },
+          ],
+          reflection: "How much did lighting alone change the way your model looks compared to Mission 3?",
+          nextTeaser: "Next, you'll export this render and publish it publicly to get real feedback.",
           tools: ["Blender (free)", "Poly Haven (free HDRIs)"],
           difficulty: "Builder",
           duration: "~14 min",
@@ -261,10 +524,27 @@ export const creative: Category = {
           description: "Get your art seen.",
           intro:
             "ArtStation, Instagram and r/blender are where 3D artists get noticed. One clean render with good lighting beats five rushed ones. Post consistently and feedback makes you better fast.",
+          whyItMatters:
+            "You've modeled and lit a real object — this final step turns it from a private file into a public piece of work that can start earning you feedback, followers, or even clients.",
           outcome: "A PNG render posted publicly on any platform you choose.",
           videoUrl: yt("5cOHqoIqQnw"),
           challenge: "Export your render as PNG. Post it anywhere — Instagram, WhatsApp status, or ArtStation.",
           builderTip: "Add the hashtag #b3d on Instagram or Twitter/X — it's the tag the Blender community actually searches.",
+          builderTips: [
+            "Write one line about what you learned making it — context makes people engage more.",
+            "Post at a time your friends or followers are actually online, not just whenever you finish.",
+          ],
+          mistakes: [
+            "Not posting at all out of fear it's not 'good enough' — every artist's first post looks like a first post.",
+            "Exporting at a tiny resolution that looks blurry once uploaded.",
+          ],
+          skills: ["Publishing creative work", "Getting feedback", "Building a public portfolio"],
+          resources: [
+            { label: "ArtStation", url: "https://www.artstation.com" },
+            { label: "r/blender", url: "https://www.reddit.com/r/blender/" },
+          ],
+          reflection: "How did it feel to put your work in front of other people?",
+          nextTeaser: "You've published your first render — next, try modeling a full scene or bringing your object to life with animation.",
           tools: ["Blender (free)", "Instagram or ArtStation"],
           difficulty: "Advanced",
           duration: "~12 min",
@@ -280,6 +560,15 @@ export const creative: Category = {
       description: "Make 2D animations using free tools — no art-school degree needed.",
       searchKeywords: ["animation", "animate", "cartoon", "motion", "2d"],
       featured: true,
+      projectArc: {
+        projectName: "A short animated clip made across phone and laptop tools",
+        promise: "By the end of this branch you'll go from spotting animation principles in movies to producing your own walking, waving character — and previewing the laptop tools for what's next.",
+        whatsNext: [
+          "Animate a longer scene with a background and a second character",
+          "Add lip-sync so your character can talk",
+          "Try Blender's Grease Pencil for a full 2D short film project",
+        ],
+      },
       lessons: [
         {
           id: "anim-1",
@@ -288,10 +577,26 @@ export const creative: Category = {
           description: "The DNA of all animation.",
           intro:
             "Every Pixar, Disney and anime animator learns the same 12 principles — squash & stretch, anticipation, timing. This is the best free crash course on the internet. Watch it once, spot these forever.",
+          whyItMatters:
+            "Before you animate anything yourself, you need to see what makes animation feel alive. These principles are the checklist you'll use in every animation you make for the rest of this branch.",
           outcome: "3 identified animation principles from a real movie clip, written down.",
           videoUrl: yt("haa7n3UGyDc"),
           challenge: "Pick any animated movie clip. Identify 3 of the 12 principles in action and note where you saw them.",
           builderTip: "Pause on single frames during fast movement — you'll clearly see 'squash and stretch' exaggeration that's invisible at full speed.",
+          builderTips: [
+            "Pick a clip with clear physical action (a jump, a fall) — principles are easier to spot in big movement.",
+            "Rewatch the clip twice: once for story, once purely watching the motion.",
+          ],
+          mistakes: [
+            "Trying to spot all 12 principles at once instead of focusing on 3.",
+            "Choosing a very short or static clip with little movement to analyze.",
+          ],
+          skills: ["Motion analysis", "Animation vocabulary"],
+          resources: [
+            { label: "Animator's Survival Kit summary (12 Principles)", url: "https://www.youtube.com/results?search_query=12+principles+of+animation" },
+          ],
+          reflection: "Which principle do you think will be hardest for you to actually animate yourself?",
+          nextTeaser: "Next, you'll animate your very first motion — a bouncing ball — using these exact principles.",
           tools: ["Any video app"],
           difficulty: "Starter",
           duration: "~12 min",
@@ -303,10 +608,26 @@ export const creative: Category = {
           description: "Your studio fits in your pocket.",
           intro:
             "FlipaClip is a free app that lets you animate frame-by-frame on a phone. No tablet, no laptop, no excuses. It's how many working animators got their start.",
+          whyItMatters:
+            "The bouncing ball is the classic first animation exercise because it forces you to apply squash & stretch and timing from Mission 1 in the simplest possible form.",
           outcome: "A 12-frame bouncing ball animation saved in FlipaClip.",
           videoUrl: yt("fAf38GpZa3Y"),
           challenge: "Download FlipaClip. Create a 12-frame animation of a bouncing ball — the classic first exercise.",
           builderTip: "Turn on Onion Skin in FlipaClip's settings — it shows your previous frame as a faded guide, making motion way easier to draw.",
+          builderTips: [
+            "Squash the ball flatter on impact frames and stretch it taller mid-air for believable bounce.",
+            "Space your frames closer together at the top of the bounce and further apart near the ground — that's timing.",
+          ],
+          mistakes: [
+            "Spacing every frame evenly, which makes the ball look robotic instead of bouncy.",
+            "Forgetting to squash the ball on impact, losing the sense of weight.",
+          ],
+          skills: ["Frame-by-frame animation", "Squash and stretch", "Timing"],
+          resources: [
+            { label: "FlipaClip", url: "https://flipaclip.com" },
+          ],
+          reflection: "Does your ball feel like it has real weight, or does it float unnaturally? Why?",
+          nextTeaser: "Next, you'll level up from a ball to a full character that walks and waves.",
           tools: ["FlipaClip (free, phone app)"],
           difficulty: "Starter",
           duration: "~15 min",
@@ -318,10 +639,26 @@ export const creative: Category = {
           description: "From doodle to short film.",
           intro:
             "Now that you've made a bouncing ball, this covers layers, onion-skin, sound and exporting properly. By the end you'll have everything needed for a 30-second short film on your phone.",
+          whyItMatters:
+            "The timing and weight skills from your bouncing ball now apply to something with a story — a character performing two actions — bringing you a real step closer to a finished animated clip.",
           outcome: "A 5-second exported animation of a character walking then waving.",
           videoUrl: yt("_qhYMKzPQjE"),
           challenge: "Make a 5-second animation with a character that walks, then waves. Export it as a video file.",
           builderTip: "Use separate layers for the body and limbs in FlipaClip — it lets you redraw an arm without redrawing the whole character.",
+          builderTips: [
+            "Keep your character design simple (stick figure or basic shapes) so you can focus on motion, not detail.",
+            "Animate the walk cycle first, then add the wave as a separate short section.",
+          ],
+          mistakes: [
+            "Drawing a highly detailed character that takes too long to redraw every frame.",
+            "Not using layers, forcing you to redraw the whole body for tiny movements.",
+          ],
+          skills: ["Character animation", "Layering", "Exporting animated video"],
+          resources: [
+            { label: "FlipaClip tutorials", url: "https://www.youtube.com/results?search_query=flipaclip+tutorial" },
+          ],
+          reflection: "What was harder — animating the walk or the wave, and why?",
+          nextTeaser: "Next, you'll explore Krita's laptop-based animation timeline — the natural next step up from your phone.",
           tools: ["FlipaClip (free)"],
           difficulty: "Builder",
           duration: "~14 min",
@@ -333,10 +670,27 @@ export const creative: Category = {
           description: "Step up to the laptop.",
           intro:
             "Krita is fully free, runs on any laptop, and includes a real animation timeline. If you ever move from phone to laptop, this is where to go next — without paying anything.",
+          whyItMatters:
+            "You've proven you can animate on a phone — this mission previews the more powerful laptop workflow you'll eventually want for longer, more detailed animations.",
           outcome: "Krita installed with 10 minutes of hands-on brush and timeline exploration.",
           videoUrl: yt("oXMCmiT_wxA"),
           challenge: "Download Krita (free). Open it, explore the brushes, and open the animation timeline panel.",
           builderTip: "Krita has built-in animation templates under File > New — start from one instead of a blank canvas to save setup time.",
+          builderTips: [
+            "Try Krita's onion skin docker — it works similarly to FlipaClip's but with more controls.",
+            "Use a mouse or trackpad first if you don't have a drawing tablet — you can still learn the timeline.",
+          ],
+          mistakes: [
+            "Expecting Krita to feel exactly like FlipaClip — give the new layout time to click.",
+            "Ignoring the animation-specific panels and only exploring the drawing tools.",
+          ],
+          skills: ["Laptop-based animation tools", "Krita interface basics"],
+          resources: [
+            { label: "Krita official docs", url: "https://docs.krita.org" },
+            { label: "Krita download", url: "https://krita.org/en/download/" },
+          ],
+          reflection: "What feels better on a laptop than it did on your phone, and what feels harder?",
+          nextTeaser: "Next, you'll preview Blender's Grease Pencil — a full 2D animation studio hiding inside a 3D tool.",
           tools: ["Krita (free, laptop)"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -349,10 +703,27 @@ export const creative: Category = {
           description: "Free, professional, future-proof.",
           intro:
             "Blender's Grease Pencil turns the famous 3D tool into a full 2D animation studio. Studios use it for hybrid 2D/3D work, and it's 100% free forever — the natural next step after Krita.",
+          whyItMatters:
+            "After exploring Krita's timeline, this final mission shows you the professional ceiling for 2D animation — a free tool studios actually use — so you know exactly where to go next.",
           outcome: "Blender installed with the Grease Pencil workspace opened at least once.",
           videoUrl: yt("ZkqZRe9IXQ8"),
           challenge: "Install Blender (free). Open it, switch to the '2D Animation' template, and watch the first 10 minutes of the tutorial.",
           builderTip: "Blender's '2D Animation' start screen (choose it at launch) sets up Grease Pencil automatically — skip the manual setup.",
+          builderTips: [
+            "Don't worry about understanding every panel — just get familiar with where drawing and timeline tools live.",
+            "If Blender feels heavy, that's normal — it's a bigger step up than Krita was from FlipaClip.",
+          ],
+          mistakes: [
+            "Trying to learn all of Blender at once instead of sticking to the 2D Animation template.",
+            "Giving up because the interface looks different from Krita or FlipaClip.",
+          ],
+          skills: ["Grease Pencil basics", "Tool progression awareness"],
+          resources: [
+            { label: "Blender Manual: Grease Pencil", url: "https://docs.blender.org/manual/en/latest/grease_pencil/index.html" },
+            { label: "Blender download", url: "https://www.blender.org/download/" },
+          ],
+          reflection: "Across FlipaClip, Krita and Blender, which tool do you want to keep animating in, and why?",
+          nextTeaser: "You've explored phone, laptop, and studio-grade tools — next, try animating a longer scene with a background and dialogue.",
           tools: ["Blender (free)"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -368,6 +739,15 @@ export const creative: Category = {
       description: "Take photos people want to look at — using a phone or any camera.",
       searchKeywords: ["photo", "photography", "camera", "shoot", "picture"],
       featured: true,
+      projectArc: {
+        projectName: "A themed 5-photo portfolio, shot and edited",
+        promise: "By the end of this branch you'll go from testing basic light and composition to shooting and editing a themed 5-photo set you can actually share as a portfolio.",
+        whatsNext: [
+          "Shoot a themed set for a friend's small business for free practice",
+          "Learn manual camera settings if you upgrade beyond a phone",
+          "Post consistently on Instagram to build a following around your style",
+        ],
+      },
       lessons: [
         {
           id: "photo-1",
@@ -376,10 +756,26 @@ export const creative: Category = {
           description: "Your phone is enough — really.",
           intro:
             "The phone in your pocket is enough to take stunning photos. Lighting, composition and timing matter way more than the camera body itself. This mission proves it with one simple test.",
+          whyItMatters:
+            "Light is the single biggest factor in every photo you'll ever take — this mission gives you first-hand proof, and every future mission in this branch builds on this understanding.",
           outcome: "3 photos of the same object shot in morning, midday and evening light.",
           videoUrl: yt("_ZYGsx1i5L8"),
           challenge: "Take 3 photos of the same object with: morning light, midday light, evening light. Compare them.",
           builderTip: "Golden hour (an hour after sunrise or before sunset) gives the softest, most flattering light for free — plan around it.",
+          builderTips: [
+            "Keep the object and camera angle identical across all 3 shots so light is the only variable.",
+            "Shoot near a window for an easy indoor version if you can't wait for different times of day.",
+          ],
+          mistakes: [
+            "Changing the object's position between shots, making the comparison unfair.",
+            "Shooting all 3 photos on the same overcast day, which hides the lighting differences.",
+          ],
+          skills: ["Understanding natural light", "Controlled comparison shooting"],
+          resources: [
+            { label: "Google: golden hour calculator", url: "https://www.google.com/search?q=golden+hour+calculator" },
+          ],
+          reflection: "Which lighting condition made the object look best, and what surprised you about the difference?",
+          nextTeaser: "Next, you'll use gridlines to start framing your shots more intentionally.",
           tools: ["Any smartphone camera"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -391,10 +787,26 @@ export const creative: Category = {
           description: "Quick wins for today.",
           intro:
             "Practical mobile photography techniques — angle, gridlines, HDR, portrait mode — are quick wins you can apply immediately on your walk to school or work.",
+          whyItMatters:
+            "Now that you understand light, this mission adds the second big lever — framing — using a tool that's already built into your phone and free to turn on.",
           outcome: "5 photos shot with gridlines turned on.",
           videoUrl: yt("HXIVNdp_SoM"),
           challenge: "Turn on gridlines in your camera app. Take 5 photos using them to guide your framing.",
           builderTip: "Most phones hide gridlines under Camera Settings > Grid — turn it on once and it stays on forever.",
+          builderTips: [
+            "Try placing your subject on different grid intersections to see which feels most natural.",
+            "Shoot the same scene with the subject centered vs on a gridline for comparison.",
+          ],
+          mistakes: [
+            "Forgetting the gridlines are just a guide, not a strict rule for every photo.",
+            "Only shooting horizontal photos and skipping vertical framing practice.",
+          ],
+          skills: ["Camera settings", "Basic framing"],
+          resources: [
+            { label: "Google: how to turn on camera gridlines", url: "https://www.google.com/search?q=how+to+turn+on+camera+gridlines" },
+          ],
+          reflection: "Did using gridlines change how you naturally frame a shot, even without thinking about it?",
+          nextTeaser: "Next, you'll test one specific gridline rule — the rule of thirds — head-to-head against centering your subject.",
           tools: ["Any smartphone camera"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -406,10 +818,26 @@ export const creative: Category = {
           description: "One rule, every shot.",
           intro:
             "If you learn only one composition rule, learn this one. Divide the frame into a 3x3 grid and place your subject on the lines or intersections — instantly more interesting photos.",
+          whyItMatters:
+            "You've been using gridlines loosely — this mission proves exactly why they matter with a direct side-by-side test, cementing the composition habit you'll use in your final portfolio.",
           outcome: "10 photos total: 5 using rule of thirds, 5 with subject dead-center, compared side by side.",
           videoUrl: yt("I1OK3yeuO_s"),
           challenge: "Take 5 photos using rule of thirds. Then 5 with subject dead-center. Decide which set looks better.",
           builderTip: "Your phone's gridlines from Mission 2 double as rule-of-thirds guides — line your subject up on an intersection point.",
+          builderTips: [
+            "Try the same subject and background for both sets so the composition is the only difference.",
+            "Ask a friend to pick their favorite from each pair without telling them which rule was used.",
+          ],
+          mistakes: [
+            "Changing the subject or background between the two sets, making the test unfair.",
+            "Assuming rule of thirds always wins — sometimes centering works better for symmetry.",
+          ],
+          skills: ["Rule of thirds", "A/B comparison thinking"],
+          resources: [
+            { label: "Google: rule of thirds examples", url: "https://www.google.com/search?q=rule+of+thirds+photography+examples" },
+          ],
+          reflection: "Did the rule of thirds actually win for you, or did centered work better in some shots?",
+          nextTeaser: "Next, you'll learn to edit your favorite shot in Snapseed to make it look even better.",
           tools: ["Any smartphone camera"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -421,10 +849,27 @@ export const creative: Category = {
           description: "Free edits that look paid.",
           intro:
             "A great edit can turn a decent phone shot into a portfolio piece. Snapseed is Google's free pro-grade editor, and it runs even on entry-level Android phones.",
+          whyItMatters:
+            "You now know how to shoot with good light and composition — this mission adds the final lever, editing, so your best shot from Mission 3 can look genuinely portfolio-ready.",
           outcome: "A posted before/after comparison of one edited photo.",
           videoUrl: yt("WB-NrT-XyG0"),
           challenge: "Pick one of your photos. Edit it in Snapseed: tune image, crop, selective brightness. Post the before/after.",
           builderTip: "Snapseed's 'Selective' tool lets you brighten just one part of a photo (like a face) without touching the rest — use it first.",
+          builderTips: [
+            "Edit in small steps and compare to the original often — it's easy to overdo contrast and saturation.",
+            "Crop last, after other adjustments, so you can see the final framing clearly.",
+          ],
+          mistakes: [
+            "Over-editing until the photo looks unnatural or fake.",
+            "Skipping the crop tool, leaving distracting elements in frame.",
+          ],
+          skills: ["Photo editing", "Selective adjustments", "Before/after presentation"],
+          resources: [
+            { label: "Snapseed (Google Play)", url: "https://play.google.com/store/apps/details?id=com.niksoftware.snapseed" },
+            { label: "Snapseed (App Store)", url: "https://apps.apple.com/app/snapseed/id439438619" },
+          ],
+          reflection: "What single edit made the biggest difference between your before and after?",
+          nextTeaser: "Next, you'll bring shooting and editing together into one final themed portfolio.",
           tools: ["Snapseed (free)"],
           difficulty: "Builder",
           duration: "~12 min",
@@ -437,10 +882,27 @@ export const creative: Category = {
           description: "From hobby to portfolio.",
           intro:
             "A deeper dive into professional-quality phone photography — settings and staging. Bring it all together and start posting work people would actually pay for.",
+          whyItMatters:
+            "This mission combines everything — light, composition, and editing — into the one thing that actually matters: a consistent, themed set of photos you can proudly show off as your first portfolio.",
           outcome: "A themed 5-photo set (food, friends, or nature) ready to share as a portfolio.",
           videoUrl: yt("d8EkwAOKtU0"),
           challenge: "Shoot a small series of 5 photos around one theme (food, friends, nature). That's your first mini-portfolio.",
           builderTip: "Keep all 5 photos in the same edit style (same Snapseed filter or tone) so the set looks intentional, not random.",
+          builderTips: [
+            "Pick your theme before shooting so every photo works toward the same feel.",
+            "Shoot more than 5 and pick your strongest 5 — editing down is part of building a good portfolio.",
+          ],
+          mistakes: [
+            "Mixing unrelated themes in one set, which makes the portfolio feel scattered.",
+            "Editing each photo differently instead of keeping a consistent style across the set.",
+          ],
+          skills: ["Portfolio curation", "Consistent visual style", "Theme-based shooting"],
+          resources: [
+            { label: "Instagram (share your set)", url: "https://www.instagram.com" },
+            { label: "Snapseed (free)", url: "https://play.google.com/store/apps/details?id=com.niksoftware.snapseed" },
+          ],
+          reflection: "Looking at your 5 photos together, do they tell one clear visual story?",
+          nextTeaser: "You've got a real photo portfolio now — next, try shooting for a friend's business or event to build real-world experience.",
           tools: ["Any smartphone camera", "Snapseed (free)"],
           difficulty: "Advanced",
           duration: "~15 min",
@@ -456,6 +918,15 @@ export const creative: Category = {
       description: "Produce music in free tools like BandLab and GarageBand.",
       searchKeywords: ["music", "beats", "produce", "song", "audio", "fl studio"],
       featured: true,
+      projectArc: {
+        projectName: "A finished, exported and shared original song",
+        promise: "By the end of this branch you'll go from your very first sound in BandLab to a fully arranged, mixed, and exported MP3 you've shared with someone else.",
+        whatsNext: [
+          "Produce a beat in a different genre to stretch your range",
+          "Learn basic mixing and mastering to make your tracks sound louder and cleaner",
+          "Collaborate with a singer or rapper on BandLab's online community",
+        ],
+      },
       lessons: [
         {
           id: "music-1",
@@ -464,10 +935,27 @@ export const creative: Category = {
           description: "Your studio is in your pocket.",
           intro:
             "You don't need a studio or a laptop. BandLab is a free app that lets you produce real songs directly on your phone — drums, melodies, vocals, mixing. It's how thousands of producers started.",
+          whyItMatters:
+            "This is your very first hands-on moment inside a real production tool — everything you build for the rest of this branch happens inside this same app, on this same account.",
           outcome: "BandLab installed with one drum pattern played through.",
           videoUrl: yt("0QSigM67sDE"),
           challenge: "Download BandLab. Open it and tap through one drum kit pattern.",
           builderTip: "BandLab syncs your project to the cloud automatically — you can start on your phone and finish later on a laptop for free.",
+          builderTips: [
+            "Create your free account first so your project saves automatically as you go.",
+            "Try a few different drum kits before settling on one — they each have a different feel.",
+          ],
+          mistakes: [
+            "Skipping account creation and losing your first project when you close the app.",
+            "Overthinking the drum pattern — this mission is just about pressing play and exploring.",
+          ],
+          skills: ["Music app navigation", "Basic beat exploration"],
+          resources: [
+            { label: "BandLab", url: "https://www.bandlab.com" },
+            { label: "BandLab Help Center", url: "https://help.bandlab.com" },
+          ],
+          reflection: "What surprised you about how much BandLab can do from just a phone?",
+          nextTeaser: "Next, you'll build your first real project by layering a drum loop with an instrument.",
           tools: ["BandLab (free, phone app)"],
           difficulty: "Starter",
           duration: "~10 min",
@@ -479,10 +967,26 @@ export const creative: Category = {
           description: "Learn the tool properly.",
           intro:
             "BandLab's official walkthrough covers every panel: tracks, effects, the mix editor. Take it slow — pause and try each thing as you go so it actually sticks.",
+          whyItMatters:
+            "You played your first sound in Mission 1 — now you build your first real project structure, layering tracks, which is the exact skill you'll need to finish a full beat next.",
           outcome: "One BandLab project with 2 tracks: a drum loop and an instrument.",
           videoUrl: yt("NmUaIoydldg"),
           challenge: "Create a project. Add at least 2 tracks (a drum loop and one instrument).",
           builderTip: "Use BandLab's free built-in Loop Library first — it's faster than recording your own sounds while you're learning the layout.",
+          builderTips: [
+            "Pick loops in the same key or vibe so they naturally sound good together.",
+            "Mute and unmute each track individually to hear how they interact.",
+          ],
+          mistakes: [
+            "Adding too many tracks at once and losing track of what each one does.",
+            "Ignoring the mix editor entirely, leaving one track way louder than the other.",
+          ],
+          skills: ["Multi-track layering", "Using loop libraries", "Basic mixing"],
+          resources: [
+            { label: "BandLab Help Center", url: "https://help.bandlab.com" },
+          ],
+          reflection: "How did adding a second track change the feel of your project compared to just drums?",
+          nextTeaser: "Next, you'll take this exact project structure and push it all the way to a finished 30-second beat.",
           tools: ["BandLab (free)"],
           difficulty: "Starter",
           duration: "~14 min",
@@ -494,10 +998,26 @@ export const creative: Category = {
           description: "From silence to a finished beat.",
           intro:
             "Theory is fun, but making something is better. This walks you through producing a complete beat from scratch in BandLab's free web studio. By the end you'll have something real to post.",
+          whyItMatters:
+            "You've got the layering skills from Mission 2 — now the challenge is finishing something completely, which is a different (and harder) skill than just experimenting.",
           outcome: "One finished 30-second beat saved inside BandLab.",
           videoUrl: yt("S96P06ml8Cg"),
           challenge: "Finish ONE 30-second beat. Doesn't matter if it's bad. Just finish it.",
           builderTip: "Set a timer for 20 minutes and force yourself to stop tweaking — finishing beats fast is the actual skill, not perfecting one forever.",
+          builderTips: [
+            "Start with drums, then bass, then one melody — building in that order avoids overwhelm.",
+            "Lower your standards for this one — 'finished and imperfect' beats 'perfect and never done'.",
+          ],
+          mistakes: [
+            "Endlessly tweaking one sound instead of moving forward to finish the full 30 seconds.",
+            "Trying to make something complex instead of something complete.",
+          ],
+          skills: ["Finishing a project", "Basic beat arrangement", "Time-boxing creative work"],
+          resources: [
+            { label: "BandLab", url: "https://www.bandlab.com" },
+          ],
+          reflection: "What made you want to keep tweaking instead of calling it finished — and did you fight that urge?",
+          nextTeaser: "Next, you'll make a new beat that matches the key of one of your favorite songs.",
           tools: ["BandLab (free)"],
           difficulty: "Builder",
           duration: "~14 min",
@@ -509,10 +1029,27 @@ export const creative: Category = {
           description: "The shortcut to better-sounding music.",
           intro:
             "Andrew Huang teaches more usable music theory in 30 minutes than most schools teach in a term. Scales, chords, keys — explained so you can apply them to a beat tonight.",
+          whyItMatters:
+            "You know how to finish a beat from Mission 3 — this mission makes your next one sound noticeably more musical by borrowing the key of a song you already love.",
           outcome: "One new beat produced in the same musical key as a favorite song.",
           videoUrl: yt("oU4i59Mf8Yo"),
           challenge: "Find the key of one of your favourite songs (Google it or use a key-finder app). Make one beat in that same key.",
           builderTip: "Search '[song name] key' on Google — sites like Tunebat give you the exact key and BPM for almost any song instantly.",
+          builderTips: [
+            "Match the BPM (tempo) too, not just the key, for an even closer feel to the reference song.",
+            "Use BandLab's key-aware instruments so wrong notes are harder to hit by accident.",
+          ],
+          mistakes: [
+            "Only matching the key but ignoring tempo, which makes the vibe feel off.",
+            "Copying the melody too closely instead of just borrowing the key as a starting point.",
+          ],
+          skills: ["Applied music theory", "Working in a key", "Reference-based production"],
+          resources: [
+            { label: "Tunebat (key & BPM finder)", url: "https://tunebat.com" },
+            { label: "BandLab", url: "https://www.bandlab.com" },
+          ],
+          reflection: "Did knowing the key make the beat easier or harder to produce than Mission 3's freeform beat?",
+          nextTeaser: "Next, you'll take a beat like this one all the way to a fully arranged, exported, shareable song.",
           tools: ["BandLab (free)", "Tunebat or similar key-finder"],
           difficulty: "Builder",
           duration: "~15 min",
@@ -525,10 +1062,26 @@ export const creative: Category = {
           description: "Finish a real, postable song.",
           intro:
             "Putting it all together: arranging, mixing, exporting. Once you can finish a song from idea to MP3, you're a producer — not a beginner.",
+          whyItMatters:
+            "This final mission takes everything from this branch — layering, finishing, and working in a key — and turns it into the one thing that actually counts: a real, shareable song other people can listen to.",
           outcome: "One MP3 file exported and shared with at least one other person.",
           videoUrl: yt("6sLGYiRXEqs"),
           challenge: "Export one of your beats as an MP3. Share it with one friend or on your WhatsApp status.",
           builderTip: "Export at 320kbps in BandLab's export settings — it's the free tier's highest quality and sounds noticeably better on speakers.",
+          builderTips: [
+            "Arrange your beat with an intro, build-up, and outro instead of one repeating loop.",
+            "Listen on phone speakers and headphones before exporting — mixes sound different on each.",
+          ],
+          mistakes: [
+            "Exporting at a low quality setting, making the track sound worse than it actually is.",
+            "Never sharing the finished song out of fear of judgment — sharing is the whole point.",
+          ],
+          skills: ["Arrangement", "Exporting audio", "Sharing finished creative work"],
+          resources: [
+            { label: "BandLab Help Center", url: "https://help.bandlab.com" },
+          ],
+          reflection: "How did it feel to send a song you made to someone else for the first time?",
+          nextTeaser: "You've finished and shared a real song — next, try producing in a new genre or collaborating with another artist on BandLab.",
           tools: ["BandLab (free)"],
           difficulty: "Advanced",
           duration: "~15 min",

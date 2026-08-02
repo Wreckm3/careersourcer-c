@@ -7,7 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/hooks/useAuth";
 import { isEnabled } from "@/config/features";
-import type { AtlasLessonContext } from "@/lib/atlas/lessonContext";
+import { buildAtlasLearnerProfile, type AtlasLessonContext } from "@/lib/atlas/lessonContext";
+import { categories } from "@/data/curriculum";
+import { useProgress } from "@/hooks/useProgress";
 
 interface Msg {
   role: "user" | "assistant";
@@ -18,20 +20,22 @@ const EASE = [0.25, 0.46, 0.45, 0.94] as const;
 
 const ATLAS_ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/atlas`;
 
-function starterPrompts(ctx?: AtlasLessonContext | null) {
-  if (ctx) {
-    return [
-      "I'm stuck — what do I do next?",
-      "Review my approach to this mission",
-      "Which tool should I use here?",
-    ];
-  }
-  return [
-    "What should I build this week?",
-    "Turn my progress into a portfolio plan",
-    "How do I start earning from this skill?",
-  ];
-}
+/** Guided entry — Atlas leads with goals instead of "How can I help?". */
+const GOAL_OPTIONS: { label: string; prompt: string }[] = [
+  { label: "I want to build a website", prompt: "I want to build a website. What should I build first and which lessons here get me there?" },
+  { label: "I want to build a game", prompt: "I want to build a game. Give me a small first game idea and the milestones to finish it." },
+  { label: "I want to build an AI tool", prompt: "I want to build an AI tool. Suggest a beginner-sized AI project and break it into milestones." },
+  { label: "I want to start a business", prompt: "I want to start a small business. Help me pick something I can start this month and the first three steps." },
+  { label: "Help me find an idea", prompt: "Help me find a project idea that fits what I've completed so far." },
+];
+
+const LESSON_OPTIONS: { label: string; prompt: string }[] = [
+  { label: "I'm stuck — what do I do next?", prompt: "I'm stuck on this mission. What is the very next thing I should do?" },
+  { label: "Review my approach", prompt: "Here's how I'm approaching this mission — review it and tell me the weakest part." },
+  { label: "Which tool should I use?", prompt: "Which tool should I use for this mission, and why that one?" },
+  { label: "How does this fit my bigger project?", prompt: "How does this mission connect to the full project this track is building?" },
+];
+
 
 export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContext | null }) {
   const [open, setOpen] = useState(false);
@@ -43,6 +47,7 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
   const { hasAccess, loading } = useSubscription();
+  const { progress } = useProgress();
 
   const allowed = hasAccess("builder");
 
@@ -74,7 +79,15 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
           Authorization: `Bearer ${sessionData.session?.access_token ?? ""}`,
           apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
-        body: JSON.stringify({ messages: history, lessonContext: lessonContext ?? null }),
+        body: JSON.stringify({
+          messages: history,
+          lessonContext: lessonContext ?? null,
+          learnerProfile: buildAtlasLearnerProfile(
+            categories,
+            progress.completedSessions,
+            progress.streakCurrent,
+          ),
+        }),
       });
 
       if (!res.ok || !res.body) {
@@ -184,20 +197,26 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
                 <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
                   {messages.length === 0 && (
                     <div className="flex flex-col gap-2">
-                      <p className="text-sm text-muted-foreground">
-                        Ask anything about what you're building.
+                      <p className="text-sm text-foreground font-medium">
+                        {lessonContext
+                          ? "What do you need on this mission?"
+                          : "What do you want to build?"}
                       </p>
-                      {starterPrompts(lessonContext).map((p) => (
+                      <p className="text-xs text-muted-foreground -mt-1">
+                        Pick one to get started — or type your own.
+                      </p>
+                      {(lessonContext ? LESSON_OPTIONS : GOAL_OPTIONS).map((o) => (
                         <button
-                          key={p}
-                          onClick={() => send(p)}
+                          key={o.label}
+                          onClick={() => send(o.prompt)}
                           className="text-left text-sm px-3 py-2 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/50 transition-colors"
                         >
-                          {p}
+                          {o.label}
                         </button>
                       ))}
                     </div>
                   )}
+
 
                   {messages.map((m, i) => (
                     <div
