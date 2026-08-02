@@ -4,6 +4,17 @@ import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const passwordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters").max(72, "Password is too long"),
+    confirm: z.string(),
+  })
+  .refine((value) => value.password === value.confirm, {
+    message: "Passwords don't match",
+    path: ["confirm"],
+  });
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -26,16 +37,16 @@ export default function ResetPassword() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+    if (loading || !ready) return;
+
+    const parsed = passwordSchema.safeParse({ password, confirm });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
       return;
     }
-    if (password !== confirm) {
-      toast.error("Passwords don't match");
-      return;
-    }
+
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
     setLoading(false);
     if (error) {
       toast.error(error.message);
@@ -55,7 +66,7 @@ export default function ResetPassword() {
       >
         <h1 className="text-3xl font-black tracking-tight text-center mb-2">Set a new password</h1>
         <p className="text-sm text-muted-foreground text-center mb-8">
-          {ready ? "Choose a strong password you'll remember." : "Verifying your reset link…"}
+          {ready ? "Choose a strong password you'll remember." : "Verifying your reset link..."}
         </p>
 
         <form onSubmit={submit} className="flex flex-col gap-3">

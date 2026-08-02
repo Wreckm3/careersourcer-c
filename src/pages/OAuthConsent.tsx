@@ -4,9 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 type AuthOauth = {
-  getAuthorizationDetails: (id: string) => Promise<{ data: any; error: any }>;
-  approveAuthorization: (id: string) => Promise<{ data: any; error: any }>;
-  denyAuthorization: (id: string) => Promise<{ data: any; error: any }>;
+  getAuthorizationDetails: (id: string) => Promise<{ data: AuthorizationDetails | null; error: OAuthError | null }>;
+  approveAuthorization: (id: string) => Promise<{ data: AuthorizationDecision | null; error: OAuthError | null }>;
+  denyAuthorization: (id: string) => Promise<{ data: AuthorizationDecision | null; error: OAuthError | null }>;
 };
 
 function oauthClient(): AuthOauth {
@@ -14,10 +14,33 @@ function oauthClient(): AuthOauth {
   return (supabase.auth as unknown as { oauth: AuthOauth }).oauth;
 }
 
+interface OAuthError {
+  message?: string;
+}
+
+interface AuthorizationClient {
+  name?: string;
+  redirect_uri?: string;
+}
+
+interface AuthorizationDetails {
+  client?: AuthorizationClient;
+  redirect_uri?: string;
+  redirect_url?: string;
+  redirect_to?: string;
+  scopes?: string[];
+  scope?: string;
+}
+
+interface AuthorizationDecision {
+  redirect_url?: string;
+  redirect_to?: string;
+}
+
 export default function OAuthConsent() {
   const [params] = useSearchParams();
   const authorizationId = params.get("authorization_id") ?? "";
-  const [details, setDetails] = useState<any>(null);
+  const [details, setDetails] = useState<AuthorizationDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -53,6 +76,7 @@ export default function OAuthConsent() {
   }, [authorizationId]);
 
   async function decide(approve: boolean) {
+    if (busy) return;
     setBusy(true);
     const { data, error } = approve
       ? await oauthClient().approveAuthorization(authorizationId)
@@ -108,7 +132,7 @@ export default function OAuthConsent() {
           Connect {clientName} to CareerSourcer
         </h1>
         <p className="text-sm text-muted-foreground mb-6">
-          This lets {clientName} use CareerSourcer as you — reading your progress and pool profile,
+          This lets {clientName} use CareerSourcer as you - reading your progress and pool profile,
           and updating your pool profile on your behalf.
         </p>
 
@@ -119,17 +143,17 @@ export default function OAuthConsent() {
         )}
 
         {scopes.length > 0 && (
-          <ul className="text-sm mb-6 space-y-1">
+          <ul className="list-disc pl-5 text-sm mb-6 space-y-1">
             {scopes.map((s) => (
               <li key={s} className="text-foreground">
-                • {s}
+                {s}
               </li>
             ))}
           </ul>
         )}
 
         <p className="text-xs text-muted-foreground mb-6">
-          This does not bypass CareerSourcer's row-level security — {clientName} only sees what you
+          This does not bypass CareerSourcer's row-level security - {clientName} only sees what you
           can see.
         </p>
 

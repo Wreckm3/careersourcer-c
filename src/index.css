@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 /* =============================================================
-   CareerSourcer — Premium Design Tokens
-   Matte Black · Dark Charcoal · Premium Gold · Professional Blue
+   CareerSourcer - Premium Design Tokens
+   Matte Black, Dark Charcoal, Premium Gold, Professional Blue
    Dark-only by default. Light palette kept for future opt-in.
    ============================================================= */
 
@@ -17,13 +17,13 @@
   --popover: 0 0% 8%;
   --popover-foreground: 40 20% 96%;
 
-  /* Brand — Premium Gold (primary accent) */
+  /* Brand - Premium Gold (primary accent) */
   --primary: 43 74% 55%;              /* #d4a942 warm gold */
   --primary-foreground: 0 0% 6%;
   --primary-hover: 43 78% 62%;
   --primary-muted: 43 60% 55% / 0.12;
 
-  /* Secondary — Professional Blue (trust / interactive) */
+  /* Secondary - Professional Blue (trust / interactive) */
   --secondary: 0 0% 12%;
   --secondary-foreground: 40 15% 92%;
   --accent: 214 90% 58%;              /* #2b7cf6 pro blue */
@@ -43,7 +43,7 @@
   --ring: 43 74% 55%;
   --radius: 0.85rem;
 
-  /* Legacy aliases used by existing components — mapped to new tokens */
+  /* Legacy aliases used by existing components - mapped to new tokens */
   --accent-blue: 214 90% 58%;
   --accent-emerald: 152 55% 45%;
   --accent-purple: 43 74% 55%;
@@ -81,7 +81,7 @@
     letter-spacing: -0.02em;
   }
 
-  /* Focus visibility — accessibility */
+  /* Focus visibility - accessibility */
   :focus-visible {
     outline: 2px solid hsl(var(--primary));
     outline-offset: 2px;
@@ -137,7 +137,7 @@
   }
 }
 
-/* Reduced motion — respect the user */
+/* Reduced motion - respect the user */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

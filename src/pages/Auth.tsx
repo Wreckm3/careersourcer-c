@@ -95,6 +95,7 @@ export default function Auth() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -160,6 +161,7 @@ export default function Auth() {
   };
 
   const signInGoogle = async () => {
+    if (loading) return;
     setLoading(true);
     try {
       const authOrigin = getAuthOrigin();

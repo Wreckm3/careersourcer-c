@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { Tier, meetsTier } from "@/lib/tiers";
@@ -52,6 +52,15 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         .maybeSingle(),
     ]);
 
+    if (subRes.error || roleRes.error) {
+      console.warn("Could not load subscription state", subRes.error ?? roleRes.error);
+      setTier("free");
+      setIsAdmin(false);
+      setStatus("active");
+      setLoading(false);
+      return;
+    }
+
     const admin = !!roleRes.data;
     setIsAdmin(admin);
 
@@ -77,9 +86,13 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   }, [authLoading, load]);
 
   const hasAccess = useCallback((required: Tier) => meetsTier(tier, required), [tier]);
+  const value = useMemo(
+    () => ({ tier, isAdmin, status, loading, hasAccess, refresh: load }),
+    [tier, isAdmin, status, loading, hasAccess, load]
+  );
 
   return (
-    <SubscriptionContext.Provider value={{ tier, isAdmin, status, loading, hasAccess, refresh: load }}>
+    <SubscriptionContext.Provider value={value}>
       {children}
     </SubscriptionContext.Provider>
   );

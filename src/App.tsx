@@ -9,6 +9,9 @@ import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./hooks/useAuth";
 import { ProgressProvider } from "./hooks/useProgress";
 import { SubscriptionProvider } from "./hooks/useSubscription";
+import { ErrorBoundary } from "./components/career/ErrorBoundary";
+import { OfflineNotice } from "./components/career/OfflineNotice";
+import { PageMeta } from "./components/career/PageMeta";
 
 // Code-split heavier / less-critical routes.
 const PathSelection = lazy(() => import("./pages/PathSelection"));
@@ -34,25 +37,28 @@ export default function App() {
       <SubscriptionProvider>
         <ProgressProvider>
           <BrowserRouter>
-            <Toaster position="top-center" richColors theme="dark" />
-            <AnimatePresence mode="wait">
-              <Suspense fallback={<RouteFallback />}>
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-                  <Route path="/paths" element={<PathSelection />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/category/:categoryId" element={<Category />} />
-                  <Route path="/branch/:categoryId/:branchId" element={<Branch />} />
-                  <Route path="/session/:pathId/:sessionId" element={<FocusMode />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/pool" element={<Pool />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </AnimatePresence>
+            <ErrorBoundary>
+              <Toaster position="top-center" richColors theme="dark" />
+              <OfflineNotice />
+              <AnimatePresence mode="wait">
+                <Suspense fallback={<RouteFallback />}>
+                  <Routes>
+                    <Route path="/" element={<><PageMeta title="CareerSourcer" /><Landing /></>} />
+                    <Route path="/auth" element={<><PageMeta title="Sign In" description="Sign in or create a CareerSourcer account to save your learning progress." /><Auth /></>} />
+                    <Route path="/reset-password" element={<><PageMeta title="Reset Password" description="Set a new password for your CareerSourcer account." /><ResetPassword /></>} />
+                    <Route path="/.lovable/oauth/consent" element={<><PageMeta title="Authorize App" description="Review and approve an app connection to CareerSourcer." /><OAuthConsent /></>} />
+                    <Route path="/paths" element={<><PageMeta title="Learning Paths" description="Choose a practical CareerSourcer path in technology, business, or creative work." /><PathSelection /></>} />
+                    <Route path="/pricing" element={<><PageMeta title="Pricing" description="Compare CareerSourcer plans and choose the right tier for your goals." /><Pricing /></>} />
+                    <Route path="/category/:categoryId" element={<><PageMeta title="Category" description="Explore CareerSourcer branches and find the direction that fits your goals." /><Category /></>} />
+                    <Route path="/branch/:categoryId/:branchId" element={<><PageMeta title="Branch" description="Follow project-first lessons and track your branch progress on CareerSourcer." /><Branch /></>} />
+                    <Route path="/session/:pathId/:sessionId" element={<><PageMeta title="Focus Mode" description="Complete a CareerSourcer lesson and build a real project artifact." /><FocusMode /></>} />
+                    <Route path="/profile" element={<><PageMeta title="Profile" description="Review your CareerSourcer progress, achievements, portfolio, and streak." /><Profile /></>} />
+                    <Route path="/pool" element={<><PageMeta title="Collaboration Pool" description="Find CareerSourcer learners in your branch and build projects together." /><Pool /></>} />
+                    <Route path="*" element={<><PageMeta title="Page Not Found" description="This CareerSourcer page could not be found." /><NotFound /></>} />
+                  </Routes>
+                </Suspense>
+              </AnimatePresence>
+            </ErrorBoundary>
           </BrowserRouter>
         </ProgressProvider>
       </SubscriptionProvider>

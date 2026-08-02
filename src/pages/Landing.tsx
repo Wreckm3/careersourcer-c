@@ -37,7 +37,7 @@ const sectionFade = (delay = 0) => ({
 
 const steps = [
   { icon: Compass, title: "Pick a Direction", desc: "Technology, Business, or Creative" },
-  { icon: BookOpen, title: "Learn → Build", desc: "Short lessons with real challenges" },
+  { icon: BookOpen, title: "Learn -> Build", desc: "Short lessons with real challenges" },
   { icon: BarChart3, title: "See Progress", desc: "Track growth, stay consistent" },
 ];
 
@@ -72,7 +72,7 @@ export default function Landing() {
         {user ? <User className="w-4 h-4" /> : <LogIn className="w-4 h-4" />}
       </motion.button>
 
-      {/* ─── HERO ─── */}
+      {/* HERO */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-accent-blue/5 blur-[120px]" />
@@ -119,7 +119,7 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* ─── HOW IT WORKS ─── */}
+      {/* HOW IT WORKS */}
       <section className="py-24 px-6 border-t border-border">
         <div className="max-w-4xl mx-auto">
           <motion.h2
@@ -150,7 +150,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ─── WHY ─── */}
+      {/* WHY */}
       <section className="py-24 px-6 border-t border-border">
         <div className="max-w-3xl mx-auto">
           <motion.h2
@@ -176,7 +176,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ─── COLLABORATION POOL ─── */}
+      {/* COLLABORATION POOL */}
       <section className="py-24 px-6 border-t border-border">
         <motion.div
           className="max-w-3xl mx-auto p-8 sm:p-10 rounded-3xl border border-border bg-gradient-to-br from-accent-blue/10 via-accent-purple/10 to-accent-emerald/10 text-center"
@@ -189,7 +189,7 @@ export default function Landing() {
             Don't build alone.
           </h2>
           <p className="text-muted-foreground text-base max-w-lg mx-auto mb-6">
-            Game devs, app devs, freelancers, entrepreneurs — find people in your branch and start something together in the Collaboration Pool.
+            Game devs, app devs, freelancers, entrepreneurs - find people in your branch and start something together in the Collaboration Pool.
           </p>
           <motion.button
             onClick={() => navigate("/pool")}
@@ -202,7 +202,7 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* ─── FINAL CTA ─── */}
+      {/* FINAL CTA */}
       <section className="py-28 px-6 border-t border-border">
         <motion.div
           className="max-w-xl mx-auto text-center flex flex-col items-center gap-5"

@@ -97,7 +97,7 @@ export default function Branch() {
               )}
               {completed === total && total > 0 && (
                 <p className="text-sm font-semibold" style={{ color: category.color }}>
-                  ✓ Branch completed!
+                  Branch completed!
                 </p>
               )}
             </div>

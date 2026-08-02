@@ -73,7 +73,7 @@ export default function PathSelection() {
                   </div>
                   <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{cat.description}</p>
                   <p className="text-xs text-muted-foreground mb-5">
-                    {cat.branches.length} branches · {featuredCount} ready to learn
+                    {cat.branches.length} branches - {featuredCount} ready to learn
                   </p>
                   <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: cat.color }}>
                     Explore <ArrowRight className="w-4 h-4" />

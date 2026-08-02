@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -16,6 +16,8 @@ import { categories } from "@/data/curriculum";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { z } from "zod";
 
 interface PoolProfile {
   user_id: string;
@@ -39,10 +41,44 @@ const allBranches = categories.flatMap((c) =>
 );
 
 const branchMeta = (id: string) => allBranches.find((b) => b.id === id);
+const branchIds = new Set(allBranches.map((branch) => branch.id));
+
+const optionalTrimmed = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .transform((value) => value || null);
+
+const poolProfileSchema = z.object({
+  displayName: z.string().trim().min(1, "Add a display name").max(60),
+  headline: optionalTrimmed(120),
+  bio: optionalTrimmed(500),
+  lookingFor: optionalTrimmed(200),
+  contactLink: optionalTrimmed(200).refine(
+    (value) => !value || value.includes("@") || /^https?:\/\/[\w.-]/i.test(value) || /^[\w.-]+\.[a-z]{2,}/i.test(value),
+    "Use an email address or a valid link"
+  ),
+  branches: z.array(z.string()).min(1, "Pick at least one branch"),
+});
+
+function normalizeContactLink(contactLink: string | null) {
+  if (!contactLink) return null;
+  if (contactLink.includes("@") && !/^mailto:/i.test(contactLink)) return contactLink;
+  if (/^https?:\/\//i.test(contactLink)) return contactLink;
+  return `https://${contactLink}`;
+}
+
+function getContactHref(contactLink: string) {
+  if (contactLink.includes("@") && !/^https?:\/\//i.test(contactLink)) {
+    return `mailto:${encodeURIComponent(contactLink)}`;
+  }
+  return /^https?:\/\//i.test(contactLink) ? contactLink : `https://${contactLink}`;
+}
 
 export default function Pool() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profiles, setProfiles] = useState<PoolProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string | null>(null);
@@ -50,7 +86,14 @@ export default function Pool() {
   const [showForm, setShowForm] = useState(false);
   const [myProfile, setMyProfile] = useState<PoolProfile | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
+    if (!user) {
+      setProfiles([]);
+      setMyProfile(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     const { data, error } = await supabase
       .from("pool_profiles" as never)
@@ -64,12 +107,11 @@ export default function Pool() {
       if (user) setMyProfile(list.find((p) => p.user_id === user.id) || null);
     }
     setLoading(false);
-  };
+  }, [user]);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [load]);
 
   const filtered = useMemo(() => {
     return profiles.filter((p) => {
@@ -87,6 +129,53 @@ export default function Pool() {
       return true;
     });
   }, [profiles, filter, query]);
+
+  if (authLoading || (loading && user)) {
+    return (
+      <div className="min-h-screen bg-background px-4 sm:px-6 py-10">
+        <div className="max-w-5xl mx-auto">
+          <Skeleton className="mb-6 h-9 w-24 rounded-lg" />
+          <Skeleton className="mb-3 h-7 w-44 rounded-full" />
+          <Skeleton className="mb-2 h-11 w-72 max-w-full rounded-xl" />
+          <Skeleton className="mb-8 h-5 w-[36rem] max-w-full rounded-lg" />
+          <Skeleton className="mb-4 h-12 w-full rounded-xl" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[0, 1, 2, 3].map((item) => (
+              <Skeleton key={item} className="h-48 rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background px-4 sm:px-6 py-10">
+        <div className="max-w-2xl mx-auto">
+          <button
+            onClick={() => navigate(-1)}
+            className="mb-8 flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back
+          </button>
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
+            <Users className="mx-auto mb-4 h-10 w-10 text-accent-blue" />
+            <h1 className="text-3xl font-black tracking-tight text-foreground">Sign in to view the pool</h1>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              The Collaboration Pool is available to signed-in CareerSourcer learners so profiles stay protected by row-level security.
+            </p>
+            <button
+              onClick={() => navigate("/auth?next=/pool")}
+              className="mt-6 inline-flex items-center justify-center rounded-xl bg-accent-blue px-5 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+            >
+              Sign in to continue
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background px-4 sm:px-6 py-10">
@@ -112,27 +201,18 @@ export default function Pool() {
               Find your team.
             </h1>
             <p className="text-muted-foreground mt-1 max-w-xl">
-              Game devs, app devs, freelancers, entrepreneurs — connect with
+              Game devs, app devs, freelancers, entrepreneurs - connect with
               people sharing your branch and build something together.
             </p>
           </div>
 
-          {user ? (
-            <button
-              onClick={() => setShowForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-sm hover:scale-[1.02] transition-transform"
-            >
-              {myProfile ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              {myProfile ? "Edit my pool card" : "Join the pool"}
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate("/auth")}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-sm"
-            >
-              Sign in to join
-            </button>
-          )}
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent-blue text-primary-foreground font-semibold text-sm hover:scale-[1.02] transition-transform"
+          >
+            {myProfile ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            {myProfile ? "Edit my pool card" : "Join the pool"}
+          </button>
         </motion.div>
 
         {/* Search */}
@@ -177,11 +257,7 @@ export default function Pool() {
         </div>
 
         {/* List */}
-        {loading ? (
-          <div className="text-center py-16 text-muted-foreground text-sm">
-            Loading the pool...
-          </div>
-        ) : filtered.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="text-center py-16 border border-dashed border-border rounded-2xl">
             <Sparkles className="w-8 h-8 mx-auto text-muted-foreground mb-3" />
             <p className="font-bold text-foreground">No one here yet</p>
@@ -264,11 +340,7 @@ export default function Pool() {
                   {p.contact_link && (
                     <a
                       href={
-                        /^https?:\/\//i.test(p.contact_link)
-                          ? p.contact_link
-                          : p.contact_link.includes("@")
-                          ? `mailto:${p.contact_link}`
-                          : `https://${p.contact_link}`
+                        getContactHref(p.contact_link)
                       }
                       target="_blank"
                       rel="noreferrer"
@@ -310,7 +382,7 @@ function PoolForm({
   user: { id: string; email?: string | null };
   existing: PoolProfile | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: () => void | Promise<void>;
 }) {
   const [displayName, setDisplayName] = useState(
     existing?.display_name || user.email?.split("@")[0] || ""
@@ -322,30 +394,40 @@ function PoolForm({
   const [branches, setBranches] = useState<string[]>(existing?.branches || []);
   const [saving, setSaving] = useState(false);
 
-  const toggleBranch = (id: string) =>
+  const toggleBranch = (id: string) => {
+    if (!branchIds.has(id)) return;
     setBranches((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+  };
 
-  const save = async () => {
-    if (!displayName.trim()) {
-      toast.error("Add a display name");
+  const save = async (event?: FormEvent) => {
+    event?.preventDefault();
+    if (saving) return;
+
+    const parsed = poolProfileSchema.safeParse({
+      displayName,
+      headline,
+      bio,
+      lookingFor,
+      contactLink,
+      branches: branches.filter((branch) => branchIds.has(branch)),
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
       return;
     }
-    if (branches.length === 0) {
-      toast.error("Pick at least one branch");
-      return;
-    }
+
     setSaving(true);
     const { error } = await supabase.from("pool_profiles" as never).upsert(
       {
         user_id: user.id,
-        display_name: displayName.trim(),
-        headline: headline.trim() || null,
-        bio: bio.trim() || null,
-        looking_for: lookingFor.trim() || null,
-        contact_link: contactLink.trim() || null,
-        branches,
+        display_name: parsed.data.displayName,
+        headline: parsed.data.headline,
+        bio: parsed.data.bio,
+        looking_for: parsed.data.lookingFor,
+        contact_link: normalizeContactLink(parsed.data.contactLink),
+        branches: parsed.data.branches,
       } as never,
       { onConflict: "user_id" }
     );
@@ -360,6 +442,7 @@ function PoolForm({
 
   const remove = async () => {
     if (!existing) return;
+    if (saving) return;
     if (!confirm("Remove your card from the pool?")) return;
     setSaving(true);
     const { error } = await supabase
@@ -402,7 +485,7 @@ function PoolForm({
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="p-5 space-y-4">
+        <form id="pool-profile-form" onSubmit={save} className="p-5 space-y-4">
           <Field label="Display name">
             <input
               value={displayName}
@@ -470,7 +553,7 @@ function PoolForm({
               })}
             </div>
           </div>
-        </div>
+        </form>
 
         <div className="sticky bottom-0 bg-card border-t border-border px-5 py-3 flex items-center gap-2">
           {existing && (
@@ -490,7 +573,8 @@ function PoolForm({
             Cancel
           </button>
           <button
-            onClick={save}
+            type="submit"
+            form="pool-profile-form"
             disabled={saving}
             className="flex-1 px-4 py-2.5 rounded-xl bg-accent-blue text-primary-foreground text-sm font-semibold disabled:opacity-60"
           >

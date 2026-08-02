@@ -33,6 +33,7 @@ export default function Profile() {
   const [displayName, setDisplayName] = useState("");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [savingName, setSavingName] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth", { replace: true });
@@ -53,13 +54,19 @@ export default function Profile() {
   }, [user]);
 
   const saveName = async () => {
-    if (!user || !draft.trim()) return;
+    const nextName = draft.trim();
+    if (!user || !nextName || savingName) return;
+    setSavingName(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ display_name: draft.trim() })
+      .update({ display_name: nextName })
       .eq("id", user.id);
-    if (error) { toast.error("Couldn't save"); return; }
-    setDisplayName(draft.trim());
+    setSavingName(false);
+    if (error) {
+      toast.error("Couldn't save your name");
+      return;
+    }
+    setDisplayName(nextName);
     setEditing(false);
     toast.success("Saved");
   };
@@ -103,7 +110,12 @@ export default function Profile() {
                   autoFocus
                   className="flex-1 px-3 py-2 rounded-lg border border-border bg-input-background text-2xl font-black focus:outline-none focus:ring-2 focus:ring-accent-blue/40"
                 />
-                <button onClick={saveName} className="p-2 rounded-lg bg-accent-blue text-primary-foreground" aria-label="Save">
+                <button
+                  onClick={saveName}
+                  disabled={savingName || !draft.trim()}
+                  className="p-2 rounded-lg bg-accent-blue text-primary-foreground disabled:opacity-60"
+                  aria-label="Save"
+                >
                   <Check className="w-4 h-4" />
                 </button>
               </div>
@@ -219,7 +231,7 @@ export default function Profile() {
                     <p className="text-sm font-bold text-foreground">{item.title}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{item.outcome}</p>
                     <p className="text-[11px] text-muted-foreground mt-1">
-                      {item.branchTitle} · {item.tools.slice(0, 3).join(", ")}
+                      {item.branchTitle} - {item.tools.slice(0, 3).join(", ")}
                     </p>
                   </div>
                 </li>

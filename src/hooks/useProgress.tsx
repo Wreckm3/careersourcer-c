@@ -6,6 +6,7 @@ import {
   useContext,
   createContext,
   ReactNode,
+  useMemo,
 } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
@@ -41,19 +42,27 @@ function loadLocal(): Progress {
           p.streakCurrent = l.current ?? 0;
           p.streakLastDate = l.lastDate ?? null;
         }
-      } catch {}
+      } catch (error) {
+        console.warn("Could not migrate legacy streak progress", error);
+      }
       return { ...empty, ...p };
     }
-  } catch {}
+  } catch (error) {
+    console.warn("Could not load local progress", error);
+  }
   return empty;
 }
 
 function saveLocal(p: Progress) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  } catch (error) {
+    console.warn("Could not save local progress", error);
+  }
 }
 
 async function persistCloud(userId: string, p: Progress) {
-  await supabase.from("user_progress").upsert(
+  const { error } = await supabase.from("user_progress").upsert(
     {
       user_id: userId,
       selected_path: p.selectedPath,
@@ -64,6 +73,7 @@ async function persistCloud(userId: string, p: Progress) {
     } as never,
     { onConflict: "user_id" }
   );
+  if (error) throw error;
 }
 
 interface ProgressContextValue {
@@ -135,7 +145,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           merged.completedSessions.length !== cloud.completedSessions.length ||
           merged.selectedPath !== cloud.selectedPath
         ) {
-          persistCloud(user.id, merged).catch(() => {});
+          persistCloud(user.id, merged).catch((error) =>
+            console.warn("Could not sync merged progress", error)
+          );
         }
       } else {
         setProgress(local);
@@ -146,7 +158,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           local.completedSessions.length > 0 ||
           local.streakCurrent > 0
         ) {
-          persistCloud(user.id, local).catch(() => {});
+          persistCloud(user.id, local).catch((error) =>
+            console.warn("Could not seed cloud progress", error)
+          );
         }
       }
     })();
@@ -156,7 +170,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveLocal(progress);
     if (user && isHydrated.current) {
-      persistCloud(user.id, progress).catch(() => {});
+      persistCloud(user.id, progress).catch((error) =>
+        console.warn("Could not persist cloud progress", error)
+      );
     }
   }, [progress, user]);
 
@@ -214,17 +230,20 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setProgress(empty);
   }, []);
 
+  const value = useMemo(
+    () => ({
+      progress,
+      selectPath,
+      completeSession,
+      isCompleted,
+      getPathProgress,
+      resetProgress,
+    }),
+    [progress, selectPath, completeSession, isCompleted, getPathProgress, resetProgress]
+  );
+
   return (
-    <ProgressContext.Provider
-      value={{
-        progress,
-        selectPath,
-        completeSession,
-        isCompleted,
-        getPathProgress,
-        resetProgress,
-      }}
-    >
+    <ProgressContext.Provider value={value}>
       {children}
     </ProgressContext.Provider>
   );
