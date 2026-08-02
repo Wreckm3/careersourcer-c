@@ -264,7 +264,7 @@ export const creative: Category = {
           skills: ["Basic timeline editing", "Clip arranging", "Exporting video"],
           resources: [
             { label: "CapCut", url: "https://www.capcut.com" },
-            { label: "CapCut tutorials", url: "https://www.capcut.com/learn" },
+            { label: "How to use CapCut", url: "https://www.capcut.com/resource/how-to-use-capcut" },
           ],
           reflection: "What was harder than you expected — choosing the clips, or arranging them?",
           nextTeaser: "Next, you'll take this exact video and cut it down by 30% to make it hold attention better.",
@@ -295,7 +295,7 @@ export const creative: Category = {
           ],
           skills: ["Pacing", "Ruthless trimming", "Story-focused editing"],
           resources: [
-            { label: "CapCut tutorials", url: "https://www.capcut.com/learn" },
+            { label: "How to use CapCut", url: "https://www.capcut.com/resource/how-to-use-capcut" },
           ],
           reflection: "What's the single cut that improved your video the most?",
           nextTeaser: "Next, you'll prove that sound alone can make or break this same video.",
