@@ -201,6 +201,18 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* Never translate/scale on hover for motion-sensitive users. */
+  .card-interactive:hover,
+  .card-interactive:active,
+  .press:hover,
+  .press:active,
+  .btn-primary-gold:hover,
+  .btn-primary-gold:active,
+  .btn-secondary-blue:hover,
+  .btn-secondary-blue:active {
+    transform: none !important;
+  }
 }
 
 /* Mobile viewport hardening */
