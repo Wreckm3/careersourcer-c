@@ -122,8 +122,7 @@ export default function Category() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  whileHover={branch.featured ? { y: -3 } : undefined}
-                  className={`group relative text-left p-5 rounded-2xl border bg-card transition-all ${
+                  className={`group relative text-left p-5 rounded-2xl border bg-card ${
                     branch.featured
                       ? "border-border cursor-pointer card-interactive"
                       : "border-border/50 opacity-60 cursor-not-allowed"
