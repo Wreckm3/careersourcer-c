@@ -125,7 +125,7 @@ export default function Category() {
                   whileHover={branch.featured ? { y: -3 } : undefined}
                   className={`group relative text-left p-5 rounded-2xl border bg-card transition-all ${
                     branch.featured
-                      ? "border-border cursor-pointer hover:shadow-md"
+                      ? "border-border cursor-pointer card-interactive"
                       : "border-border/50 opacity-60 cursor-not-allowed"
                   }`}
                 >
