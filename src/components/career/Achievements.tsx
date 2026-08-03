@@ -37,24 +37,28 @@ function Badge({ badge, index }: { badge: Achievement; index: number }) {
   const Icon = ICONS[badge.icon];
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 12, scale: badge.earned ? 0.96 : 1 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay: index * 0.05, duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={`p-4 rounded-2xl border flex flex-col gap-2 ${
-        badge.earned ? "border-primary/40 bg-primary/5" : "border-border bg-card"
+      className={`p-4 rounded-2xl border flex flex-col gap-2 card-interactive ${
+        badge.earned ? "border-primary/40 bg-primary/5 gold-glow" : "border-border bg-card"
       }`}
       title={badge.description}
     >
       <div className="flex items-center gap-2">
-        <div
+        <motion.div
           className={`w-9 h-9 rounded-xl flex items-center justify-center ${
             badge.earned ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
           }`}
+          initial={badge.earned ? { scale: 0.7, rotate: -8 } : false}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: index * 0.05 + 0.1, type: "spring", stiffness: 320, damping: 18 }}
         >
           {badge.earned ? <Icon className="w-4 h-4" /> : <Lock className="w-3.5 h-3.5" />}
-        </div>
+        </motion.div>
         <p className="text-sm font-bold text-foreground leading-tight">{badge.name}</p>
       </div>
+
       <p className="text-[11px] text-muted-foreground">{badge.description}</p>
       {!badge.earned && (
         <>

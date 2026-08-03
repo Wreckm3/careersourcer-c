@@ -16,10 +16,24 @@ import type { AtlasConversationMessage, AtlasEntryState } from "@/lib/atlas/type
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as const;
 
-function getLearnerName(user: ReturnType<typeof useAuth>["user"]) {
-  const metadata = user?.user_metadata as { display_name?: string; full_name?: string; name?: string } | undefined;
-  return metadata?.display_name ?? metadata?.full_name ?? metadata?.name ?? user?.email?.split("@")[0] ?? null;
-}
+const ATLAS_ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/atlas`;
+
+/** Guided entry — Atlas leads with goals instead of "How can I help?". */
+const GOAL_OPTIONS: { label: string; prompt: string }[] = [
+  { label: "I want to build a website", prompt: "I want to build a website. What should I build first and which lessons here get me there?" },
+  { label: "I want to build a game", prompt: "I want to build a game. Give me a small first game idea and the milestones to finish it." },
+  { label: "I want to build an AI tool", prompt: "I want to build an AI tool. Suggest a beginner-sized AI project and break it into milestones." },
+  { label: "I want to start a business", prompt: "I want to start a small business. Help me pick something I can start this month and the first three steps." },
+  { label: "Help me find an idea", prompt: "Help me find a project idea that fits what I've completed so far." },
+];
+
+const LESSON_OPTIONS: { label: string; prompt: string }[] = [
+  { label: "I'm stuck — what do I do next?", prompt: "I'm stuck on this mission. What is the very next thing I should do?" },
+  { label: "Review my approach", prompt: "Here's how I'm approaching this mission — review it and tell me the weakest part." },
+  { label: "Which tool should I use?", prompt: "Which tool should I use for this mission, and why that one?" },
+  { label: "How does this fit my bigger project?", prompt: "How does this mission connect to the full project this track is building?" },
+];
+
 
 export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContext | null }) {
   const [open, setOpen] = useState(false);
@@ -27,7 +41,6 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<{ message: string; upgrade?: boolean } | null>(null);
-  const [entryState, setEntryState] = useState<AtlasEntryState | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
@@ -64,26 +77,8 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
     if (open && allowed) inputRef.current?.focus();
   }, [open, allowed, streaming]);
 
-  useEffect(() => {
-    if (!controllerContext || !allowed) {
-      setEntryState(null);
-      return;
-    }
-
-    let mounted = true;
-    controller
-      .getEntryState(controllerContext)
-      .then((state) => {
-        if (mounted) setEntryState(state);
-      })
-      .catch((err) => console.warn("Could not prepare Atlas entry state", err));
-
-    return () => {
-      mounted = false;
-    };
-  }, [allowed, controller, controllerContext]);
-
   if (!isEnabled("atlas") || !user) return null;
+
 
   const send = async (text: string) => {
     const trimmed = text.trim();
@@ -146,6 +141,17 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
             role="dialog"
             aria-label="Atlas mentor"
           >
+            <AnimatePresence>
+              {intro && (
+                <AtlasIntro
+                  onDone={() => {
+                    localStorage.setItem(INTRO_KEY, "1");
+                    setIntro(false);
+                  }}
+                />
+              )}
+            </AnimatePresence>
+
             <header className="flex items-center gap-2 px-4 py-3 border-b border-border">
               <Sparkles className="w-4 h-4 text-primary" />
               <div className="flex-1 min-w-0">
@@ -205,14 +211,14 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
                           : "self-start bg-muted text-foreground"
                       }`}
                     >
-                      {message.role === "assistant" && !message.content && streaming ? (
+                      {m.role === "assistant" && !m.content && streaming ? (
                         <span className="flex gap-1 py-1" aria-label="Atlas is typing">
-                          {[0, 1, 2].map((delay) => (
+                          {[0, 1, 2].map((d) => (
                             <motion.span
-                              key={delay}
+                              key={d}
                               className="h-1.5 w-1.5 rounded-full bg-muted-foreground"
                               animate={{ opacity: [0.3, 1, 0.3] }}
-                              transition={{ duration: 1, repeat: Infinity, delay: delay * 0.15 }}
+                              transition={{ duration: 1, repeat: Infinity, delay: d * 0.15 }}
                             />
                           ))}
                         </span>

@@ -133,7 +133,7 @@ export default function Landing() {
             {steps.map((s, i) => (
               <motion.div
                 key={s.title}
-                className="group flex flex-col items-center text-center p-6 rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                className="group flex flex-col items-center text-center p-6 rounded-2xl border border-border bg-card card-interactive"
                 {...sectionFade(i * 0.1)}
               >
                 <div className="w-14 h-14 rounded-xl bg-accent-blue/10 flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
@@ -163,7 +163,7 @@ export default function Landing() {
             {values.map((v, i) => (
               <motion.div
                 key={v.text}
-                className="flex items-center gap-3 px-5 py-4 rounded-xl border border-border bg-card transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+                className="flex items-center gap-3 px-5 py-4 rounded-xl border border-border bg-card card-interactive"
                 {...sectionFade(i * 0.08)}
               >
                 <div className="w-9 h-9 rounded-lg bg-accent-emerald/10 flex items-center justify-center shrink-0">
