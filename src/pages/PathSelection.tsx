@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Monitor, Briefcase, Palette, ArrowRight, ArrowLeft } from "lucide-react";
 import { categories } from "@/data/curriculum";
+import { EASE } from "@/lib/motion";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Monitor, Briefcase, Palette,
@@ -9,6 +11,19 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default function PathSelection() {
   const navigate = useNavigate();
+  const reduced = useReducedMotion();
+  const [selected, setSelected] = useState<string | null>(null);
+
+  const choose = (id: string) => {
+    if (selected) return;
+    if (reduced) {
+      navigate(`/category/${id}`);
+      return;
+    }
+    setSelected(id);
+    window.setTimeout(() => navigate(`/category/${id}`), 280);
+  };
+
 
   return (
     <motion.div
@@ -45,17 +60,29 @@ export default function PathSelection() {
           {categories.map((cat, i) => {
             const Icon = iconMap[cat.icon];
             const featuredCount = cat.branches.filter((b) => b.featured).length;
+            const isSelected = selected === cat.id;
+            const dimmed = selected !== null && !isSelected;
             return (
               <motion.button
                 key={cat.id}
-                onClick={() => navigate(`/category/${cat.id}`)}
+                onClick={() => choose(cat.id)}
+                disabled={selected !== null}
                 className="group relative text-left p-7 rounded-2xl border border-border bg-card overflow-hidden transition-colors duration-300"
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 + 0.15, duration: 0.4 }}
-                whileHover={{ y: -4, boxShadow: `0 16px 32px -8px ${cat.color}18` }}
-                whileTap={{ scale: 0.98 }}
+                animate={{
+                  opacity: dimmed ? 0 : 1,
+                  y: 0,
+                  scale: isSelected ? 1.03 : dimmed ? 0.97 : 1,
+                }}
+                transition={
+                  selected
+                    ? { duration: 0.28, ease: EASE }
+                    : { delay: i * 0.1 + 0.15, duration: 0.4, ease: EASE }
+                }
+                whileHover={selected ? undefined : { y: -4, boxShadow: `0 16px 32px -8px ${cat.color}18` }}
+                whileTap={selected ? undefined : { scale: 0.98 }}
               >
+
                 <div
                   className="absolute inset-0 transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                   style={{ background: `radial-gradient(circle at 50% 0%, ${cat.color}12, transparent 70%)` }}

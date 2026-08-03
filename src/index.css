@@ -104,6 +104,14 @@
   ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
 }
 
+/* Global motion tokens — keep every surface on the same timing curve. */
+:root {
+  --ease-premium: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --dur-fast: 150ms;
+  --dur-base: 220ms;
+  --dur-slow: 320ms;
+}
+
 @layer components {
   .surface-card {
     background: hsl(var(--card));
@@ -116,25 +124,73 @@
                 0 6px 24px -6px hsl(var(--primary) / 0.35);
   }
 
+  /* Interactive card: gentle lift, deeper shadow, faint gold edge. */
+  .card-interactive {
+    will-change: transform;
+    transition: transform var(--dur-base) var(--ease-premium),
+                box-shadow var(--dur-base) var(--ease-premium),
+                border-color var(--dur-base) var(--ease-premium);
+  }
+  .card-interactive:hover,
+  .card-interactive:focus-visible {
+    transform: translateY(-3px);
+    border-color: hsl(var(--primary) / 0.35);
+    box-shadow: 0 14px 30px -14px hsl(0 0% 0% / 0.7),
+                0 0 0 1px hsl(var(--primary) / 0.16);
+  }
+  .card-interactive:active { transform: translateY(-1px); }
+
+  /* Generic press feedback for any button-like element. */
+  .press {
+    transition: transform var(--dur-fast) var(--ease-premium),
+                box-shadow var(--dur-base) var(--ease-premium),
+                background-color var(--dur-base) var(--ease-premium);
+  }
+  .press:hover { transform: translateY(-1px); }
+  .press:active { transform: scale(0.98); }
+
   .btn-primary-gold {
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
     font-weight: 600;
-    transition: background-color 180ms ease, transform 180ms ease;
+    will-change: transform;
+    transition: background-color var(--dur-base) var(--ease-premium),
+                transform var(--dur-fast) var(--ease-premium),
+                box-shadow var(--dur-base) var(--ease-premium);
   }
-  .btn-primary-gold:hover { background: hsl(var(--primary-hover)); }
+  .btn-primary-gold:hover {
+    background: hsl(var(--primary-hover));
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -12px hsl(var(--primary) / 0.75);
+  }
+  .btn-primary-gold:active { transform: scale(0.98); }
 
   .btn-secondary-blue {
     background: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
     font-weight: 600;
-    transition: background-color 180ms ease, transform 180ms ease;
+    transition: background-color var(--dur-base) var(--ease-premium),
+                transform var(--dur-fast) var(--ease-premium),
+                box-shadow var(--dur-base) var(--ease-premium);
   }
+  .btn-secondary-blue:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -12px hsl(var(--accent) / 0.7);
+  }
+  .btn-secondary-blue:active { transform: scale(0.98); }
 
   .divider-line {
     height: 1px;
     background: linear-gradient(90deg, transparent, hsl(var(--border)), transparent);
   }
+
+  /* Soft gold breathing glow — milestones, Atlas thinking state. */
+  .gold-pulse { animation: gold-pulse 1.8s var(--ease-premium) infinite; }
+}
+
+@keyframes gold-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.35); opacity: 0.85; }
+  50%      { box-shadow: 0 0 0 6px hsl(var(--primary) / 0); opacity: 1; }
 }
 
 /* Reduced motion - respect the user */
@@ -144,6 +200,18 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Never translate/scale on hover for motion-sensitive users. */
+  .card-interactive:hover,
+  .card-interactive:active,
+  .press:hover,
+  .press:active,
+  .btn-primary-gold:hover,
+  .btn-primary-gold:active,
+  .btn-secondary-blue:hover,
+  .btn-secondary-blue:active {
+    transform: none !important;
   }
 }
 

@@ -37,12 +37,68 @@ const LESSON_OPTIONS: { label: string; prompt: string }[] = [
 ];
 
 
+const INTRO_KEY = "cs.atlas.intro.seen";
+
+/** One-second golden line + eagle mark, shown the first time Atlas opens. */
+function AtlasIntro({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 1000);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-card"
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3, ease: EASE }}
+    >
+      <motion.svg width="120" height="60" viewBox="0 0 220 120" fill="none">
+        <motion.path
+          d="M108 62 C86 44, 58 34, 22 36 C50 46, 74 56, 100 72"
+          stroke="hsl(var(--primary))"
+          strokeWidth="3"
+          strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 0.55, ease: EASE }}
+        />
+        <motion.path
+          d="M112 62 C134 44, 162 34, 198 36 C170 46, 146 56, 120 72"
+          stroke="hsl(var(--primary))"
+          strokeWidth="3"
+          strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 0.55, ease: EASE }}
+        />
+      </motion.svg>
+      <motion.div
+        className="h-px w-40 mt-3"
+        style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary)), transparent)" }}
+        initial={{ opacity: 0, scaleX: 0.2 }}
+        animate={{ opacity: [0, 1, 0.6], scaleX: 1 }}
+        transition={{ delay: 0.2, duration: 0.7, ease: EASE }}
+      />
+      <motion.p
+        className="mt-4 text-[10px] font-semibold uppercase tracking-[0.4em] text-muted-foreground"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35, duration: 0.4, ease: EASE }}
+      >
+        Atlas
+      </motion.p>
+    </motion.div>
+  );
+}
+
 export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContext | null }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<{ message: string; upgrade?: boolean } | null>(null);
+  const [intro, setIntro] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
@@ -56,10 +112,21 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
   }, [messages, streaming]);
 
   useEffect(() => {
-    if (open && allowed) inputRef.current?.focus();
-  }, [open, allowed, streaming]);
+    if (open && allowed && !intro) inputRef.current?.focus();
+  }, [open, allowed, streaming, intro]);
+
+  useEffect(() => {
+    if (!open || !allowed) return;
+    if (localStorage.getItem(INTRO_KEY)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      localStorage.setItem(INTRO_KEY, "1");
+      return;
+    }
+    setIntro(true);
+  }, [open, allowed]);
 
   if (!isEnabled("atlas") || !user) return null;
+
 
   const send = async (text: string) => {
     const trimmed = text.trim();
@@ -165,6 +232,17 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
             role="dialog"
             aria-label="Atlas mentor"
           >
+            <AnimatePresence>
+              {intro && (
+                <AtlasIntro
+                  onDone={() => {
+                    localStorage.setItem(INTRO_KEY, "1");
+                    setIntro(false);
+                  }}
+                />
+              )}
+            </AnimatePresence>
+
             <header className="flex items-center gap-2 px-4 py-3 border-b border-border">
               <Sparkles className="w-4 h-4 text-primary" />
               <div className="flex-1 min-w-0">
@@ -228,15 +306,19 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
                       }`}
                     >
                       {m.role === "assistant" && !m.content && streaming ? (
-                        <span className="flex gap-1 py-1" aria-label="Atlas is typing">
-                          {[0, 1, 2].map((d) => (
-                            <motion.span
-                              key={d}
-                              className="h-1.5 w-1.5 rounded-full bg-muted-foreground"
-                              animate={{ opacity: [0.3, 1, 0.3] }}
-                              transition={{ duration: 1, repeat: Infinity, delay: d * 0.15 }}
-                            />
-                          ))}
+                        <span className="flex items-center gap-1.5 py-1" aria-label="Atlas is thinking">
+                          <motion.span
+                            className="h-2 w-2 rounded-full bg-primary"
+                            animate={{ opacity: [0.4, 1, 0.4], scale: [0.9, 1.15, 0.9] }}
+                            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                          />
+                          <motion.span
+                            className="text-[11px] font-medium text-muted-foreground"
+                            animate={{ opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                          >
+                            Atlas is thinking
+                          </motion.span>
                         </span>
                       ) : (
                         <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-ul:my-1.5 prose-li:my-0.5">

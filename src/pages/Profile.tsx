@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/curriculum";
 import { StreakCalendar } from "@/components/career/StreakCalendar";
+import { CountUp } from "@/components/career/CountUp";
 import { Achievements } from "@/components/career/Achievements";
 import { ProjectUploads } from "@/components/career/ProjectUploads";
 import { AtlasChat } from "@/components/career/AtlasChat";
@@ -146,13 +147,17 @@ export default function Profile() {
 
         <motion.div className="grid grid-cols-3 gap-4 mb-10" {...fadeUp(0.15)}>
           {[
-            { icon: CheckCircle2, label: "Completed", value: completedCount, color: "text-accent-emerald" },
-            { icon: Trophy, label: "Progress", value: `${overallPercent}%`, color: "text-accent-blue" },
-            { icon: Flame, label: "Streak", value: `${streakCurrent}d`, color: "text-accent-purple" },
+            { icon: CheckCircle2, label: "Completed", value: completedCount, suffix: "", color: "text-accent-emerald" },
+            { icon: Trophy, label: "Progress", value: overallPercent, suffix: "%", color: "text-accent-blue" },
+            { icon: Flame, label: "Streak", value: streakCurrent, suffix: "d", color: "text-accent-purple" },
           ].map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-border bg-card">
+            <div key={stat.label} className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-border bg-card card-interactive">
               <stat.icon className={`w-6 h-6 ${stat.color}`} />
-              <span className="text-2xl font-black text-foreground">{stat.value}</span>
+              <CountUp
+                value={stat.value}
+                suffix={stat.suffix}
+                className="text-2xl font-black text-foreground tabular-nums"
+              />
               <span className="text-xs text-muted-foreground font-medium">{stat.label}</span>
             </div>
           ))}

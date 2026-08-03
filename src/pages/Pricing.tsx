@@ -49,7 +49,7 @@ export default function Pricing() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05, duration: 0.4 }}
-                className={`surface-card p-6 flex flex-col ${
+                className={`surface-card card-interactive p-6 flex flex-col ${
                   plan.highlight ? "ring-1 ring-primary/50 gold-glow" : ""
                 }`}
               >
