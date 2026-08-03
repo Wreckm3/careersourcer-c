@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Monitor, Briefcase, Palette, ArrowRight, ArrowLeft } from "lucide-react";
 import { categories } from "@/data/curriculum";
+import { EASE } from "@/lib/motion";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Monitor, Briefcase, Palette,
@@ -9,6 +11,19 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default function PathSelection() {
   const navigate = useNavigate();
+  const reduced = useReducedMotion();
+  const [selected, setSelected] = useState<string | null>(null);
+
+  const choose = (id: string) => {
+    if (selected) return;
+    if (reduced) {
+      navigate(`/category/${id}`);
+      return;
+    }
+    setSelected(id);
+    window.setTimeout(() => navigate(`/category/${id}`), 280);
+  };
+
 
   return (
     <motion.div
