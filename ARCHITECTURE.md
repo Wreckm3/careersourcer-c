@@ -130,10 +130,17 @@ Refresh — `useSubscription` will pick it up and `tier` becomes
 
 ## Extension points reserved for later phases
 
-- **Atlas (Phase 4)**: build `supabase/functions/atlas/` calling the
-  Lovable AI Gateway. Read tier via `get_user_tier(auth.uid())` and
-  route to `atlasLevel` from `src/lib/tiers.ts`. Store conversations in
-  a new `atlas_conversations` table (not created yet).
+- **Atlas mentor core**: `src/lib/atlas/` now separates UI, conversation
+  orchestration, memory, progress projection, project planning, mocked
+  recommendations, personality, subscription capabilities, and transport.
+  The chat component remains a thin renderer around the controller.
+- **Atlas persistence**: `public.atlas_memories` stores authenticated user
+  memory with RLS. Builder has extension points for project memory, roadmap
+  persistence, and milestone tracking. Creator and Founder behavior should be
+  added through `subscriptionCapabilities.ts`, not direct UI conditionals.
+- **Atlas AI upgrades**: `supabase/functions/atlas/` still owns server-side
+  auth, tier gating, and the AI Gateway call. It now accepts `atlasContext`
+  from the controller so future AI providers can consume the same contract.
 - **Focus Mode Eagle (Phase 2)**: `FocusMode.tsx` already renders in
   discrete steps. Add an `IntroAnimation` component gated behind
   `features.focusModeEagle`.

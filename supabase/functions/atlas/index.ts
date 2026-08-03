@@ -55,6 +55,7 @@ const BodySchema = z.object({
   messages: z.array(MessageSchema).min(1).max(40),
   lessonContext: LessonContextSchema.nullish(),
   learnerProfile: LearnerProfileSchema.nullish(),
+  atlasContext: z.unknown().nullish(),
 });
 
 type AtlasLevel = "none" | "lite" | "smart" | "pro";
@@ -75,7 +76,7 @@ const LEVEL_BRIEF: Record<Exclude<AtlasLevel, "none">, string> = {
     "You are Atlas Pro, a long-term growth mentor. Up to 320 words. Connect today's mission to a 3-month roadmap, portfolio quality, and how this becomes income or opportunity.",
 };
 
-function systemPrompt(level: Exclude<AtlasLevel, "none">, ctx: unknown, profile: unknown) {
+function systemPrompt(level: Exclude<AtlasLevel, "none">, ctx: unknown, profile: unknown, atlasContext: unknown) {
   return [
     "You are Atlas, the mentor inside CareerSourcer — a project-first learning platform for teenagers and beginners.",
     "Principles: every answer moves the learner toward something BUILT. No lecture, no history, no academic definitions.",
@@ -84,6 +85,7 @@ function systemPrompt(level: Exclude<AtlasLevel, "none">, ctx: unknown, profile:
     "Never invent CareerSourcer lessons or prices. If asked something off-topic, redirect to what they are building.",
     LEVEL_BRIEF[level],
     "When the learner states a goal, answer as a project plan: name the project, then 3-5 milestones, then the single first step. Reference their completed missions when you can.",
+    atlasContext ? `Atlas controller context (JSON):\n${JSON.stringify(atlasContext)}` : "",
     ctx ? `Current mission context (JSON):\n${JSON.stringify(ctx)}` : "The learner is not inside a mission right now.",
     profile ? `Learner profile (JSON):\n${JSON.stringify(profile)}` : "",
   ].filter(Boolean).join("\n\n");
@@ -143,7 +145,7 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const { messages, lessonContext, learnerProfile } = parsed.data;
+    const { messages, lessonContext, learnerProfile, atlasContext } = parsed.data;
 
     const upstream = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
@@ -156,7 +158,7 @@ Deno.serve(async (req) => {
         model: "openai/gpt-5.6-sol",
         stream: true,
         store: false,
-        instructions: systemPrompt(level, lessonContext ?? null, learnerProfile ?? null),
+        instructions: systemPrompt(level, lessonContext ?? null, learnerProfile ?? null, atlasContext ?? null),
         input: messages.map((m) => ({ role: m.role, content: m.content })),
         reasoning: { effort: "low", summary: "auto" },
       }),
