@@ -228,10 +228,21 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ duration: 0.28, ease: EASE }}
-            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-[380px] z-40 max-h-[70vh] flex flex-col surface-card overflow-hidden"
+            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-[380px] z-40 max-h-[70vh] flex flex-col surface-card overflow-hidden relative"
             role="dialog"
             aria-label="Atlas mentor"
           >
+            <AnimatePresence>
+              {intro && (
+                <AtlasIntro
+                  onDone={() => {
+                    localStorage.setItem(INTRO_KEY, "1");
+                    setIntro(false);
+                  }}
+                />
+              )}
+            </AnimatePresence>
+
             <header className="flex items-center gap-2 px-4 py-3 border-b border-border">
               <Sparkles className="w-4 h-4 text-primary" />
               <div className="flex-1 min-w-0">
