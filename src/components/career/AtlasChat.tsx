@@ -306,15 +306,19 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
                       }`}
                     >
                       {m.role === "assistant" && !m.content && streaming ? (
-                        <span className="flex gap-1 py-1" aria-label="Atlas is typing">
-                          {[0, 1, 2].map((d) => (
-                            <motion.span
-                              key={d}
-                              className="h-1.5 w-1.5 rounded-full bg-muted-foreground"
-                              animate={{ opacity: [0.3, 1, 0.3] }}
-                              transition={{ duration: 1, repeat: Infinity, delay: d * 0.15 }}
-                            />
-                          ))}
+                        <span className="flex items-center gap-1.5 py-1" aria-label="Atlas is thinking">
+                          <motion.span
+                            className="h-2 w-2 rounded-full bg-primary"
+                            animate={{ opacity: [0.4, 1, 0.4], scale: [0.9, 1.15, 0.9] }}
+                            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                          />
+                          <motion.span
+                            className="text-[11px] font-medium text-muted-foreground"
+                            animate={{ opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                          >
+                            Atlas is thinking
+                          </motion.span>
                         </span>
                       ) : (
                         <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-ul:my-1.5 prose-li:my-0.5">
