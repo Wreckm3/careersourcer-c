@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/curriculum";
 import { StreakCalendar } from "@/components/career/StreakCalendar";
+import { CountUp } from "@/components/career/CountUp";
 import { Achievements } from "@/components/career/Achievements";
 import { ProjectUploads } from "@/components/career/ProjectUploads";
 import { AtlasChat } from "@/components/career/AtlasChat";
