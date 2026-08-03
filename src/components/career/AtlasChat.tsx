@@ -228,7 +228,7 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ duration: 0.28, ease: EASE }}
-            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-[380px] z-40 max-h-[70vh] flex flex-col surface-card overflow-hidden relative"
+            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-[380px] z-40 max-h-[70vh] flex flex-col surface-card overflow-hidden"
             role="dialog"
             aria-label="Atlas mentor"
           >
