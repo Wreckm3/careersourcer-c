@@ -161,16 +161,8 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
             role="dialog"
             aria-label="Atlas mentor"
           >
-            <AnimatePresence>
-              {intro && (
-                <AtlasIntro
-                  onDone={() => {
-                    localStorage.setItem(INTRO_KEY, "1");
-                    setIntro(false);
-                  }}
-                />
-              )}
-            </AnimatePresence>
+
+
 
             <header className="flex items-center gap-2 px-4 py-3 border-b border-border">
               <Sparkles className="w-4 h-4 text-primary" />
