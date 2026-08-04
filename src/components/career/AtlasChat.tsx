@@ -223,7 +223,7 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
                           : "self-start bg-muted text-foreground"
                       }`}
                     >
-                      {m.role === "assistant" && !m.content && streaming ? (
+                      {message.role === "assistant" && !message.content && streaming ? (
                         <span className="flex gap-1 py-1" aria-label="Atlas is typing">
                           {[0, 1, 2].map((d) => (
                             <motion.span
