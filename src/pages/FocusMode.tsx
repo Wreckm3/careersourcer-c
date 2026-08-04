@@ -16,6 +16,7 @@ import { isEnabled } from "@/config/features";
 import { focusMessage, completionMessage } from "@/lib/motivation";
 import { buildAtlasLessonContext, emitAtlasMission } from "@/lib/atlas/lessonContext";
 import { AtlasChat } from "@/components/career/AtlasChat";
+import { ErrorBoundary } from "@/components/career/ErrorBoundary";
 import { savePortfolioRecord } from "@/lib/portfolio";
 
 
@@ -727,7 +728,11 @@ export default function FocusMode() {
         )}
       </AnimatePresence>
 
-      {phase === "session" && <AtlasChat lessonContext={atlas} />}
+      {phase === "session" && (
+        <ErrorBoundary label="AtlasChat" fallback={null}>
+          <AtlasChat lessonContext={atlas} />
+        </ErrorBoundary>
+      )}
     </motion.div>
   );
 }
