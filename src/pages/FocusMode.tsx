@@ -727,7 +727,11 @@ export default function FocusMode() {
         )}
       </AnimatePresence>
 
-      {phase === "session" && <AtlasChat lessonContext={atlas} />}
+      {phase === "session" && (
+        <ErrorBoundary label="AtlasChat" fallback={null}>
+          <AtlasChat lessonContext={atlas} />
+        </ErrorBoundary>
+      )}
     </motion.div>
   );
 }
