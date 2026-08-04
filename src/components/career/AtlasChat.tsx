@@ -220,7 +220,12 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
                       <p className="text-xs text-muted-foreground -mt-1">
                         {entryState?.subtitle ?? "Pick one to get started, or type your own."}
                       </p>
-                      {(entryState?.starterPrompts ?? []).map((option) => (
+                      {(entryState?.starterPrompts?.length
+                        ? entryState.starterPrompts
+                        : lessonContext
+                          ? LESSON_OPTIONS
+                          : GOAL_OPTIONS
+                      ).map((option) => (
                         <button
                           key={option.label}
                           onClick={() => send(option.prompt)}
