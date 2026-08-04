@@ -35,9 +35,28 @@ const LESSON_OPTIONS: { label: string; prompt: string }[] = [
 ];
 
 
+/** Best-effort display name for the learner — never throws. */
+function getLearnerName(user: { email?: string | null; user_metadata?: Record<string, unknown> } | null): string | null {
+  if (!user) return null;
+  try {
+    const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+    const candidate =
+      (typeof meta.full_name === "string" && meta.full_name) ||
+      (typeof meta.name === "string" && meta.name) ||
+      (typeof user.email === "string" && user.email.split("@")[0]) ||
+      null;
+    if (!candidate) return null;
+    const first = candidate.trim().split(/\s+/)[0];
+    return first ? first.charAt(0).toUpperCase() + first.slice(1) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContext | null }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<AtlasConversationMessage[]>([]);
+  const [entryState, setEntryState] = useState<AtlasEntryState | null>(null);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<{ message: string; upgrade?: boolean } | null>(null);
@@ -48,6 +67,7 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
   const { progress } = useProgress();
 
   const allowed = hasAccess("builder");
+
   const memoryService = useMemo(() => createAtlasMemoryService(), []);
   const controller = useMemo(
     () => createAtlasConversationController({ categories, memoryService }),
