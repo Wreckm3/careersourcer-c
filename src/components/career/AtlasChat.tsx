@@ -97,6 +97,24 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
     if (open && allowed) inputRef.current?.focus();
   }, [open, allowed, streaming]);
 
+  // Entry state is a nice-to-have: any failure falls back to static copy.
+  useEffect(() => {
+    if (!open || !allowed || !controllerContext) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const state = await controller.getEntryState(controllerContext);
+        if (!cancelled) setEntryState(state);
+      } catch (err) {
+        console.warn("Atlas entry state unavailable", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, allowed, controller, controllerContext]);
+
+
   if (!isEnabled("atlas") || !user) return null;
 
 
