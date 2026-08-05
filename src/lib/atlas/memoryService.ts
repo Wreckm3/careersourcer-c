@@ -230,15 +230,55 @@ export function applyMemorySignalsFromInput(memory: AtlasMemory, input: string):
     lower.includes(technology.toLowerCase()),
   );
 
+  const pace: AtlasLearningPace | null = /\b(slow(ly)?|take my time|no rush|little by little)\b/.test(lower)
+    ? "gentle"
+    : /\b(fast|quickly|asap|intense|grind|as fast as)\b/.test(lower)
+      ? "intense"
+      : /\b(steady|consistent|every day|daily)\b/.test(lower)
+        ? "steady"
+        : null;
+
+  const style: AtlasLearningStyle | null = /\b(watch|video|show me)\b/.test(lower)
+    ? "watch"
+    : /\b(read|docs|documentation|article)\b/.test(lower)
+      ? "read"
+      : /\b(build|hands.?on|by doing|practice)\b/.test(lower)
+        ? "build"
+        : /\b(explain|talk|discuss|walk me through)\b/.test(lower)
+          ? "discuss"
+          : null;
+
+  const isQuestion = input.trim().endsWith("?") || /^(how|what|why|when|where|which|can i|should i)\b/.test(lower);
+  const struggle = weakness ?? (/\b(stuck|confused|doesn't work|not working|error|can't get)\b/.test(lower)
+    ? input.trim().slice(0, 90)
+    : null);
+
   return {
     ...memory,
     preferredLanguage: preferredLanguage ?? memory.preferredLanguage,
     timeAvailableForLearning: timeAvailableForLearning ?? memory.timeAvailableForLearning,
+    learningPace: pace ?? memory.learningPace,
+    learningStyle: style ?? memory.learningStyle,
     favouriteTechnologies: unique([...memory.favouriteTechnologies, ...mentionedTechnologies]).slice(0, 12),
     weaknesses: weakness ? unique([...memory.weaknesses, weakness]).slice(-12) : memory.weaknesses,
     strengths: strength ? unique([...memory.strengths, strength]).slice(-12) : memory.strengths,
+    struggleLog: struggle
+      ? [
+          ...memory.struggleLog.filter((entry) => entry.topic !== struggle),
+          { topic: struggle, noticedAt: new Date().toISOString(), resolved: false },
+        ].slice(-STRUGGLE_LIMIT)
+      : memory.struggleLog,
+    recentQuestions: isQuestion
+      ? unique([...memory.recentQuestions, input.trim().slice(0, 160)]).slice(-RECENT_QUESTION_LIMIT)
+      : memory.recentQuestions,
     interests: unique([...memory.interests, ...mentionedTechnologies]).slice(-20),
   };
+}
+
+/** Marks a celebration as delivered so Atlas does not repeat it next session. */
+export function markMilestoneCelebrated(memory: AtlasMemory, subject: string | null): AtlasMemory {
+  if (!subject || memory.lastCelebratedMilestone === subject) return memory;
+  return { ...memory, lastCelebratedMilestone: subject };
 }
 
 export interface AtlasMemoryService {
