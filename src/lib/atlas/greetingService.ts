@@ -60,9 +60,9 @@ const LESSON_PROMPTS: AtlasStarterPrompt[] = [
 
 function greetingPeriod(date = new Date()) {
   const hour = date.getHours();
-  if (hour < 12) return "Morning";
-  if (hour < 17) return "Afternoon";
-  return "Evening";
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
 function nameFragment(name?: string | null) {
@@ -75,11 +75,41 @@ function streakFragment(streakCurrent: number) {
   return ` Your ${streakCurrent}-day streak says you are building some rhythm.`;
 }
 
+/**
+ * A mentor opening, not an assistant prompt.
+ *
+ * Shape: greeting → what they finished last → what today adds → how long it
+ * takes → the invitation. Never "How can I help you?".
+ */
+function mentorOpening(
+  greeting: string,
+  lastAchievement: string | null,
+  recommendation: AtlasRecommendation | undefined,
+  daysAway: number,
+): string {
+  const parts = [greeting];
+
+  if (daysAway >= 3) {
+    parts.push(`It's been ${daysAway} days — no drama, we'll make today small.`);
+  } else if (lastAchievement) {
+    parts.push(`Last session you finished ${lastAchievement}.`);
+  }
+
+  if (recommendation) {
+    parts.push(`Today: ${recommendation.recommendedNextStep}`);
+    parts.push(`Around ${recommendation.estimatedTime}. After this, ${recommendation.expectedOutcome.toLowerCase()}`);
+    parts.push("Let's continue.");
+  }
+
+  return parts.join(" ");
+}
+
 export function buildAtlasEntryState(
   memory: AtlasMemory,
   lessonContext?: unknown,
   progress?: AtlasProgressSnapshot,
   learnerName?: string | null,
+  recommendation?: AtlasRecommendation,
 ): AtlasEntryState {
   const context = lessonContext as
     | {
@@ -93,6 +123,22 @@ export function buildAtlasEntryState(
   const greeting = `${greetingPeriod()}${nameFragment(learnerName)}.`;
   const lastLesson = progress?.lastCompletedLesson;
   const path = progress?.currentLearningPath;
+  const signals = progress ? buildCoachingSignals(memory, progress) : null;
+
+  // Outside a mission, Atlas opens with the full mentor brief.
+  if (!context?.mission && recommendation) {
+    return {
+      greeting: mentorOpening(
+        greeting,
+        signals?.celebrationSubject ?? null,
+        recommendation,
+        signals?.daysSinceLastSession ?? 0,
+      ),
+      subtitle: memory.currentProject?.title ?? path?.projectName ?? recommendation.expectedOutcome,
+      starterPrompts: memory.currentProject || path ? LESSON_PROMPTS : GOAL_PROMPTS,
+    };
+  }
+
 
   if (context?.missionCompleted && context.projectCompleted) {
     return {
