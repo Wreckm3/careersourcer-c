@@ -89,7 +89,19 @@ export function createAtlasConversationController({
   return {
     async getEntryState(context) {
       const { memory, progress } = await loadContext(context);
-      return buildAtlasEntryState(memory, context.lessonContext, progress, context.learnerName);
+      const recommendation = getAtlasRecommendation({
+        mode: "mentoring",
+        memory,
+        progress,
+        lessonContext: context.lessonContext,
+      });
+      return buildAtlasEntryState(
+        memory,
+        context.lessonContext,
+        progress,
+        context.learnerName,
+        recommendation,
+      );
     },
 
     async prepareTurn(context, history, input) {
