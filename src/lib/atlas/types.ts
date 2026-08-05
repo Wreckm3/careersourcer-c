@@ -76,6 +76,16 @@ export interface AtlasGoal {
   supportedCategories: Category["id"][];
 }
 
+export type AtlasLearningPace = "gentle" | "steady" | "intense";
+export type AtlasLearningStyle = "watch" | "read" | "build" | "discuss";
+
+/** A thing the learner got stuck on, kept so Atlas can revisit it later. */
+export interface AtlasStruggle {
+  topic: string;
+  noticedAt: string;
+  resolved: boolean;
+}
+
 export interface AtlasMemory {
   userId: string;
   learningPath: string | null;
@@ -86,13 +96,19 @@ export interface AtlasMemory {
   completedMilestones: AtlasMilestone[];
   completedFoundationPaths: string[];
   recentConversations: AtlasConversationMessage[];
+  /** Verbatim recent questions — feeds the recommendation engine. */
+  recentQuestions: string[];
   strengths: string[];
   weaknesses: string[];
+  struggleLog: AtlasStruggle[];
   interests: string[];
   preferredLanguage: string | null;
   favouriteTechnologies: string[];
   timeAvailableForLearning: string | null;
   preferredDifficulty: AtlasDifficultyPreference;
+  learningPace: AtlasLearningPace | null;
+  learningStyle: AtlasLearningStyle | null;
+  lastCelebratedMilestone: string | null;
   currentSubscriptionTier: Tier;
   lastActiveDate: string;
   schemaVersion: 1;
