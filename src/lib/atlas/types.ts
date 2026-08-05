@@ -163,19 +163,36 @@ export interface AtlasRecommendation {
   expectedOutcome: string;
   whyThisMatters: string;
   reason: string;
+  /** Ranked alternates so Atlas can offer a lighter or harder option. */
+  alternatives?: { label: string; estimatedTime: string; why: string }[];
+  /** What drove the ranking — kept for transparency in the prompt. */
+  signals?: string[];
 }
 
-export interface AtlasSubscriptionCapabilities {
-  tier: Tier;
-  productName: "Explorer" | "Builder" | "Creator" | "Founder";
-  atlasLevel: "none" | "lite" | "smart" | "pro";
-  canUseAtlas: boolean;
-  canPersistProjectMemory: boolean;
-  canPersistRoadmaps: boolean;
-  canTrackMilestones: boolean;
-  enabledModes: AtlasConversationMode[];
-  futureCapabilities: string[];
+/** Coaching cues derived from memory + progress, not from the model. */
+export interface AtlasCoachingSignals {
+  daysSinceLastSession: number;
+  shouldCelebrate: boolean;
+  celebrationSubject: string | null;
+  shouldChallengeProcrastination: boolean;
+  unresolvedStruggles: string[];
+  streakCurrent: number;
 }
+
+/** The structured brief Atlas opens every session from. */
+export interface AtlasMentorBrief {
+  learnerName: string | null;
+  timeOfDay: "morning" | "afternoon" | "evening";
+  currentPosition: string;
+  lastAchievement: string | null;
+  todaysFocus: string;
+  estimatedTime: string;
+  afterThisYouWill: string;
+  responseFormat: string[];
+  coachingSignals: AtlasCoachingSignals;
+  lessonContext: unknown | null;
+}
+
 
 export interface AtlasPersonalityConfig {
   identity: string;
