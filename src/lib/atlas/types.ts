@@ -193,6 +193,18 @@ export interface AtlasMentorBrief {
   lessonContext: unknown | null;
 }
 
+export interface AtlasSubscriptionCapabilities {
+  tier: Tier;
+  productName: "Explorer" | "Builder" | "Creator" | "Founder";
+  atlasLevel: "none" | "lite" | "smart" | "pro";
+  canUseAtlas: boolean;
+  canPersistProjectMemory: boolean;
+  canPersistRoadmaps: boolean;
+  canTrackMilestones: boolean;
+  enabledModes: AtlasConversationMode[];
+  futureCapabilities: string[];
+}
+
 
 export interface AtlasPersonalityConfig {
   identity: string;
