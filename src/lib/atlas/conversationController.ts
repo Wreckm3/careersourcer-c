@@ -12,7 +12,12 @@ import type {
   AtlasTurnPlan,
 } from "./types";
 import type { AtlasMemoryService } from "./memoryService";
-import { applyMemorySignalsFromInput, syncMemoryWithProgress } from "./memoryService";
+import {
+  applyMemorySignalsFromInput,
+  markMilestoneCelebrated,
+  syncMemoryWithProgress,
+} from "./memoryService";
+import { buildMentorBrief } from "./mentorBrief";
 import { createProjectRoadmap, getCurrentMilestone } from "./projectPlanner";
 import { buildAtlasProgressSnapshot } from "./progressService";
 import { getAtlasRecommendation } from "./recommendationEngine";
