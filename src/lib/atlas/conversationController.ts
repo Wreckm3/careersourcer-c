@@ -59,36 +59,11 @@ function applyGoalFromInput(memory: AtlasMemory, input: string): AtlasMemory {
   };
 }
 
-function isNextStepQuestion(input: string) {
-  const text = input.toLowerCase().trim();
-  return (
-    text === "what next" ||
-    text === "what's next" ||
-    text.includes("what next") ||
-    text.includes("what should i do next") ||
-    text.includes("next best action")
-  );
+function isProcrastinationSignal(input: string) {
+  const text = input.toLowerCase();
+  return /\b(later|tomorrow|can'?t be bothered|no time|lazy|gave up|quit|too hard)\b/.test(text);
 }
 
-function describeCurrentPosition(memory: AtlasMemory, progress: ReturnType<typeof buildAtlasProgressSnapshot>) {
-  if (memory.currentProject && memory.currentMilestone) {
-    return `${memory.currentProject.title}: ${memory.currentMilestone.title}`;
-  }
-  if (progress.currentLearningPath) {
-    return `${progress.currentLearningPath.title}: ${progress.currentLearningPath.lessonsCompleted}/${progress.currentLearningPath.totalLessons} lessons complete`;
-  }
-  if (progress.lastCompletedLesson) {
-    return `Last completed: ${progress.lastCompletedLesson.title}`;
-  }
-  return "No active project yet";
-}
-
-function buildMentorResponseFormat(input: string) {
-  if (isNextStepQuestion(input)) {
-    return ["Current Position", "Next Best Action", "Estimated Time", "Expected Outcome", "Why This Matters"];
-  }
-  return ["Answer directly", "Explain why it matters", "Give one practical next action"];
-}
 
 export function createAtlasConversationController({
   categories,
