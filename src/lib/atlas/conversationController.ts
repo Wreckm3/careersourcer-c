@@ -107,6 +107,18 @@ export function createAtlasConversationController({
 
       const memoryWithUserTurn = await memoryService.recordConversation(memory, [{ role: "user", content: input }]);
 
+      const mentorBrief = buildMentorBrief({
+        memory: memoryWithUserTurn,
+        progress: progressWithActiveState,
+        recommendation,
+        input,
+        learnerName: context.learnerName,
+        lessonContext: context.lessonContext,
+      });
+      if (isProcrastinationSignal(input)) {
+        mentorBrief.coachingSignals.shouldChallengeProcrastination = true;
+      }
+
       return {
         mode,
         messages,
@@ -129,12 +141,7 @@ export function createAtlasConversationController({
             recommendation,
             capabilities,
             personality: atlasPersonality,
-            mentorBrief: {
-              learnerName: context.learnerName ?? null,
-              currentPosition: describeCurrentPosition(memoryWithUserTurn, progressWithActiveState),
-              responseFormat: buildMentorResponseFormat(input),
-              lessonContext: context.lessonContext ?? null,
-            },
+            mentorBrief,
           },
         },
       };
@@ -142,7 +149,11 @@ export function createAtlasConversationController({
 
     async recordAssistantReply(plan, content) {
       if (!content.trim()) return;
-      await memoryService.recordConversation(plan.memory, [{ role: "assistant", content }]);
+      const celebrated = markMilestoneCelebrated(
+        plan.memory,
+        plan.request.atlasContext.mentorBrief.coachingSignals.celebrationSubject,
+      );
+      await memoryService.recordConversation(celebrated, [{ role: "assistant", content }]);
     },
   };
 }
