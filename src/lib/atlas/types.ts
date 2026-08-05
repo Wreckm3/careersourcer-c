@@ -258,12 +258,7 @@ export interface AtlasTurnPlan {
       recommendation: AtlasRecommendation;
       capabilities: AtlasSubscriptionCapabilities;
       personality: AtlasPersonalityConfig;
-      mentorBrief: {
-        learnerName: string | null;
-        currentPosition: string;
-        responseFormat: string[];
-        lessonContext: unknown | null;
-      };
+      mentorBrief: AtlasMentorBrief;
     };
   };
 }
