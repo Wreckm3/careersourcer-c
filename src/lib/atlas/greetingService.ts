@@ -1,4 +1,11 @@
-import type { AtlasEntryState, AtlasMemory, AtlasProgressSnapshot, AtlasStarterPrompt } from "./types";
+import type {
+  AtlasEntryState,
+  AtlasMemory,
+  AtlasProgressSnapshot,
+  AtlasRecommendation,
+  AtlasStarterPrompt,
+} from "./types";
+import { buildCoachingSignals } from "./mentorBrief";
 
 const GOAL_PROMPTS: AtlasStarterPrompt[] = [
   {
