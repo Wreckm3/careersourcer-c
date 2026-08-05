@@ -162,12 +162,16 @@ export interface AtlasSubscriptionCapabilities {
 }
 
 export interface AtlasPersonalityConfig {
+  identity: string;
   coreValues: string[];
   speakingStyle: string[];
   greetingStyle: string[];
   encouragementStyle: string[];
   reflectionStyle: string[];
   projectCoachingStyle: string[];
+  procrastinationStyle: string[];
+  humourStyle: string[];
+  neverDo: string[];
 }
 
 export interface AtlasStarterPrompt {
