@@ -76,6 +76,16 @@ export interface AtlasGoal {
   supportedCategories: Category["id"][];
 }
 
+export type AtlasLearningPace = "gentle" | "steady" | "intense";
+export type AtlasLearningStyle = "watch" | "read" | "build" | "discuss";
+
+/** A thing the learner got stuck on, kept so Atlas can revisit it later. */
+export interface AtlasStruggle {
+  topic: string;
+  noticedAt: string;
+  resolved: boolean;
+}
+
 export interface AtlasMemory {
   userId: string;
   learningPath: string | null;
@@ -86,13 +96,19 @@ export interface AtlasMemory {
   completedMilestones: AtlasMilestone[];
   completedFoundationPaths: string[];
   recentConversations: AtlasConversationMessage[];
+  /** Verbatim recent questions — feeds the recommendation engine. */
+  recentQuestions: string[];
   strengths: string[];
   weaknesses: string[];
+  struggleLog: AtlasStruggle[];
   interests: string[];
   preferredLanguage: string | null;
   favouriteTechnologies: string[];
   timeAvailableForLearning: string | null;
   preferredDifficulty: AtlasDifficultyPreference;
+  learningPace: AtlasLearningPace | null;
+  learningStyle: AtlasLearningStyle | null;
+  lastCelebratedMilestone: string | null;
   currentSubscriptionTier: Tier;
   lastActiveDate: string;
   schemaVersion: 1;
@@ -147,6 +163,34 @@ export interface AtlasRecommendation {
   expectedOutcome: string;
   whyThisMatters: string;
   reason: string;
+  /** Ranked alternates so Atlas can offer a lighter or harder option. */
+  alternatives?: { label: string; estimatedTime: string; why: string }[];
+  /** What drove the ranking — kept for transparency in the prompt. */
+  signals?: string[];
+}
+
+/** Coaching cues derived from memory + progress, not from the model. */
+export interface AtlasCoachingSignals {
+  daysSinceLastSession: number;
+  shouldCelebrate: boolean;
+  celebrationSubject: string | null;
+  shouldChallengeProcrastination: boolean;
+  unresolvedStruggles: string[];
+  streakCurrent: number;
+}
+
+/** The structured brief Atlas opens every session from. */
+export interface AtlasMentorBrief {
+  learnerName: string | null;
+  timeOfDay: "morning" | "afternoon" | "evening";
+  currentPosition: string;
+  lastAchievement: string | null;
+  todaysFocus: string;
+  estimatedTime: string;
+  afterThisYouWill: string;
+  responseFormat: string[];
+  coachingSignals: AtlasCoachingSignals;
+  lessonContext: unknown | null;
 }
 
 export interface AtlasSubscriptionCapabilities {
@@ -161,13 +205,18 @@ export interface AtlasSubscriptionCapabilities {
   futureCapabilities: string[];
 }
 
+
 export interface AtlasPersonalityConfig {
+  identity: string;
   coreValues: string[];
   speakingStyle: string[];
   greetingStyle: string[];
   encouragementStyle: string[];
   reflectionStyle: string[];
   projectCoachingStyle: string[];
+  procrastinationStyle: string[];
+  humourStyle: string[];
+  neverDo: string[];
 }
 
 export interface AtlasStarterPrompt {
@@ -209,12 +258,7 @@ export interface AtlasTurnPlan {
       recommendation: AtlasRecommendation;
       capabilities: AtlasSubscriptionCapabilities;
       personality: AtlasPersonalityConfig;
-      mentorBrief: {
-        learnerName: string | null;
-        currentPosition: string;
-        responseFormat: string[];
-        lessonContext: unknown | null;
-      };
+      mentorBrief: AtlasMentorBrief;
     };
   };
 }
