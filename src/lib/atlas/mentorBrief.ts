@@ -33,7 +33,7 @@ export function buildCoachingSignals(
   progress: AtlasProgressSnapshot,
 ): AtlasCoachingSignals {
   const daysSinceLastSession = daysBetween(memory.lastActiveDate);
-  const lastMilestone = memory.completedMilestones.at(-1)?.title ?? null;
+  const lastMilestone = memory.completedMilestones[memory.completedMilestones.length - 1]?.title ?? null;
   const lastLesson = progress.lastCompletedLesson?.title ?? null;
   const celebrationSubject = lastMilestone ?? lastLesson;
 
