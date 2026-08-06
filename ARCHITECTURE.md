@@ -147,3 +147,16 @@ Refresh — `useSubscription` will pick it up and `tier` becomes
 - **Project uploads (Phase 4)**: `project_uploads` + `project-uploads`
   bucket are ready. Gate with `PremiumGate required="creator"` and use
   a signed-URL flow from an edge function.
+
+## Phase architecture (Explorer / Builder / Professional / Elite)
+
+The phase system is a derived layer over `Category → Branch → Lesson`:
+`Phase → Module → Mission → Lesson` plus module-level `Project`. Explorer is
+synthesized from `Branch.lessons`, so existing content is untouched and
+Builder/Professional/Elite plug in through
+`src/data/curriculum/phaseContent.ts`. XP, levels, unlocking, portfolio
+projects and the Atlas snapshot are all pure functions of the existing
+`completedSessions` array — no new persistence. Import everything from
+`@/lib/phases`.
+
+Full details: `docs/phase-architecture.md`.
