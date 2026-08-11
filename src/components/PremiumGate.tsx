@@ -16,7 +16,7 @@ interface PremiumGateProps {
 
 /**
  * Wrap any UI that requires a paid tier. Admin bypass is automatic
- * because `hasAccess` sees admins as `visionary`.
+ * because `hasAccess` sees admins as `elite`.
  */
 export function PremiumGate({ required, children, featureName, silent }: PremiumGateProps) {
   const { hasAccess, loading } = useSubscription();

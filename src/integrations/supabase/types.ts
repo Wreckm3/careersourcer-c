@@ -26,13 +26,18 @@ export type Database = {
           favourite_technologies: string[]
           interests: string[]
           last_active_date: string
+          last_celebrated_milestone: string | null
+          learning_pace: string | null
           learning_path: string | null
+          learning_style: string | null
           preferred_difficulty: string
           preferred_language: string | null
           project_category: string | null
           recent_conversations: Json
+          recent_questions: Json
           schema_version: number
           strengths: string[]
+          struggle_log: Json
           time_available_for_learning: string | null
           updated_at: string
           user_id: string
@@ -49,13 +54,18 @@ export type Database = {
           favourite_technologies?: string[]
           interests?: string[]
           last_active_date?: string
+          last_celebrated_milestone?: string | null
+          learning_pace?: string | null
           learning_path?: string | null
+          learning_style?: string | null
           preferred_difficulty?: string
           preferred_language?: string | null
           project_category?: string | null
           recent_conversations?: Json
+          recent_questions?: Json
           schema_version?: number
           strengths?: string[]
+          struggle_log?: Json
           time_available_for_learning?: string | null
           updated_at?: string
           user_id: string
@@ -72,13 +82,18 @@ export type Database = {
           favourite_technologies?: string[]
           interests?: string[]
           last_active_date?: string
+          last_celebrated_milestone?: string | null
+          learning_pace?: string | null
           learning_path?: string | null
+          learning_style?: string | null
           preferred_difficulty?: string
           preferred_language?: string | null
           project_category?: string | null
           recent_conversations?: Json
+          recent_questions?: Json
           schema_version?: number
           strengths?: string[]
+          struggle_log?: Json
           time_available_for_learning?: string | null
           updated_at?: string
           user_id?: string
@@ -309,7 +324,7 @@ export type Database = {
         | "canceled"
         | "expired"
         | "trialing"
-      subscription_tier: "free" | "builder" | "creator" | "visionary"
+      subscription_tier: "free" | "builder" | "professional" | "elite"
       upload_review_status: "pending" | "reviewing" | "reviewed" | "rejected"
     }
     CompositeTypes: {
@@ -446,7 +461,7 @@ export const Constants = {
         "expired",
         "trialing",
       ],
-      subscription_tier: ["free", "builder", "creator", "visionary"],
+      subscription_tier: ["free", "builder", "professional", "elite"],
       upload_review_status: ["pending", "reviewing", "reviewed", "rejected"],
     },
   },

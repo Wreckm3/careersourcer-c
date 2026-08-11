@@ -12,7 +12,12 @@ import type {
   AtlasTurnPlan,
 } from "./types";
 import type { AtlasMemoryService } from "./memoryService";
-import { applyMemorySignalsFromInput, syncMemoryWithProgress } from "./memoryService";
+import {
+  applyMemorySignalsFromInput,
+  markMilestoneCelebrated,
+  syncMemoryWithProgress,
+} from "./memoryService";
+import { buildMentorBrief } from "./mentorBrief";
 import { createProjectRoadmap, getCurrentMilestone } from "./projectPlanner";
 import { buildAtlasProgressSnapshot } from "./progressService";
 import { getAtlasRecommendation } from "./recommendationEngine";
@@ -59,36 +64,11 @@ function applyGoalFromInput(memory: AtlasMemory, input: string): AtlasMemory {
   };
 }
 
-function isNextStepQuestion(input: string) {
-  const text = input.toLowerCase().trim();
-  return (
-    text === "what next" ||
-    text === "what's next" ||
-    text.includes("what next") ||
-    text.includes("what should i do next") ||
-    text.includes("next best action")
-  );
+function isProcrastinationSignal(input: string) {
+  const text = input.toLowerCase();
+  return /\b(later|tomorrow|can'?t be bothered|no time|lazy|gave up|quit|too hard)\b/.test(text);
 }
 
-function describeCurrentPosition(memory: AtlasMemory, progress: ReturnType<typeof buildAtlasProgressSnapshot>) {
-  if (memory.currentProject && memory.currentMilestone) {
-    return `${memory.currentProject.title}: ${memory.currentMilestone.title}`;
-  }
-  if (progress.currentLearningPath) {
-    return `${progress.currentLearningPath.title}: ${progress.currentLearningPath.lessonsCompleted}/${progress.currentLearningPath.totalLessons} lessons complete`;
-  }
-  if (progress.lastCompletedLesson) {
-    return `Last completed: ${progress.lastCompletedLesson.title}`;
-  }
-  return "No active project yet";
-}
-
-function buildMentorResponseFormat(input: string) {
-  if (isNextStepQuestion(input)) {
-    return ["Current Position", "Next Best Action", "Estimated Time", "Expected Outcome", "Why This Matters"];
-  }
-  return ["Answer directly", "Explain why it matters", "Give one practical next action"];
-}
 
 export function createAtlasConversationController({
   categories,
@@ -109,7 +89,19 @@ export function createAtlasConversationController({
   return {
     async getEntryState(context) {
       const { memory, progress } = await loadContext(context);
-      return buildAtlasEntryState(memory, context.lessonContext, progress, context.learnerName);
+      const recommendation = getAtlasRecommendation({
+        mode: "mentoring",
+        memory,
+        progress,
+        lessonContext: context.lessonContext,
+      });
+      return buildAtlasEntryState(
+        memory,
+        context.lessonContext,
+        progress,
+        context.learnerName,
+        recommendation,
+      );
     },
 
     async prepareTurn(context, history, input) {
@@ -130,7 +122,21 @@ export function createAtlasConversationController({
       });
       const messages = [...history, { role: "user" as const, content: input }];
 
-      const memoryWithUserTurn = await memoryService.recordConversation(memory, [{ role: "user", content: input }]);
+      const memoryWithUserTurn = capabilities.canPersistProjectMemory
+        ? await memoryService.recordConversation(memory, [{ role: "user", content: input }])
+        : memory;
+
+      const mentorBrief = buildMentorBrief({
+        memory: memoryWithUserTurn,
+        progress: progressWithActiveState,
+        recommendation,
+        input,
+        learnerName: context.learnerName,
+        lessonContext: context.lessonContext,
+      });
+      if (isProcrastinationSignal(input)) {
+        mentorBrief.coachingSignals.shouldChallengeProcrastination = true;
+      }
 
       return {
         mode,
@@ -154,12 +160,7 @@ export function createAtlasConversationController({
             recommendation,
             capabilities,
             personality: atlasPersonality,
-            mentorBrief: {
-              learnerName: context.learnerName ?? null,
-              currentPosition: describeCurrentPosition(memoryWithUserTurn, progressWithActiveState),
-              responseFormat: buildMentorResponseFormat(input),
-              lessonContext: context.lessonContext ?? null,
-            },
+            mentorBrief,
           },
         },
       };
@@ -167,7 +168,12 @@ export function createAtlasConversationController({
 
     async recordAssistantReply(plan, content) {
       if (!content.trim()) return;
-      await memoryService.recordConversation(plan.memory, [{ role: "assistant", content }]);
+      if (!plan.request.atlasContext.capabilities.canPersistProjectMemory) return;
+      const celebrated = markMilestoneCelebrated(
+        plan.memory,
+        plan.request.atlasContext.mentorBrief.coachingSignals.celebrationSubject,
+      );
+      await memoryService.recordConversation(celebrated, [{ role: "assistant", content }]);
     },
   };
 }

@@ -4,22 +4,35 @@ import type { Tier } from "@/lib/tiers";
 import type {
   AtlasConversationMessage,
   AtlasGoal,
+  AtlasLearningPace,
+  AtlasLearningStyle,
   AtlasMemory,
   AtlasMilestone,
   AtlasProgressSnapshot,
   AtlasProject,
+  AtlasStruggle,
 } from "./types";
 import { normalizeDifficultyPreference } from "./goalEngine";
 import { getCurrentMilestone } from "./projectPlanner";
 
 const STORAGE_PREFIX = "careersourcer-atlas-memory";
 const RECENT_CONVERSATION_LIMIT = 16;
+const RECENT_QUESTION_LIMIT = 10;
+const STRUGGLE_LIMIT = 20;
 
 type AtlasMemoryRow = Tables<"atlas_memories">;
 type AtlasMemoryInsert = TablesInsert<"atlas_memories">;
 
 function storageKey(userId: string) {
   return `${STORAGE_PREFIX}:${userId}`;
+}
+
+function normalizePace(value?: string | null): AtlasLearningPace | null {
+  return value === "gentle" || value === "steady" || value === "intense" ? value : null;
+}
+
+function normalizeStyle(value?: string | null): AtlasLearningStyle | null {
+  return value === "watch" || value === "read" || value === "build" || value === "discuss" ? value : null;
 }
 
 export function createEmptyAtlasMemory(userId: string, tier: Tier, now = new Date().toISOString()): AtlasMemory {
@@ -33,13 +46,18 @@ export function createEmptyAtlasMemory(userId: string, tier: Tier, now = new Dat
     completedMilestones: [],
     completedFoundationPaths: [],
     recentConversations: [],
+    recentQuestions: [],
     strengths: [],
     weaknesses: [],
+    struggleLog: [],
     interests: [],
     preferredLanguage: null,
     favouriteTechnologies: [],
     timeAvailableForLearning: null,
     preferredDifficulty: "starter",
+    learningPace: null,
+    learningStyle: null,
+    lastCelebratedMilestone: null,
     currentSubscriptionTier: tier,
     lastActiveDate: now,
     schemaVersion: 1,
@@ -61,13 +79,18 @@ function rowToMemory(row: AtlasMemoryRow, tier: Tier): AtlasMemory {
     completedMilestones: parseJsonArray<AtlasMilestone>(row.completed_milestones),
     completedFoundationPaths: row.completed_foundation_paths,
     recentConversations: parseJsonArray<AtlasConversationMessage>(row.recent_conversations),
+    recentQuestions: parseJsonArray<string>(row.recent_questions),
     strengths: row.strengths,
     weaknesses: row.weaknesses,
+    struggleLog: parseJsonArray<AtlasStruggle>(row.struggle_log),
     interests: row.interests,
     preferredLanguage: row.preferred_language,
     favouriteTechnologies: row.favourite_technologies,
     timeAvailableForLearning: row.time_available_for_learning,
     preferredDifficulty: normalizeDifficultyPreference(row.preferred_difficulty),
+    learningPace: normalizePace(row.learning_pace),
+    learningStyle: normalizeStyle(row.learning_style),
+    lastCelebratedMilestone: row.last_celebrated_milestone,
     currentSubscriptionTier: tier,
     lastActiveDate: row.last_active_date,
     schemaVersion: 1,
@@ -85,13 +108,18 @@ function memoryToRow(memory: AtlasMemory): AtlasMemoryInsert {
     completed_milestones: memory.completedMilestones as unknown as Json,
     completed_foundation_paths: memory.completedFoundationPaths,
     recent_conversations: memory.recentConversations as unknown as Json,
+    recent_questions: memory.recentQuestions as unknown as Json,
     strengths: memory.strengths,
     weaknesses: memory.weaknesses,
+    struggle_log: memory.struggleLog as unknown as Json,
     interests: memory.interests,
     preferred_language: memory.preferredLanguage,
     favourite_technologies: memory.favouriteTechnologies,
     time_available_for_learning: memory.timeAvailableForLearning,
     preferred_difficulty: memory.preferredDifficulty,
+    learning_pace: memory.learningPace,
+    learning_style: memory.learningStyle,
+    last_celebrated_milestone: memory.lastCelebratedMilestone,
     current_subscription_tier: memory.currentSubscriptionTier,
     last_active_date: memory.lastActiveDate,
     schema_version: memory.schemaVersion,
@@ -202,15 +230,55 @@ export function applyMemorySignalsFromInput(memory: AtlasMemory, input: string):
     lower.includes(technology.toLowerCase()),
   );
 
+  const pace: AtlasLearningPace | null = /\b(slow(ly)?|take my time|no rush|little by little)\b/.test(lower)
+    ? "gentle"
+    : /\b(fast|quickly|asap|intense|grind|as fast as)\b/.test(lower)
+      ? "intense"
+      : /\b(steady|consistent|every day|daily)\b/.test(lower)
+        ? "steady"
+        : null;
+
+  const style: AtlasLearningStyle | null = /\b(watch|video|show me)\b/.test(lower)
+    ? "watch"
+    : /\b(read|docs|documentation|article)\b/.test(lower)
+      ? "read"
+      : /\b(build|hands.?on|by doing|practice)\b/.test(lower)
+        ? "build"
+        : /\b(explain|talk|discuss|walk me through)\b/.test(lower)
+          ? "discuss"
+          : null;
+
+  const isQuestion = input.trim().endsWith("?") || /^(how|what|why|when|where|which|can i|should i)\b/.test(lower);
+  const struggle = weakness ?? (/\b(stuck|confused|doesn't work|not working|error|can't get)\b/.test(lower)
+    ? input.trim().slice(0, 90)
+    : null);
+
   return {
     ...memory,
     preferredLanguage: preferredLanguage ?? memory.preferredLanguage,
     timeAvailableForLearning: timeAvailableForLearning ?? memory.timeAvailableForLearning,
+    learningPace: pace ?? memory.learningPace,
+    learningStyle: style ?? memory.learningStyle,
     favouriteTechnologies: unique([...memory.favouriteTechnologies, ...mentionedTechnologies]).slice(0, 12),
     weaknesses: weakness ? unique([...memory.weaknesses, weakness]).slice(-12) : memory.weaknesses,
     strengths: strength ? unique([...memory.strengths, strength]).slice(-12) : memory.strengths,
+    struggleLog: struggle
+      ? [
+          ...memory.struggleLog.filter((entry) => entry.topic !== struggle),
+          { topic: struggle, noticedAt: new Date().toISOString(), resolved: false },
+        ].slice(-STRUGGLE_LIMIT)
+      : memory.struggleLog,
+    recentQuestions: isQuestion
+      ? unique([...memory.recentQuestions, input.trim().slice(0, 160)]).slice(-RECENT_QUESTION_LIMIT)
+      : memory.recentQuestions,
     interests: unique([...memory.interests, ...mentionedTechnologies]).slice(-20),
   };
+}
+
+/** Marks a celebration as delivered so Atlas does not repeat it next session. */
+export function markMilestoneCelebrated(memory: AtlasMemory, subject: string | null): AtlasMemory {
+  if (!subject || memory.lastCelebratedMilestone === subject) return memory;
+  return { ...memory, lastCelebratedMilestone: subject };
 }
 
 export interface AtlasMemoryService {

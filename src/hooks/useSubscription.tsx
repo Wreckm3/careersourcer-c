@@ -65,7 +65,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     setIsAdmin(admin);
 
     if (admin) {
-      setTier("visionary");
+      setTier("elite");
       setStatus("active");
     } else if (subRes.data) {
       const active =

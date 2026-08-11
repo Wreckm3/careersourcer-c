@@ -6,7 +6,15 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-export class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  /** Rendered instead of the full-page error screen. Use for non-critical widgets. */
+  fallback?: ReactNode;
+  /** Label used in the console so the failing surface is identifiable. */
+  label?: string;
+}
+
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
 
   static getDerivedStateFromError() {
@@ -14,11 +22,13 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBound
   }
 
   componentDidCatch(error: Error) {
-    console.error("Unexpected application error", error);
+    console.error(`Unexpected application error${this.props.label ? ` (${this.props.label})` : ""}`, error);
   }
 
   render() {
     if (!this.state.hasError) return this.props.children;
+    if (this.props.fallback !== undefined) return this.props.fallback;
+
 
     return (
       <main className="min-h-screen bg-background px-6 py-12 flex items-center justify-center">

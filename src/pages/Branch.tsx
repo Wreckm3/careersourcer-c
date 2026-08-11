@@ -1,8 +1,9 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Circle, Play, Clock, Lock } from "lucide-react";
-import { getBranch, getBranchProgress } from "@/data/curriculum";
+import { ArrowLeft, CheckCircle2, Circle, Play, Clock, Lock, Sparkles } from "lucide-react";
+import { getBranch, getBranchProgress, getLessonAccess } from "@/data/curriculum";
 import { useProgress } from "@/hooks/useProgress";
+import { useSubscription } from "@/hooks/useSubscription";
 
 function ProgressRing({ percent, color, size = 72 }: { percent: number; color: string; size?: number }) {
   const r = (size - 8) / 2;
@@ -28,6 +29,7 @@ export default function Branch() {
   const { categoryId, branchId } = useParams<{ categoryId: string; branchId: string }>();
   const navigate = useNavigate();
   const { progress, isCompleted } = useProgress();
+  const { tier } = useSubscription();
 
   const data = getBranch(categoryId || "", branchId || "");
   if (!data) {
@@ -65,6 +67,9 @@ export default function Branch() {
               <span>{branch.emoji}</span> {branch.title}
             </h1>
           </div>
+          <Link to="/atlas" className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10">
+            <Sparkles className="h-3.5 w-3.5" /> Atlas workspace
+          </Link>
         </div>
 
         <motion.div
@@ -129,6 +134,7 @@ export default function Branch() {
           {branch.lessons.map((lesson, i) => {
             const done = isCompleted(lesson.id);
             const isCurrent = firstIncomplete?.id === lesson.id;
+            const access = getLessonAccess(branch.id, lesson.id, progress.completedSessions, tier);
             return (
               <motion.div
                 key={lesson.id}
@@ -138,9 +144,13 @@ export default function Branch() {
               >
                 <Link
                   to={`/session/${branch.id}/${lesson.id}`}
+                  onClick={(event) => {
+                    if (!access.allowed) event.preventDefault();
+                  }}
+                  aria-disabled={!access.allowed}
                   className={`group flex items-center gap-3 p-3.5 rounded-xl border bg-card transition-all duration-200 hover:shadow-sm hover:-translate-y-0.5 ${
                     isCurrent ? "ring-1" : ""
-                  } border-border`}
+                  } border-border ${!access.allowed ? "opacity-70 cursor-not-allowed" : ""}`}
                   style={isCurrent ? { ["--tw-ring-color" as never]: category.color } : undefined}
                 >
                   {done ? (
@@ -151,9 +161,11 @@ export default function Branch() {
                   <div className="flex-1 min-w-0">
                     <p className={`font-semibold text-sm flex items-center gap-1.5 ${done ? "line-through opacity-50" : ""}`}>
                       <span className="truncate">{i + 1}. {lesson.title}</span>
-                      {lesson.premium && <Lock className="w-3 h-3 flex-shrink-0 text-primary" />}
+                      {!access.allowed && <Lock className="w-3 h-3 flex-shrink-0 text-primary" />}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">{lesson.description}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {access.reason === "tier" ? "Builder plan required" : access.reason === "prerequisite" ? "Complete the earlier mission first" : lesson.description}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
                     <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-muted text-[10px] font-semibold uppercase tracking-wider">
