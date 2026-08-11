@@ -1,11 +1,56 @@
-import { motion } from "framer-motion";
-import { Check, Sparkles, Shield, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { PLANS, TIER_ORDER } from "@/lib/tiers";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, Sparkles, Shield, ArrowLeft, Loader2, Smartphone, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { PLANS, TIER_ORDER, rank, type TierPlan } from "@/lib/tiers";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Pricing() {
-  const { tier, isAdmin } = useSubscription();
+  const navigate = useNavigate();
+  const { tier, isAdmin, refresh } = useSubscription();
+  const { user } = useAuth();
+  const [selectedPlan, setSelectedPlan] = useState<TierPlan | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [paymentState, setPaymentState] = useState<"idle" | "sending" | "waiting" | "success" | "error">("idle");
+  const [paymentMessage, setPaymentMessage] = useState("");
+
+  useEffect(() => {
+    if (paymentState !== "waiting" || !selectedPlan) return;
+    const startedAt = Date.now();
+    const interval = window.setInterval(() => {
+      refresh().catch(() => {});
+      if (Date.now() - startedAt > 120000) {
+        window.clearInterval(interval);
+        setPaymentMessage("We have not received a confirmed payment yet. Check M-Pesa, then try again if needed.");
+      }
+    }, 5000);
+    return () => window.clearInterval(interval);
+  }, [paymentState, selectedPlan, refresh]);
+
+  useEffect(() => {
+    if (paymentState === "waiting" && selectedPlan && rank(tier) >= rank(selectedPlan.id)) {
+      setPaymentState("success");
+      setPaymentMessage(`${selectedPlan.name} is now unlocked.`);
+    }
+  }, [paymentState, selectedPlan, tier]);
+
+  const choosePlan = (plan: TierPlan) => {
+    if (!user) { navigate("/auth"); return; }
+    setSelectedPlan(plan); setPhoneNumber(""); setPaymentState("idle"); setPaymentMessage("");
+  };
+  const payWithMpesa = async () => {
+    if (!selectedPlan || paymentState === "sending") return;
+    setPaymentState("sending"); setPaymentMessage("");
+    const { data, error } = await supabase.functions.invoke("mpesa-stk-push", { body: { tier: selectedPlan.id, phoneNumber } });
+    if (error || !data || typeof data !== "object" || !("checkoutRequestId" in data)) {
+      const message = data && typeof data === "object" && "error" in data && typeof data.error === "string" ? data.error : error?.message ?? "Could not start the M-Pesa prompt.";
+      setPaymentState("error"); setPaymentMessage(message); return;
+    }
+    setPaymentState("waiting");
+    setPaymentMessage("STK Push sent. Check your phone and enter your M-Pesa PIN. Your plan unlocks only after Safaricom confirms payment.");
+  };
 
   return (
     <div className="min-h-screen bg-background py-16 px-6">
@@ -77,6 +122,7 @@ export default function Pricing() {
                 <button
                   type="button"
                   disabled={current || plan.id === "free"}
+                  onClick={() => plan.id !== "free" && choosePlan(plan)}
                   className={`mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                     current
                       ? "bg-muted text-muted-foreground cursor-default"
@@ -84,7 +130,6 @@ export default function Pricing() {
                       ? "btn-primary-gold"
                       : "btn-secondary-blue"
                   } disabled:opacity-60`}
-                  title={plan.id !== "free" ? "Checkout enables in Phase 3" : undefined}
                 >
                   {current ? "Current plan" : plan.ctaLabel}
                 </button>
@@ -93,10 +138,18 @@ export default function Pricing() {
           })}
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-10">
-          Payments launch in Phase 3 with Stripe (Visa/Mastercard) and M-Pesa for Kenyan users.
-        </p>
+        <p className="text-center text-xs text-muted-foreground mt-10">Secure M-Pesa STK Push payments. Your subscription changes only after a confirmed Safaricom callback.</p>
       </div>
+
+      <AnimatePresence>
+        {selectedPlan && (
+          <motion.div className="fixed inset-0 z-50 grid place-items-center bg-background/75 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-modal="true" aria-labelledby="mpesa-title">
+            <motion.div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }}>
+              <div className="flex items-start justify-between gap-4"><div><div className="flex items-center gap-2 text-primary"><Smartphone className="h-4 w-4" /><span className="text-xs font-bold tracking-wider">M-PESA STK PUSH</span></div><h2 id="mpesa-title" className="mt-2 text-xl font-bold">Pay KSh {selectedPlan.priceKes} for {selectedPlan.name}</h2></div><button type="button" onClick={() => paymentState !== "sending" && setSelectedPlan(null)} className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Close M-Pesa payment"><X className="h-5 w-5" /></button></div>
+              {paymentState === "success" ? <div className="mt-6 rounded-xl border border-primary/30 bg-primary/10 p-4 text-sm text-foreground"><b className="block">Payment confirmed</b><p className="mt-1 text-muted-foreground">{paymentMessage}</p><button type="button" className="btn-primary-gold mt-4 rounded-lg px-4 py-2" onClick={() => setSelectedPlan(null)}>Done</button></div> : <><label className="mt-6 block text-sm font-medium" htmlFor="mpesa-phone">M-Pesa phone number</label><input id="mpesa-phone" type="tel" inputMode="numeric" autoComplete="tel" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} placeholder="0712 345 678" disabled={paymentState === "sending" || paymentState === "waiting"} className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-3 text-sm outline-none focus:border-primary" /><p className="mt-2 text-xs leading-5 text-muted-foreground">Use the number that will receive the M-Pesa prompt. We only use it to send this payment request.</p><button type="button" onClick={payWithMpesa} disabled={!phoneNumber.trim() || paymentState === "sending" || paymentState === "waiting"} className="btn-primary-gold mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm disabled:opacity-50">{paymentState === "sending" ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending prompt...</> : paymentState === "waiting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Waiting for confirmation...</> : <>Pay KSh {selectedPlan.priceKes} via M-Pesa</>}</button>{paymentMessage && <p className={`mt-3 text-sm leading-5 ${paymentState === "error" ? "text-destructive" : "text-muted-foreground"}`}>{paymentMessage}</p>}</>}</motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

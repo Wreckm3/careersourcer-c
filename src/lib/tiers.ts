@@ -56,13 +56,13 @@ export const PLANS: Record<Tier, TierPlan> = {
   },
   creator: {
     id: "creator",
-    name: "Creator",
+    name: "Professional",
     tagline: "Deeper feedback on what you ship.",
     priceKes: 299,
     priceDisplay: "KSh 299 / month",
     atlasLevel: "smart",
     highlight: true,
-    ctaLabel: "Go Creator",
+    ctaLabel: "Go Professional",
     features: [
       "Everything in Builder",
       "Smarter Atlas with project reviews",
@@ -73,12 +73,12 @@ export const PLANS: Record<Tier, TierPlan> = {
   },
   visionary: {
     id: "visionary",
-    name: "Visionary",
+    name: "Elite",
     tagline: "A long-term growth mentor.",
     priceKes: 499,
     priceDisplay: "KSh 499 / month",
     atlasLevel: "pro",
-    ctaLabel: "Go Visionary",
+    ctaLabel: "Go Elite",
     features: [
       "Everything in Creator",
       "Atlas Pro — AI Growth Mentor",

@@ -1,1 +1,6 @@
 project_id = "vgpeuihrkwwrckhzoemw"
+
+# Callback requests are authenticated inside the function with MPESA_CALLBACK_TOKEN;
+# STK initiation separately verifies the caller's Supabase access token.
+[functions.mpesa-stk-push]
+verify_jwt = false

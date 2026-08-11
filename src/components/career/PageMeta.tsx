@@ -17,7 +17,8 @@ function setMeta(selector: string, attribute: "content" | "href", value: string)
 export function PageMeta({ title, description = DEFAULT_DESCRIPTION }: PageMetaProps) {
   useEffect(() => {
     const fullTitle = title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`;
-    const url = window.location.href;
+    // Canonicals identify the page, never a transient query string or fragment.
+    const url = `${window.location.origin}${window.location.pathname}`;
 
     document.title = fullTitle;
     setMeta('meta[name="description"]', "content", description);

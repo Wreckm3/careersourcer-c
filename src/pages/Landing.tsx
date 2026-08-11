@@ -115,6 +115,13 @@ export default function Landing() {
             >
               Explore Paths
             </motion.button>
+            <motion.button
+              onClick={() => navigate("/demo")}
+              className="inline-flex items-center justify-center px-5 py-3.5 rounded-xl border border-primary/35 text-primary font-semibold text-base hover:bg-primary/10 transition-colors"
+              whileTap={{ scale: 0.97 }}
+            >
+              Explore Demo
+            </motion.button>
           </motion.div>
         </motion.div>
       </section>

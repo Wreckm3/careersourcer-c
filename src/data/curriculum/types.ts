@@ -84,3 +84,143 @@ export interface Category {
 /** Helper to build YouTube embeds consistently. */
 export const yt = (id: string) => `https://www.youtube.com/embed/${id}`;
 
+// ============================================
+// Careersourcer Curriculum Types v2
+// ============================================
+
+export type PhaseType =
+  | "explorer"
+  | "builder"
+  | "professional"
+  | "elite";
+
+export type Difficulty = 1 | 2 | 3 | 4 | 5;
+
+export interface Resource {
+  id: string;
+  title: string;
+  url: string;
+  provider: string;
+  official?: boolean;
+}
+
+export interface BuilderTip {
+  title: string;
+  description: string;
+}
+
+export interface Mission {
+
+  id: string;
+
+  title: string;
+
+  objective: string;
+
+  estimatedMinutes: number;
+
+  difficulty: Difficulty;
+
+  xp: number;
+
+  skills: string[];
+
+  builderTips: BuilderTip[];
+
+  commonMistakes: string[];
+
+  resources: Resource[];
+
+  reflectionQuestion: string;
+
+  nextMissionId?: string;
+
+  projectReward?: string;
+
+  completed?: boolean;
+}
+
+export interface Project {
+
+  id: string;
+
+  name: string;
+
+  description: string;
+
+  estimatedHours: number;
+
+  difficulty: Difficulty;
+
+  skills: string[];
+
+  portfolioEligible: boolean;
+
+  futureScreenshot?: string;
+
+  githubUrl?: string;
+
+  liveDemo?: string;
+
+  notes?: string;
+}
+
+export interface Module {
+
+  id: string;
+
+  title: string;
+
+  description: string;
+
+  estimatedHours: number;
+
+  difficulty: Difficulty;
+
+  missions: Mission[];
+
+  project: Project;
+
+}
+
+export interface Phase {
+
+  id: string;
+
+  type: PhaseType;
+
+  title: string;
+
+  description: string;
+
+  locked: boolean;
+
+  modules: Module[];
+
+}
+
+export interface Branch {
+
+  id: string;
+
+  title: string;
+
+  description: string;
+
+  icon?: string;
+
+  color?: string;
+
+  phases: Phase[];
+
+}
+
+export interface Category {
+
+  id: string;
+
+  title: string;
+
+  branches: Branch[];
+
+}

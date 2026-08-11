@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { Suspense, lazy } from "react";
@@ -19,6 +19,8 @@ const Category = lazy(() => import("./pages/Category"));
 const Branch = lazy(() => import("./pages/Branch"));
 const FocusMode = lazy(() => import("./pages/FocusMode"));
 const Profile = lazy(() => import("./pages/Profile"));
+const AtlasWorkspace = lazy(() => import("./pages/AtlasWorkspace"));
+const Demo = lazy(() => import("./pages/Demo"));
 const Pool = lazy(() => import("./pages/Pool"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
@@ -31,18 +33,17 @@ function RouteFallback() {
   );
 }
 
-export default function App() {
+function ProductApp() {
   return (
     <AuthProvider>
       <SubscriptionProvider>
         <ProgressProvider>
-          <BrowserRouter>
-            <ErrorBoundary>
-              <Toaster position="top-center" richColors theme="dark" />
-              <OfflineNotice />
-              <AnimatePresence mode="wait">
-                <Suspense fallback={<RouteFallback />}>
-                  <Routes>
+          <ErrorBoundary>
+            <Toaster position="top-center" richColors theme="dark" />
+            <OfflineNotice />
+            <AnimatePresence mode="wait">
+              <Suspense fallback={<RouteFallback />}>
+                <Routes>
                     <Route path="/" element={<><PageMeta title="CareerSourcer" /><Landing /></>} />
                     <Route path="/auth" element={<><PageMeta title="Sign In" description="Sign in or create a CareerSourcer account to save your learning progress." /><Auth /></>} />
                     <Route path="/reset-password" element={<><PageMeta title="Reset Password" description="Set a new password for your CareerSourcer account." /><ResetPassword /></>} />
@@ -53,15 +54,27 @@ export default function App() {
                     <Route path="/branch/:categoryId/:branchId" element={<><PageMeta title="Branch" description="Follow project-first lessons and track your branch progress on CareerSourcer." /><Branch /></>} />
                     <Route path="/session/:pathId/:sessionId" element={<><PageMeta title="Focus Mode" description="Complete a CareerSourcer lesson and build a real project artifact." /><FocusMode /></>} />
                     <Route path="/profile" element={<><PageMeta title="Profile" description="Review your CareerSourcer progress, achievements, portfolio, and streak." /><Profile /></>} />
+                    <Route path="/atlas" element={<><PageMeta title="Atlas Workspace" description="Your AI-guided CareerSourcer workspace." /><AtlasWorkspace /></>} />
                     <Route path="/pool" element={<><PageMeta title="Collaboration Pool" description="Find CareerSourcer learners in your branch and build projects together." /><Pool /></>} />
                     <Route path="*" element={<><PageMeta title="Page Not Found" description="This CareerSourcer page could not be found." /><NotFound /></>} />
-                  </Routes>
-                </Suspense>
-              </AnimatePresence>
-            </ErrorBoundary>
-          </BrowserRouter>
+                </Routes>
+              </Suspense>
+            </AnimatePresence>
+          </ErrorBoundary>
         </ProgressProvider>
       </SubscriptionProvider>
     </AuthProvider>
   );
+}
+
+function AppShell() {
+  const location = useLocation();
+  // `/demo` deliberately does not mount AuthProvider, ProgressProvider, SubscriptionProvider,
+  // or any Supabase-backed surface. It is a fully local inspection route.
+  if (location.pathname === "/demo") return <Suspense fallback={<RouteFallback />}><PageMeta title="Product Demo" description="A safe, local-only CareerSourcer product demo using fictional sample data." /><Demo /></Suspense>;
+  return <ProductApp />;
+}
+
+export default function App() {
+  return <BrowserRouter><AppShell /></BrowserRouter>;
 }

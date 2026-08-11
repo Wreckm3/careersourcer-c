@@ -1,6 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /auth
 Disallow: /reset-password
+Disallow: /profile
+Disallow: /atlas
+Disallow: /pool
+Disallow: /session/
 Disallow: /.lovable/
 
 Sitemap: https://careersourcer.lovable.app/sitemap.xml
