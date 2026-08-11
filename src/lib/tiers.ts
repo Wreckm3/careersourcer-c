@@ -5,9 +5,9 @@
  * Prices are display-only; real amounts live server-side when checkout ships.
  */
 
-export type Tier = "free" | "builder" | "creator" | "visionary";
+export type Tier = "free" | "builder" | "professional" | "elite";
 
-export const TIER_ORDER: Tier[] = ["free", "builder", "creator", "visionary"];
+export const TIER_ORDER: Tier[] = ["free", "builder", "professional", "elite"];
 
 export interface TierPlan {
   id: Tier;
@@ -15,7 +15,7 @@ export interface TierPlan {
   tagline: string;
   priceKes: number;         // 0 for free
   priceDisplay: string;
-  atlasLevel: "none" | "lite" | "smart" | "pro";
+  atlasLevel: "guide" | "lite" | "smart" | "pro";
   features: string[];
   ctaLabel: string;
   highlight?: boolean;
@@ -28,7 +28,7 @@ export const PLANS: Record<Tier, TierPlan> = {
     tagline: "Start building today, no card required.",
     priceKes: 0,
     priceDisplay: "Free",
-    atlasLevel: "none",
+    atlasLevel: "guide",
     ctaLabel: "Start free",
     features: [
       "Project-first learning paths",
@@ -54,37 +54,37 @@ export const PLANS: Record<Tier, TierPlan> = {
       "Next-mission guidance",
     ],
   },
-  creator: {
-    id: "creator",
-    name: "Creator",
-    tagline: "Deeper feedback on what you ship.",
+  professional: {
+    id: "professional",
+    name: "Professional",
+    tagline: "Turn your work into credible career evidence.",
     priceKes: 299,
     priceDisplay: "KSh 299 / month",
     atlasLevel: "smart",
     highlight: true,
-    ctaLabel: "Go Creator",
+    ctaLabel: "Go Professional",
     features: [
       "Everything in Builder",
-      "Smarter Atlas with project reviews",
-      "Idea extraction workflows",
-      "Movie and documentary inspiration",
-      "Productivity suggestions",
+      "Atlas Career Coach",
+      "Portfolio and CV guidance",
+      "Skill-gap and project analysis",
+      "Interview and opportunity preparation",
     ],
   },
-  visionary: {
-    id: "visionary",
-    name: "Visionary",
-    tagline: "A long-term growth mentor.",
+  elite: {
+    id: "elite",
+    name: "Elite",
+    tagline: "Advanced, branch-aware strategic guidance.",
     priceKes: 499,
     priceDisplay: "KSh 499 / month",
     atlasLevel: "pro",
-    ctaLabel: "Go Visionary",
+    ctaLabel: "Go Elite",
     features: [
-      "Everything in Creator",
-      "Atlas Pro — AI Growth Mentor",
-      "Personalized long-term roadmap",
-      "Portfolio reviews",
-      "Startup guidance and accountability",
+      "Everything in Professional",
+      "Atlas Strategic Advisor",
+      "Branch-aware production coaching",
+      "Advanced portfolio strategy",
+      "Long-term accountability",
       "Multi-path planning",
     ],
   },

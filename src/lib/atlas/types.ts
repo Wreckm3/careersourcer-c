@@ -195,8 +195,8 @@ export interface AtlasMentorBrief {
 
 export interface AtlasSubscriptionCapabilities {
   tier: Tier;
-  productName: "Explorer" | "Builder" | "Creator" | "Founder";
-  atlasLevel: "none" | "lite" | "smart" | "pro";
+  productName: "Explorer" | "Builder" | "Professional" | "Elite";
+  atlasLevel: "guide" | "lite" | "smart" | "pro";
   canUseAtlas: boolean;
   canPersistProjectMemory: boolean;
   canPersistRoadmaps: boolean;

@@ -122,7 +122,9 @@ export function createAtlasConversationController({
       });
       const messages = [...history, { role: "user" as const, content: input }];
 
-      const memoryWithUserTurn = await memoryService.recordConversation(memory, [{ role: "user", content: input }]);
+      const memoryWithUserTurn = capabilities.canPersistProjectMemory
+        ? await memoryService.recordConversation(memory, [{ role: "user", content: input }])
+        : memory;
 
       const mentorBrief = buildMentorBrief({
         memory: memoryWithUserTurn,
@@ -166,6 +168,7 @@ export function createAtlasConversationController({
 
     async recordAssistantReply(plan, content) {
       if (!content.trim()) return;
+      if (!plan.request.atlasContext.capabilities.canPersistProjectMemory) return;
       const celebrated = markMilestoneCelebrated(
         plan.memory,
         plan.request.atlasContext.mentorBrief.coachingSignals.celebrationSubject,

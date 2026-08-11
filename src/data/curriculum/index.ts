@@ -1,4 +1,5 @@
 import { Category, Branch, Lesson } from "./types";
+import { meetsTier, type Tier } from "@/lib/tiers";
 import { technology } from "./technology";
 import { business } from "./business";
 import { creative } from "./creative";
@@ -62,6 +63,47 @@ export function getNextLesson(branchId: string, currentLessonId: string): Lesson
     return branch.lessons[idx + 1];
   }
   return undefined;
+}
+
+export type LessonAccessReason = "missing" | "prerequisite" | "tier" | null;
+
+export interface LessonAccess {
+  allowed: boolean;
+  reason: LessonAccessReason;
+  prerequisiteLessonId: string | null;
+}
+
+/**
+ * The single legacy-session access policy. It is intentionally based on the
+ * curriculum's real lesson order rather than a fixed mission count, so every
+ * branch can grow without leaving its final lessons stranded behind a stale
+ * "five sessions" assumption.
+ */
+export function getLessonAccess(
+  branchId: string,
+  lessonId: string,
+  completedIds: string[],
+  tier: Tier,
+): LessonAccess {
+  const branch = categories.flatMap((category) => category.branches).find((item) => item.id === branchId);
+  if (!branch) return { allowed: false, reason: "missing", prerequisiteLessonId: null };
+
+  const lessonIndex = branch.lessons.findIndex((lesson) => lesson.id === lessonId);
+  if (lessonIndex < 0) return { allowed: false, reason: "missing", prerequisiteLessonId: null };
+
+  const lesson = branch.lessons[lessonIndex];
+  if (lesson.premium && !meetsTier(tier, "builder")) {
+    return { allowed: false, reason: "tier", prerequisiteLessonId: null };
+  }
+
+  const prerequisite = branch.lessons
+    .slice(0, lessonIndex)
+    .find((candidate) => !completedIds.includes(candidate.id));
+  if (prerequisite) {
+    return { allowed: false, reason: "prerequisite", prerequisiteLessonId: prerequisite.id };
+  }
+
+  return { allowed: true, reason: null, prerequisiteLessonId: null };
 }
 
 export function getBranchProgress(

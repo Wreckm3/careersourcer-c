@@ -58,16 +58,18 @@ const BodySchema = z.object({
   atlasContext: z.unknown().nullish(),
 });
 
-type AtlasLevel = "none" | "lite" | "smart" | "pro";
+type AtlasLevel = "guide" | "lite" | "smart" | "pro";
 
 const LEVEL_BY_TIER: Record<string, AtlasLevel> = {
-  free: "none",
+  free: "guide",
   builder: "lite",
-  creator: "smart",
-  visionary: "pro",
+  professional: "smart",
+  elite: "pro",
 };
 
-const LEVEL_BRIEF: Record<Exclude<AtlasLevel, "none">, string> = {
+const LEVEL_BRIEF: Record<AtlasLevel, string> = {
+  guide:
+    "You are Atlas Career Guide. Keep replies under 100 words. Help learners explore careers, understand beginner concepts, choose a branch, and take one small starter action. Do not claim to persist a roadmap or project memory.",
   lite:
     "You are Atlas Lite. Keep replies under 120 words. Coach, then give one concrete next action with a time estimate, and stop.",
   smart:
@@ -83,7 +85,7 @@ const LEVEL_BRIEF: Record<Exclude<AtlasLevel, "none">, string> = {
  * achievement, today's focus, coaching signals). The model's job is to deliver
  * that brief in Atlas's voice — not to invent its own agenda.
  */
-function systemPrompt(level: Exclude<AtlasLevel, "none">, ctx: unknown, profile: unknown, atlasContext: unknown) {
+function systemPrompt(level: AtlasLevel, ctx: unknown, profile: unknown, atlasContext: unknown) {
   return [
     "You are Atlas, the career mentor inside CareerSourcer. You have guided this learner before and you remember them.",
 
@@ -154,13 +156,6 @@ Deno.serve(async (req) => {
     });
     if (tierErr) console.error("get_user_tier failed:", tierErr.message);
     const level = LEVEL_BY_TIER[(tierData as string) ?? "free"] ?? "none";
-    if (level === "none") {
-      return new Response(
-        JSON.stringify({ error: "Atlas is available on the Builder plan and above.", upgrade: true }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
     const parsed = BodySchema.safeParse(await req.json());
     if (!parsed.success) {
       return new Response(JSON.stringify({ error: parsed.error.flatten().fieldErrors }), {

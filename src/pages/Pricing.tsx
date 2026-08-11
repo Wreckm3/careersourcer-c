@@ -1,11 +1,32 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { Check, Sparkles, Shield, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PLANS, TIER_ORDER } from "@/lib/tiers";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAuth } from "@/hooks/useAuth";
+import { startStripeCheckout } from "@/lib/payments";
 
 export default function Pricing() {
   const { tier, isAdmin } = useSubscription();
+  const { user } = useAuth();
+  const [checkingOut, setCheckingOut] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  const checkout = async (planId: Exclude<typeof TIER_ORDER[number], "free">) => {
+    if (!user) {
+      window.location.assign("/auth");
+      return;
+    }
+    setCheckoutError(null);
+    setCheckingOut(planId);
+    try {
+      await startStripeCheckout(planId);
+    } catch (error) {
+      setCheckoutError(error instanceof Error ? error.message : "Checkout could not be started.");
+      setCheckingOut(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background py-16 px-6">
@@ -76,7 +97,8 @@ export default function Pricing() {
 
                 <button
                   type="button"
-                  disabled={current || plan.id === "free"}
+                  disabled={current || plan.id === "free" || checkingOut !== null}
+                  onClick={() => plan.id !== "free" && checkout(plan.id)}
                   className={`mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                     current
                       ? "bg-muted text-muted-foreground cursor-default"
@@ -84,17 +106,18 @@ export default function Pricing() {
                       ? "btn-primary-gold"
                       : "btn-secondary-blue"
                   } disabled:opacity-60`}
-                  title={plan.id !== "free" ? "Checkout enables in Phase 3" : undefined}
+                  title={plan.id !== "free" ? "Pay securely by card with Stripe" : undefined}
                 >
-                  {current ? "Current plan" : plan.ctaLabel}
+                  {current ? "Current plan" : checkingOut === plan.id ? "Opening secure checkout…" : plan.ctaLabel}
                 </button>
               </motion.div>
             );
           })}
         </div>
 
+        {checkoutError && <p className="text-center text-sm text-destructive mt-6">{checkoutError}</p>}
         <p className="text-center text-xs text-muted-foreground mt-10">
-          Payments launch in Phase 3 with Stripe (Visa/Mastercard) and M-Pesa for Kenyan users.
+          Card payments use Stripe Checkout (Visa and Mastercard where enabled on your merchant account). M-Pesa requires the separate Daraja configuration described in deployment notes.
         </p>
       </div>
     </div>

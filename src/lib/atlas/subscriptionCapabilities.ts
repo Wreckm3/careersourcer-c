@@ -11,7 +11,7 @@ const BUILDER_MODES: AtlasConversationMode[] = [
   "general_help",
 ];
 
-const EXPLORER_MODES: AtlasConversationMode[] = ["general_help"];
+const EXPLORER_MODES: AtlasConversationMode[] = ["learning", "general_help", "brainstorming"];
 
 export function getAtlasSubscriptionCapabilities(tier: Tier): AtlasSubscriptionCapabilities {
   if (tier === "builder") {
@@ -28,39 +28,39 @@ export function getAtlasSubscriptionCapabilities(tier: Tier): AtlasSubscriptionC
     };
   }
 
-  if (tier === "creator") {
+  if (tier === "professional") {
     return {
       tier,
-      productName: "Creator",
+      productName: "Professional",
       atlasLevel: "smart",
       canUseAtlas: true,
       canPersistProjectMemory: true,
       canPersistRoadmaps: true,
       canTrackMilestones: true,
       enabledModes: BUILDER_MODES,
-      futureCapabilities: ["project_reviews", "portfolio_feedback", "idea_extraction"],
+      futureCapabilities: ["project_reviews", "portfolio_feedback", "career_gap_analysis"],
     };
   }
 
-  if (tier === "visionary") {
+  if (tier === "elite") {
     return {
       tier,
-      productName: "Founder",
+      productName: "Elite",
       atlasLevel: "pro",
       canUseAtlas: true,
       canPersistProjectMemory: true,
       canPersistRoadmaps: true,
       canTrackMilestones: true,
       enabledModes: BUILDER_MODES,
-      futureCapabilities: ["long_term_accountability", "startup_guidance", "income_roadmaps"],
+      futureCapabilities: ["long_term_accountability", "branch_strategy", "opportunity_analysis"],
     };
   }
 
   return {
     tier,
     productName: "Explorer",
-    atlasLevel: "none",
-    canUseAtlas: false,
+    atlasLevel: "guide",
+    canUseAtlas: true,
     canPersistProjectMemory: false,
     canPersistRoadmaps: false,
     canTrackMilestones: false,

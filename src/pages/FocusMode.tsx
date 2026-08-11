@@ -6,8 +6,9 @@ import {
   Flag, Package, Wrench, Lightbulb, Gauge, Pause, Timer, Flame, Trophy,
   AlertTriangle, BookOpen, ExternalLink, Compass, Award, Rocket,
 } from "lucide-react";
-import { getLesson, getNextLesson } from "@/data/curriculum";
+import { getLesson, getNextLesson, getLessonAccess } from "@/data/curriculum";
 import { useProgress } from "@/hooks/useProgress";
+import { useSubscription } from "@/hooks/useSubscription";
 import { useSessionTimer, formatClock } from "@/hooks/useSessionTimer";
 import { VideoEmbed } from "@/components/career/VideoEmbed";
 import { PremiumGate } from "@/components/PremiumGate";
@@ -168,6 +169,7 @@ export default function FocusMode() {
   const { pathId: branchId, sessionId: lessonId } = useParams<{ pathId: string; sessionId: string }>();
   const navigate = useNavigate();
   const { completeSession, isCompleted, progress } = useProgress();
+  const { tier } = useSubscription();
   const [step, setStep] = useState<Step>("mission");
   const [taskChecked, setTaskChecked] = useState(false);
   const [reflection, setReflection] = useState("");
@@ -180,6 +182,9 @@ export default function FocusMode() {
 
   const data = getLesson(branchId || "", lessonId || "");
   const lesson = data?.lesson;
+  const lessonAccess = data
+    ? getLessonAccess(data.branch.id, data.lesson.id, progress.completedSessions, tier)
+    : { allowed: false, reason: "missing" as const, prerequisiteLessonId: null };
   const nextLesson = data ? getNextLesson(data.branch.id, data.lesson.id) : null;
 
   // Start the clock once the lead-in finishes.
@@ -233,6 +238,7 @@ export default function FocusMode() {
   };
 
   const handleComplete = () => {
+    if (!lessonAccess.allowed) return;
     setFinalTime(timer.elapsed);
     pauseTimer();
     completeSession(lesson.id);
@@ -695,11 +701,17 @@ export default function FocusMode() {
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-        {lesson.premium ? (
+        {lessonAccess.reason === "tier" ? (
           <div className="w-full max-w-2xl">
             <PremiumGate required="builder" featureName={`Mission ${lessonIndex}: ${lesson.title}`}>
               {missionBody}
             </PremiumGate>
+          </div>
+        ) : lessonAccess.reason === "prerequisite" ? (
+          <div className="w-full max-w-2xl surface-card p-6 space-y-3">
+            <h2 className="text-lg font-bold">Finish the previous mission first</h2>
+            <p className="text-sm text-muted-foreground">Atlas keeps this path sequential so each mission prepares you for the next one.</p>
+            <button onClick={() => navigate(`/session/${branch.id}/${lessonAccess.prerequisiteLessonId}`)} className="btn-primary-gold rounded-lg px-4 py-2 text-sm">Continue the prerequisite</button>
           </div>
         ) : (
           missionBody

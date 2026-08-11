@@ -13,6 +13,7 @@ import { createAtlasConversationController } from "@/lib/atlas/conversationContr
 import { createAtlasMemoryService } from "@/lib/atlas/memoryService";
 import { streamAtlasResponse } from "@/lib/atlas/atlasTransport";
 import type { AtlasConversationMessage, AtlasEntryState } from "@/lib/atlas/types";
+import { getAtlasSubscriptionCapabilities } from "@/lib/atlas/subscriptionCapabilities";
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as const;
 
@@ -53,7 +54,13 @@ function getLearnerName(user: { email?: string | null; user_metadata?: Record<st
   }
 }
 
-export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContext | null }) {
+export function AtlasChat({
+  lessonContext,
+  layout = "floating",
+}: {
+  lessonContext?: AtlasLessonContext | null;
+  layout?: "floating" | "workspace";
+}) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<AtlasConversationMessage[]>([]);
   const [entryState, setEntryState] = useState<AtlasEntryState | null>(null);
@@ -63,10 +70,11 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
-  const { hasAccess, loading, tier } = useSubscription();
+  const { loading, tier } = useSubscription();
   const { progress } = useProgress();
 
-  const allowed = hasAccess("builder");
+  const allowed = getAtlasSubscriptionCapabilities(tier).canUseAtlas;
+  const visible = layout === "workspace" || open;
 
   const memoryService = useMemo(() => createAtlasMemoryService(), []);
   const controller = useMemo(
@@ -94,12 +102,12 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
   }, [messages, streaming]);
 
   useEffect(() => {
-    if (open && allowed) inputRef.current?.focus();
-  }, [open, allowed, streaming]);
+    if (visible && allowed) inputRef.current?.focus();
+  }, [visible, allowed, streaming]);
 
   // Entry state is a nice-to-have: any failure falls back to static copy.
   useEffect(() => {
-    if (!open || !allowed || !controllerContext) return;
+    if (!visible || !allowed || !controllerContext) return;
     let cancelled = false;
     (async () => {
       try {
@@ -112,7 +120,7 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
     return () => {
       cancelled = true;
     };
-  }, [open, allowed, controller, controllerContext]);
+  }, [visible, allowed, controller, controllerContext]);
 
 
   if (!isEnabled("atlas") || !user) return null;
@@ -158,7 +166,7 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
 
   return (
     <>
-      <motion.button
+      {layout === "floating" && <motion.button
         onClick={() => setOpen((o) => !o)}
         className="fixed bottom-5 right-5 z-40 h-12 w-12 rounded-full btn-primary-gold flex items-center justify-center shadow-lg"
         whileHover={{ scale: 1.05 }}
@@ -166,16 +174,18 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
         aria-label={open ? "Close Atlas" : "Ask Atlas"}
       >
         {open ? <X className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
-      </motion.button>
+      </motion.button>}
 
       <AnimatePresence>
-        {open && (
+        {visible && (
           <motion.aside
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ duration: 0.28, ease: EASE }}
-            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-[380px] z-40 max-h-[70vh] flex flex-col surface-card overflow-hidden"
+            className={layout === "workspace"
+              ? "h-[min(620px,70vh)] min-h-[430px] flex flex-col surface-card overflow-hidden"
+              : "fixed bottom-20 right-4 left-4 sm:left-auto sm:w-[380px] z-40 max-h-[70vh] flex flex-col surface-card overflow-hidden"}
             role="dialog"
             aria-label="Atlas mentor"
           >
@@ -200,10 +210,10 @@ export function AtlasChat({ lessonContext }: { lessonContext?: AtlasLessonContex
               <div className="p-6 flex flex-col items-start gap-3">
                 <div className="flex items-center gap-2 text-primary">
                   <Lock className="w-4 h-4" />
-                  <span className="text-xs font-semibold uppercase tracking-wider">Builder plan</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider">Atlas unavailable</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Atlas remembers your projects, suggests milestones, and keeps learning tied to what you build.
+                  Sign in to use Atlas as a career guide, then upgrade to Builder for persistent roadmaps and project memory.
                 </p>
                 <Link to="/pricing" className="btn-primary-gold px-4 py-2 rounded-lg text-sm">
                   Unlock Atlas
