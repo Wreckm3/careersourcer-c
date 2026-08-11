@@ -24,7 +24,6 @@ const Demo = lazy(() => import("./pages/Demo"));
 const Pool = lazy(() => import("./pages/Pool"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
-const AtlasWorkspace = lazy(() => import("./pages/AtlasWorkspace"));
 
 function RouteFallback() {
   return (
