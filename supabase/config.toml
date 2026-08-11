@@ -1,5 +1,12 @@
 project_id = "vgpeuihrkwwrckhzoemw"
 
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.mpesa-callback]
+verify_jwt = false
+
+
 # Callback requests are authenticated inside the function with MPESA_CALLBACK_TOKEN;
 # STK initiation separately verifies the caller's Supabase access token.
 [functions.mpesa-stk-push]
