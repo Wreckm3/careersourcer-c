@@ -1,4 +1,4 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
+﻿import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const AMOUNTS = { builder: 99, professional: 299, elite: 499 } as const;
@@ -33,17 +33,42 @@ Deno.serve(async (req) => {
 
     const baseUrl = Deno.env.get("MPESA_ENV") === "production" ? "https://api.safaricom.co.ke" : "https://sandbox.safaricom.co.ke";
     const tokenResponse = await fetch(`${baseUrl}/oauth/v1/generate?grant_type=client_credentials`, { headers: { Authorization: `Basic ${btoa(`${key}:${secret}`)}` } });
-    const token = (await tokenResponse.json()).access_token;
+    const tokenJson = await tokenResponse.json();
+    const token = tokenJson?.access_token;
     if (!token) throw new Error("Daraja token request failed");
+
     const timestamp = kenyaTimestamp();
     const password = btoa(`${shortcode}${passkey}${timestamp}`);
     const callback = new URL(callbackUrl);
     callback.searchParams.set("token", callbackSecret);
-    const response = await fetch(`${baseUrl}/mpesa/stkpush/v1/processrequest`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ BusinessShortCode: shortcode, Password: password, Timestamp: timestamp, TransactionType: "CustomerPayBillOnline", Amount: AMOUNTS[tier as keyof typeof AMOUNTS], PartyA: phone, PartyB: shortcode, PhoneNumber: phone, CallBackURL: callback.toString(), AccountReference: `CareerSourcer ${tier}`, TransactionDesc: `CareerSourcer ${tier} plan` }) });
+
+    const response = await fetch(`${baseUrl}/mpesa/stkpush/v1/processrequest`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        BusinessShortCode: shortcode,
+        Password: password,
+        Timestamp: timestamp,
+        TransactionType: "CustomerPayBillOnline",
+        Amount: AMOUNTS[tier as keyof typeof AMOUNTS],
+        PartyA: phone,
+        PartyB: shortcode,
+        PhoneNumber: phone,
+        CallBackURL: callback.toString(),
+        AccountReference: `CareerSourcer ${tier}`,
+        TransactionDesc: `CareerSourcer ${tier} plan`
+      })
+    });
+
     const data = await response.json();
     if (!response.ok || data.ResponseCode !== "0" || !data.CheckoutRequestID) return Response.json({ error: data.errorMessage ?? data.ResponseDescription ?? "M-Pesa could not start the payment." }, { status: 502, headers: corsHeaders });
+
     const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
     await service.from("payment_transactions").insert({ user_id: user.id, provider: "mpesa", tier, amount_kes: AMOUNTS[tier as keyof typeof AMOUNTS], provider_reference: data.CheckoutRequestID, metadata: { merchantRequestId: data.MerchantRequestID, phoneLastFour: phone.slice(-4) } });
+
     return Response.json({ checkoutRequestId: data.CheckoutRequestID, message: data.CustomerMessage ?? "Confirm the M-Pesa prompt on your phone." }, { headers: corsHeaders });
   } catch (error) {
     console.error("M-Pesa STK push failed", error);
