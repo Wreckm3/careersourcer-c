@@ -1,4 +1,4 @@
-﻿﻿/**
+﻿/**
  * Subscription tiers — single source of truth.
  *
  * Tier order defines access: any tier includes benefits of tiers below it.
@@ -100,4 +100,3 @@ export const nextTier = (t: Tier): Tier | null => {
   const i = rank(t);
   return i >= 0 && i < TIER_ORDER.length - 1 ? TIER_ORDER[i + 1] : null;
 };
-
