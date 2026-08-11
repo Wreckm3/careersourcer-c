@@ -1,7 +1,8 @@
-project_id = "vgpeuihrkwwrckhzoemw"
+﻿﻿project_id = "vgpeuihrkwwrckhzoemw"
 
 [functions.stripe-webhook]
 verify_jwt = false
 
 [functions.mpesa-callback]
 verify_jwt = false
+

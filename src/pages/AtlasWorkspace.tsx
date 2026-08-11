@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿﻿import { Link } from "react-router-dom";
 import { useCallback, useMemo, useState } from "react";
 import { ArrowLeft, Award, Compass, Flame, FolderKanban, GraduationCap, Lock, Target } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,3 +62,4 @@ export default function AtlasWorkspace() {
     </div>
   );
 }
+

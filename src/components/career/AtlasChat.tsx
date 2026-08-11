@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, X, Send, Loader2, Lock } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -330,3 +330,4 @@ export function AtlasChat({
     </>
   );
 }
+

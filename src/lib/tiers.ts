@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Subscription tiers — single source of truth.
  *
  * Tier order defines access: any tier includes benefits of tiers below it.

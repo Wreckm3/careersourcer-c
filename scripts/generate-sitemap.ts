@@ -16,8 +16,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/paths", changefreq: "weekly", priority: "0.9" },
   { path: "/pricing", changefreq: "monthly", priority: "0.8" },
-  { path: "/pool", changefreq: "weekly", priority: "0.6" },
-  { path: "/auth", changefreq: "yearly", priority: "0.3" },
+  { path: "/demo", changefreq: "monthly", priority: "0.5" },
 ];
 
 const dynamicEntries: SitemapEntry[] = categories.flatMap((cat) => [
