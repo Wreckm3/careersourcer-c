@@ -57,9 +57,13 @@ function getLearnerName(user: { email?: string | null; user_metadata?: Record<st
 export function AtlasChat({
   lessonContext,
   layout = "floating",
+  conversationKey,
+  onMessagesChange,
 }: {
   lessonContext?: AtlasLessonContext | null;
   layout?: "floating" | "workspace";
+  conversationKey?: string;
+  onMessagesChange?: (messages: AtlasConversationMessage[]) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<AtlasConversationMessage[]>([]);
@@ -105,7 +109,19 @@ export function AtlasChat({
     if (visible && allowed) inputRef.current?.focus();
   }, [visible, allowed, streaming]);
 
-  // Entry state is a nice-to-have: any failure falls back to static copy.
+  useEffect(() => {
+    if (!conversationKey) return;
+    setMessages([]);
+    setError(null);
+    setEntryState(null);
+  }, [conversationKey]);
+
+  useEffect(() => {
+    if (onMessagesChange) {
+      onMessagesChange(messages);
+    }
+  }, [messages, onMessagesChange]);
+
   useEffect(() => {
     if (!visible || !allowed || !controllerContext) return;
     let cancelled = false;
@@ -178,13 +194,13 @@ export function AtlasChat({
 
       <AnimatePresence>
         {visible && (
-          <motion.aside
+          <motion.div
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ duration: 0.28, ease: EASE }}
             className={layout === "workspace"
-              ? "h-[min(620px,70vh)] min-h-[430px] flex flex-col surface-card overflow-hidden"
+              ? "flex h-full min-h-0 flex-col overflow-hidden"
               : "fixed bottom-20 right-4 left-4 sm:left-auto sm:w-[380px] z-40 max-h-[70vh] flex flex-col surface-card overflow-hidden"}
             role="dialog"
             aria-label="Atlas mentor"
@@ -324,7 +340,7 @@ export function AtlasChat({
                 </form>
               </>
             )}
-          </motion.aside>
+          </motion.div>
         )}
       </AnimatePresence>
     </>
