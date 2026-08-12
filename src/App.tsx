@@ -55,7 +55,6 @@ function ProductApp() {
                     <Route path="/branch/:categoryId/:branchId" element={<><PageMeta title="Branch" description="Follow project-first lessons and track your branch progress on CareerSourcer." /><Branch /></>} />
                     <Route path="/session/:pathId/:sessionId" element={<><PageMeta title="Focus Mode" description="Complete a CareerSourcer lesson and build a real project artifact." /><FocusMode /></>} />
                     <Route path="/profile" element={<><PageMeta title="Profile" description="Review your CareerSourcer progress, achievements, portfolio, and streak." /><Profile /></>} />
-                    <Route path="/atlas" element={<><PageMeta title="Atlas Workspace" description="Your AI-guided CareerSourcer workspace." /><AtlasWorkspace /></>} />
                     <Route path="/pool" element={<><PageMeta title="Collaboration Pool" description="Find CareerSourcer learners in your branch and build projects together." /><Pool /></>} />
                     <Route path="*" element={<><PageMeta title="Page Not Found" description="This CareerSourcer page could not be found." /><NotFound /></>} />
                 </Routes>
