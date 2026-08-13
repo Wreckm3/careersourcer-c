@@ -74,10 +74,10 @@ export interface LessonAccess {
 }
 
 /**
- * The single legacy-session access policy. It is intentionally based on the
- * curriculum's real lesson order rather than a fixed mission count, so every
- * branch can grow without leaving its final lessons stranded behind a stale
- * "five sessions" assumption.
+ * The first five sessions are the Starter Mission: an open, practical taste
+ * of a branch. Every session after it is expanded branch work and therefore
+ * follows the existing Builder entitlement. Individual authored premium flags
+ * still apply to expanded sessions too.
  */
 export function getLessonAccess(
   branchId: string,
@@ -92,7 +92,7 @@ export function getLessonAccess(
   if (lessonIndex < 0) return { allowed: false, reason: "missing", prerequisiteLessonId: null };
 
   const lesson = branch.lessons[lessonIndex];
-  if (lesson.premium && !meetsTier(tier, "builder")) {
+  if (lessonIndex >= 5 && !meetsTier(tier, "builder")) {
     return { allowed: false, reason: "tier", prerequisiteLessonId: null };
   }
 

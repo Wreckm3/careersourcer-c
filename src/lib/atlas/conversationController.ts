@@ -22,6 +22,7 @@ import { createProjectRoadmap, getCurrentMilestone } from "./projectPlanner";
 import { buildAtlasProgressSnapshot } from "./progressService";
 import { getAtlasRecommendation } from "./recommendationEngine";
 import { getAtlasSubscriptionCapabilities } from "./subscriptionCapabilities";
+import { buildAtlasMissionSystemState } from "./missionSystem";
 
 export interface AtlasConversationController {
   getEntryState(context: AtlasControllerContext): Promise<AtlasEntryState>;
@@ -83,17 +84,25 @@ export function createAtlasConversationController({
     );
     const loadedMemory = await memoryService.load(context.userId, context.tier);
     const memory = syncMemoryWithProgress(loadedMemory, progress, context.tier);
-    return { memory, progress };
+    const missionSystem = buildAtlasMissionSystemState({
+      categories,
+      selectedPath: context.selectedPath,
+      completedSessions: context.completedSessions,
+      memory,
+      tier: context.tier,
+    });
+    return { memory, progress, missionSystem };
   }
 
   return {
     async getEntryState(context) {
-      const { memory, progress } = await loadContext(context);
+      const { memory, progress, missionSystem } = await loadContext(context);
       const recommendation = getAtlasRecommendation({
         mode: "mentoring",
         memory,
         progress,
         lessonContext: context.lessonContext,
+        missionSystem,
       });
       return buildAtlasEntryState(
         memory,
@@ -109,6 +118,13 @@ export function createAtlasConversationController({
       const mode = determineConversationMode(input, context.lessonContext);
       const memory = applyMemorySignalsFromInput(applyGoalFromInput(loadedMemory, input), input);
       const capabilities = getAtlasSubscriptionCapabilities(context.tier);
+      const missionSystem = buildAtlasMissionSystemState({
+        categories,
+        selectedPath: context.selectedPath,
+        completedSessions: context.completedSessions,
+        memory,
+        tier: context.tier,
+      });
       const progressWithActiveState = {
         ...progress,
         activeGoals: memory.currentGoal ? [memory.currentGoal] : [],
@@ -119,6 +135,7 @@ export function createAtlasConversationController({
         memory,
         progress: progressWithActiveState,
         lessonContext: context.lessonContext,
+        missionSystem,
       });
       const messages = [...history, { role: "user" as const, content: input }];
 
@@ -158,6 +175,7 @@ export function createAtlasConversationController({
             memory: memoryWithUserTurn,
             progress: progressWithActiveState,
             recommendation,
+            missionSystem,
             capabilities,
             personality: atlasPersonality,
             mentorBrief,

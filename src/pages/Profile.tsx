@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trophy, Flame, CheckCircle2, LogOut, Mail, Pencil, Check, Monitor, Briefcase, Palette, Users, ArrowRight } from "lucide-react";
+import { ArrowLeft, Trophy, Flame, CheckCircle2, LogOut, Mail, Pencil, Check, Monitor, Briefcase, Palette, Users, ArrowRight, Link2 } from "lucide-react";
 import { useProgress } from "@/hooks/useProgress";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ import { AtlasChat } from "@/components/career/AtlasChat";
 import { buildPortfolio } from "@/lib/achievements";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { linkGoogleIdentity } from "@/lib/auth/oauth";
 
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -73,6 +74,12 @@ export default function Profile() {
   };
 
   const handleSignOut = async () => { await signOut(); navigate("/"); };
+  const googleLinked = user?.identities?.some((identity) => identity.provider === "google") ?? false;
+  const connectGoogle = async () => {
+    if (!user || googleLinked) return;
+    const { error } = await linkGoogleIdentity("/profile");
+    if (error) toast.error("Couldn’t start Google connection. Please try again.");
+  };
 
   const [showAllPortfolio, setShowAllPortfolio] = useState(false);
   const portfolio = useMemo(
@@ -132,6 +139,11 @@ export default function Profile() {
               <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
                 <Mail className="w-3.5 h-3.5" /> {user.email}
               </p>
+            )}
+            {!googleLinked && (
+              <button onClick={connectGoogle} className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-blue hover:underline">
+                <Link2 className="h-3.5 w-3.5" /> Connect Google to this account
+              </button>
             )}
           </div>
           <button

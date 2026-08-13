@@ -54,7 +54,7 @@ function unresolvedStruggle(memory: AtlasMemory): string | null {
 }
 
 export function getAtlasRecommendation(input: AtlasRecommendationInput): AtlasRecommendation {
-  const { memory, progress, mode } = input;
+  const { memory, progress, mode, missionSystem } = input;
   const currentMilestone = memory.currentMilestone ?? getCurrentMilestone(memory.currentProject);
   const struggle = unresolvedStruggle(memory);
   const candidates: Candidate[] = [];
@@ -66,6 +66,7 @@ export function getAtlasRecommendation(input: AtlasRecommendationInput): AtlasRe
   if (memory.learningPace) signals.push(`Pace: ${memory.learningPace}`);
   if (struggle) signals.push(`Unresolved struggle: ${struggle}`);
   if (memory.currentGoal) signals.push(`Stated goal: ${memory.currentGoal.title}`);
+  if (missionSystem?.starterComplete) signals.push(`Starter mission complete: ${missionSystem.branchTitle}`);
 
   // Candidate: clear an unresolved struggle before adding new material.
   if (struggle) {
@@ -79,6 +80,32 @@ export function getAtlasRecommendation(input: AtlasRecommendationInput): AtlasRe
       expectedOutcome: "The blocker is gone and the project moves again.",
       whyThisMatters: "Unresolved blockers compound. Clearing one restores momentum faster than new material.",
       reason: "The learner logged a struggle that was never marked resolved.",
+    });
+  }
+
+  // After the first five completed build missions, point to a practical
+  // branch expansion. The mission is derived from real completion evidence.
+  if (missionSystem?.starterComplete && missionSystem.nextMission && !memory.currentProject) {
+    const mission = missionSystem.nextMission;
+    const expandedAvailable = missionSystem.isExpandedMissionUnlocked;
+    candidates.push({
+      score: 11 + timeFit(memory, mission.estimatedEffort),
+      recommendedNextStep: expandedAvailable
+        ? mission.objective
+        : `Review your starter mission, then unlock Builder to take on: ${mission.title}.`,
+      suggestedResource: missionSystem.resource
+        ? { id: `atlas-resource-${missionSystem.branchId}`, type: "article", label: missionSystem.resource.label, url: missionSystem.resource.url }
+        : null,
+      suggestedProject: null,
+      suggestedMilestone: null,
+      estimatedTime: mission.estimatedEffort,
+      expectedOutcome: expandedAvailable
+        ? "A small working build with evidence you can keep."
+        : "A clear, evidence-based direction for the next build when you continue with Builder.",
+      whyThisMatters: mission.whyThisMatters,
+      reason: expandedAvailable
+        ? "The starter mission is complete; the next move is a practical branch expansion."
+        : "The starter mission is complete; expanded branch missions follow the existing Builder entitlement.",
     });
   }
 

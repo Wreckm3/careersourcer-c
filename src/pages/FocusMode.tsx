@@ -609,14 +609,14 @@ export default function FocusMode() {
                     ) : null}
                     <div className="pt-2 mt-1 border-t border-border space-y-2">
                       <p className="text-sm leading-relaxed">
-                        You've completed the foundation. Ready to build bigger projects with your personal mentor?
+                        You’ve finished the starter mission. Atlas can now review the builds you completed and choose a practical next mission.
                       </p>
                       <button
-                        onClick={() => navigate("/pricing")}
+                        onClick={() => navigate("/atlas")}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors hover:bg-muted/50"
                         style={{ borderColor: category.color, color: category.color }}
                       >
-                        <Sparkles className="w-4 h-4" /> Meet Atlas
+                        <Sparkles className="w-4 h-4" /> Get your Atlas progress review
                       </button>
                     </div>
                   </div>

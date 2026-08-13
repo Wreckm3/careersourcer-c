@@ -1,9 +1,10 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Circle, Play, Clock, Lock, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Play, Clock, Lock, Sparkles, Target } from "lucide-react";
 import { getBranch, getBranchProgress, getLessonAccess } from "@/data/curriculum";
 import { useProgress } from "@/hooks/useProgress";
 import { useSubscription } from "@/hooks/useSubscription";
+import { meetsTier } from "@/lib/tiers";
 
 function ProgressRing({ percent, color, size = 72 }: { percent: number; color: string; size?: number }) {
   const r = (size - 8) / 2;
@@ -43,6 +44,10 @@ export default function Branch() {
   const { category, branch } = data;
   const { completed, total, percent } = getBranchProgress(branch, progress.completedSessions);
   const firstIncomplete = branch.lessons.find((l) => !isCompleted(l.id));
+  const starterTotal = Math.min(5, total);
+  const starterCompleted = branch.lessons.slice(0, starterTotal).filter((lesson) => isCompleted(lesson.id)).length;
+  const starterComplete = starterTotal > 0 && starterCompleted === starterTotal;
+  const hasBuilder = meetsTier(tier, "builder");
 
   return (
     <motion.div
@@ -104,6 +109,42 @@ export default function Branch() {
                 <p className="text-sm font-semibold" style={{ color: category.color }}>
                   Branch completed!
                 </p>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="mb-6 rounded-2xl border border-border bg-card p-5"
+        >
+          <div className="flex items-start gap-3">
+            <Target className="mt-0.5 h-5 w-5 shrink-0" style={{ color: category.color }} />
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: category.color }}>Starter mission</p>
+              <h2 className="mt-1 text-base font-bold">Find out what this work feels like</h2>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                {starterComplete
+                  ? "You’ve finished the starter mission. Atlas can now review the builds you completed and set a practical next mission."
+                  : `${starterCompleted} of ${starterTotal} starter missions complete. These first builds are for exploring the field — not trying to learn all of it at once.`}
+              </p>
+              {starterComplete && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link
+                    to="/atlas"
+                    className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-primary-foreground"
+                    style={{ backgroundColor: category.color }}
+                  >
+                    <Sparkles className="h-4 w-4" /> Ask Atlas for your progress review
+                  </Link>
+                  {!hasBuilder && (
+                    <Link to="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted/50">
+                      <Lock className="h-4 w-4" /> Builder unlocks expanded missions
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
           </div>

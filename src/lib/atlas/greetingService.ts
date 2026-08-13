@@ -125,8 +125,15 @@ export function buildAtlasEntryState(
   const path = progress?.currentLearningPath;
   const signals = progress ? buildCoachingSignals(memory, progress) : null;
 
+  const starterReviewPrompt: AtlasStarterPrompt = {
+    label: "Review my starter mission",
+    prompt: "Review my completed starter mission using only the builds and progress you can see. Recommend one practical next mission.",
+    mode: "progress_review",
+  };
+
   // Outside a mission, Atlas opens with the full mentor brief.
   if (!context?.mission && recommendation) {
+    const starterComplete = path && path.totalLessons >= 5 && path.lessonsCompleted >= 5;
     return {
       greeting: mentorOpening(
         greeting,
@@ -135,7 +142,7 @@ export function buildAtlasEntryState(
         signals?.daysSinceLastSession ?? 0,
       ),
       subtitle: memory.currentProject?.title ?? path?.projectName ?? recommendation.expectedOutcome,
-      starterPrompts: memory.currentProject || path ? LESSON_PROMPTS : GOAL_PROMPTS,
+      starterPrompts: starterComplete ? [starterReviewPrompt, ...LESSON_PROMPTS] : memory.currentProject || path ? LESSON_PROMPTS : GOAL_PROMPTS,
     };
   }
 

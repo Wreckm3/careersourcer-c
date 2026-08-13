@@ -17,5 +17,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+    // OAuth authorization codes are exchanged only on our callback route.
+    flowType: "pkce",
+    detectSessionInUrl: false,
   }
 });

@@ -147,11 +147,44 @@ export interface AtlasProgressSnapshot {
   streakCurrent: number;
 }
 
+export interface AtlasMissionResource {
+  label: string;
+  url: string;
+  why: string;
+}
+
+/** A derived, branch-aware mission. It deliberately stores no unverified assessment. */
+export interface AtlasMissionSystemState {
+  branchId: string | null;
+  branchTitle: string | null;
+  starterCompleted: number;
+  starterTotal: number;
+  starterComplete: boolean;
+  review: string[];
+  nextMission: {
+    title: string;
+    objective: string;
+    whyThisMatters: string;
+    skills: string[];
+    estimatedEffort: string;
+    steps: string[];
+  } | null;
+  resource: AtlasMissionResource | null;
+  teachAnotherWay: {
+    explanation: string;
+    example: string;
+    checkpoint: string;
+    challenge: string;
+  } | null;
+  isExpandedMissionUnlocked: boolean;
+}
+
 export interface AtlasRecommendationInput {
   mode: AtlasConversationMode;
   memory: AtlasMemory;
   progress: AtlasProgressSnapshot;
   lessonContext?: unknown;
+  missionSystem?: AtlasMissionSystemState;
 }
 
 export interface AtlasRecommendation {
@@ -256,6 +289,7 @@ export interface AtlasTurnPlan {
       memory: AtlasMemory;
       progress: AtlasProgressSnapshot;
       recommendation: AtlasRecommendation;
+      missionSystem: AtlasMissionSystemState;
       capabilities: AtlasSubscriptionCapabilities;
       personality: AtlasPersonalityConfig;
       mentorBrief: AtlasMentorBrief;
