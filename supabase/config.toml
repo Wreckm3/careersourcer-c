@@ -7,7 +7,7 @@ verify_jwt = false
 verify_jwt = false
 
 
-# Callback requests are authenticated inside the function with MPESA_CALLBACK_TOKEN;
+# Callback requests are authenticated inside the function with MPESA_CALLBACK_SECRET;
 # STK initiation separately verifies the caller's Supabase access token.
 [functions.mpesa-stk-push]
-verify_jwt = false
+verify_jwt = true
