@@ -2,6 +2,12 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const json = (body: Record<string, unknown>, status = 200) => Response.json(body, { headers: { "Content-Type": "application/json" }, status });
 
+function failureStatus(resultCode: number, resultDescription: string): "cancelled" | "timeout" | "failed" {
+  if (resultCode === 1032 || /cancelled|canceled/i.test(resultDescription)) return "cancelled";
+  if (resultCode === 1037 || /timeout/i.test(resultDescription)) return "timeout";
+  return "failed";
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const secret = Deno.env.get("MPESA_CALLBACK_SECRET");
@@ -20,12 +26,15 @@ Deno.serve(async (req) => {
     if (payment.status !== "pending") return json({ ResultCode: 0, ResultDesc: "Already processed" });
     const items = Array.isArray(callback.CallbackMetadata?.Item) ? callback.CallbackMetadata.Item : [];
     const value = (name: string) => items.find((item: { Name?: string }) => item?.Name === name)?.Value;
-    const amount = typeof value("Amount") === "number" ? value("Amount") : null;
-    const phone = typeof value("PhoneNumber") === "number" ? String(value("PhoneNumber")) : null;
-    const receipt = typeof value("MpesaReceiptNumber") === "string" ? value("MpesaReceiptNumber") : null;
+    const callbackAmount = value("Amount");
+    const callbackPhone = value("PhoneNumber");
+    const callbackReceipt = value("MpesaReceiptNumber");
+    const amount = typeof callbackAmount === "number" && Number.isInteger(callbackAmount) ? callbackAmount : null;
+    const phone = (typeof callbackPhone === "number" && Number.isSafeInteger(callbackPhone)) || typeof callbackPhone === "string" ? String(callbackPhone) : null;
+    const receipt = typeof callbackReceipt === "string" && callbackReceipt.trim() ? callbackReceipt.trim() : null;
     const transactionDate = value("TransactionDate") == null ? null : String(value("TransactionDate"));
-    const success = callback.ResultCode === 0 && !!receipt && amount === payment.amount_kes && (!phone || phone === payment.phone_number);
-    const status = success ? "success" : callback.ResultCode === 0 ? "unknown" : "failed";
+    const success = callback.ResultCode === 0 && !!receipt && amount === payment.amount_kes && phone === payment.phone_number;
+    const status = success ? "success" : callback.ResultCode === 0 ? "unknown" : failureStatus(callback.ResultCode, String(callback.ResultDesc ?? ""));
     const { error } = await service.rpc("finalize_mpesa_payment", { _payment_id: payment.id, _status: status, _receipt: receipt, _result_code: callback.ResultCode, _result_description: String(callback.ResultDesc ?? ""), _callback_payload: payload, _transaction_date: transactionDate, _phone_number: phone, _amount_kes: amount });
     if (error) throw error;
     return json({ ResultCode: 0, ResultDesc: "Accepted" });
