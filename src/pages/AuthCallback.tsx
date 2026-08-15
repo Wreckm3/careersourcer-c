@@ -14,25 +14,40 @@ export default function AuthCallback() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const providerError = params.get("error_description") ?? params.get("error");
+    const providerError = params.get("error_description") ?? params.get("error") ?? params.get("error_code");
     if (providerError) {
-      setError(providerError === "access_denied" ? "Google sign-in was cancelled." : "Google sign-in could not be completed. Please try again.");
+      const message = providerError === "access_denied" ? "Google sign-in was cancelled." : providerError;
+      setError(message.includes("access_denied") ? "Google sign-in was cancelled." : "Google sign-in could not be completed. Please try again.");
       return;
     }
+
     const code = params.get("code");
     if (!code) {
       setError("The sign-in link is incomplete or has expired. Please try again.");
       return;
     }
+
     let active = true;
-    supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-      if (!active) return;
-      if (exchangeError) {
+    supabase.auth.exchangeCodeForSession(code)
+      .then(({ data, error: exchangeError }) => {
+        if (!active) return;
+        if (exchangeError) {
+          console.error("OAuth session exchange failed", exchangeError);
+          setError(exchangeError.message || "Google sign-in could not be completed. Please try again.");
+          return;
+        }
+        if (!data.session) {
+          setError("The sign-in was incomplete. Please try again.");
+          return;
+        }
+        navigate(safeNext(params.get("next")), { replace: true });
+      })
+      .catch((err) => {
+        if (!active) return;
+        console.error("OAuth callback crashed", err);
         setError("Google sign-in could not be completed. Please try again.");
-        return;
-      }
-      navigate(safeNext(params.get("next")), { replace: true });
-    });
+      });
+
     return () => { active = false; };
   }, [navigate, params]);
 
