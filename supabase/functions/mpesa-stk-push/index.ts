@@ -4,6 +4,49 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 const darajaBase = Deno.env.get("MPESA_ENV") === "production" ? "https://api.safaricom.co.ke" : "https://sandbox.safaricom.co.ke";
 const prices = { builder: 99, professional: 299, elite: 499 } as const;
 type PaidTier = keyof typeof prices;
+type PaymentStatus = "pending" | "success" | "failed" | "cancelled" | "timeout" | "unknown";
+type DatabaseJson = string | number | boolean | null | { [key: string]: DatabaseJson | undefined } | DatabaseJson[];
+type MpesaPaymentRow = {
+  id: string;
+  user_id: string;
+  tier: PaidTier;
+  amount_kes: number;
+  phone_number: string;
+  status: PaymentStatus;
+  merchant_request_id: string | null;
+  checkout_request_id: string | null;
+  mpesa_receipt_number: string | null;
+  result_code: number | null;
+  result_description: string | null;
+  callback_payload: DatabaseJson | null;
+  created_at: string;
+  completed_at: string | null;
+  initiation_response: DatabaseJson | null;
+  initiation_response_code: string | null;
+  initiation_response_description: string | null;
+  customer_message: string | null;
+  transaction_date: string | null;
+  callback_phone_number: string | null;
+  callback_amount_kes: number | null;
+};
+type MpesaDatabase = {
+  public: {
+    Tables: {
+      mpesa_payments: {
+        Row: MpesaPaymentRow;
+        Insert: Pick<MpesaPaymentRow, "user_id" | "tier" | "amount_kes" | "phone_number"> &
+          Partial<Omit<MpesaPaymentRow, "user_id" | "tier" | "amount_kes" | "phone_number">>;
+        Update: Partial<MpesaPaymentRow>;
+        Relationships: [];
+      };
+    };
+    Views: Record<never, never>;
+    Functions: Record<never, never>;
+    Enums: { subscription_tier: "free" | PaidTier };
+    CompositeTypes: Record<never, never>;
+  };
+};
+type MpesaClient = ReturnType<typeof createClient<MpesaDatabase>>;
 const reply = (body: Record<string, unknown>, status = 200) => Response.json(body, { status, headers: corsHeaders });
 
 function normalizePhone(value: unknown): string | null {
@@ -28,7 +71,7 @@ async function accessToken(key: string, secret: string) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return reply({ error: "Method not allowed." }, 405);
-  let service: ReturnType<typeof createClient> | null = null;
+  let service: MpesaClient | null = null;
   let paymentId: string | null = null;
   try {
     const url = Deno.env.get("SUPABASE_URL"), anon = Deno.env.get("SUPABASE_ANON_KEY"), serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -43,7 +86,7 @@ Deno.serve(async (req) => {
     if (!phone) return reply({ error: "Enter a valid Kenyan M-Pesa number." }, 400);
     const key = Deno.env.get("MPESA_CONSUMER_KEY"), secret = Deno.env.get("MPESA_CONSUMER_SECRET"), shortcode = Deno.env.get("MPESA_SHORTCODE"), passkey = Deno.env.get("MPESA_PASSKEY"), callbackUrl = Deno.env.get("MPESA_CALLBACK_URL"), callbackSecret = Deno.env.get("MPESA_CALLBACK_SECRET");
     if (!key || !secret || !shortcode || !passkey || !callbackUrl || !callbackSecret) return reply({ error: "M-Pesa checkout is not configured." }, 503);
-    service = createClient(url, serviceKey, { auth: { persistSession: false } });
+    service = createClient<MpesaDatabase>(url, serviceKey, { auth: { persistSession: false } });
     const amount = prices[tier as PaidTier];
     const { data: payment, error: insertError } = await service.from("mpesa_payments").insert({ user_id: user.id, tier, amount_kes: amount, phone_number: phone }).select("id").single();
     if (insertError || !payment) throw new Error("Could not create pending payment");
