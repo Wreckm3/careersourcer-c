@@ -1,0 +1,14 @@
+[1mdiff --cc src/data/curriculum/types.ts[m
+[1mindex a47b2ae,8bd4efa..0000000[m
+[1m--- a/src/data/curriculum/types.ts[m
+[1m+++ b/src/data/curriculum/types.ts[m
+[36m@@@ -82,4 -82,4 +82,8 @@@[m [mexport interface Category [m
+  }[m
+  [m
+  /** Helper to build YouTube embeds consistently. */[m
+[31m -export const yt = (id: string) => `https://www.youtube.com/embed/${id}`;[m
+[32m++<<<<<<< HEAD[m
+[32m +export const yt = (id: string) => `https://www.youtube.com/embed/${id}`;[m
+[32m++=======[m
+[32m++export const yt = (id: string) => `https://www.youtube.com/embed/${id}`;[m
+[32m++>>>>>>> 329419e059970417e356e278025ef6849c7887b4[m
