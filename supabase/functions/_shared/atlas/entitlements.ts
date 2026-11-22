@@ -84,11 +84,19 @@ export function resolveEffectiveAtlasTier(
   return hasActiveSubscription(record, now) ? normalizeTier(record?.tier) : "free";
 }
 
+/** Only a literal boolean returned by the server-side founder RPC grants Pro. */
+export function isAtlasFounderEntitlement(value: unknown): boolean {
+  return value === true;
+}
+
 export function resolveAtlasEntitlements(
   record: AtlasSubscriptionRecord | null | undefined,
   now = new Date(),
+  founderGrant: unknown = false,
 ): AtlasEntitlements {
-  const tier = resolveEffectiveAtlasTier(record, now);
+  const tier = isAtlasFounderEntitlement(founderGrant)
+    ? "elite"
+    : resolveEffectiveAtlasTier(record, now);
   const entitledFeatures = (Object.keys(FEATURE_MINIMUM_TIER) as AtlasFeature[])
     .filter((feature) => meetsTier(tier, FEATURE_MINIMUM_TIER[feature]));
 

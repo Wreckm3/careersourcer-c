@@ -79,17 +79,31 @@ Deno.serve(async (req) => {
     const parsed = Request.safeParse(body);
     if (!parsed.success) return json({ error: "Invalid Atlas request." }, 400);
 
-    const { data: subscription, error: subscriptionError } = await db
-      .from("subscriptions")
-      .select("tier,status,current_period_end")
-      .eq("user_id", auth.user.id)
-      .maybeSingle();
+    const [subscriptionResult, founderEntitlementResult] = await Promise.all([
+      db
+        .from("subscriptions")
+        .select("tier,status,current_period_end")
+        .eq("user_id", auth.user.id)
+        .maybeSingle(),
+      // Zero-argument RPC derives auth.uid() from the verified bearer token.
+      // No frontend role, email, tier, or user ID can grant founder access.
+      db.rpc("has_founder_atlas_entitlement"),
+    ]);
+    const { data: subscription, error: subscriptionError } = subscriptionResult;
     if (subscriptionError) {
       console.error("Atlas subscription lookup failed", subscriptionError.message);
       return json({ error: "Atlas subscription status is temporarily unavailable." }, 503);
     }
 
-    const entitlements = resolveAtlasEntitlements(subscription);
+    if (founderEntitlementResult.error) {
+      // Fail closed for founder access while preserving ordinary paid subscriptions.
+      console.error("Atlas founder entitlement lookup failed", founderEntitlementResult.error.message);
+    }
+    const entitlements = resolveAtlasEntitlements(
+      subscription,
+      new Date(),
+      founderEntitlementResult.error ? false : founderEntitlementResult.data,
+    );
     const featureAccess = authorizeAtlasFeature(entitlements, parsed.data.feature as AtlasFeature);
     if (!featureAccess.allowed) {
       return json(

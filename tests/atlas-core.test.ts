@@ -5,6 +5,7 @@ import { mergeAtlasText, parseAtlasSseFrame, requireAtlasAnswer } from "../src/l
 import {
   authorizeAtlasFeature,
   getBearerToken,
+  isAtlasFounderEntitlement,
   resolveAtlasEntitlements,
   resolveAtlasRateLimit,
 } from "../supabase/functions/_shared/atlas/entitlements";
@@ -100,6 +101,32 @@ describe("Atlas provider configuration", () => {
 });
 
 describe("Atlas server entitlements", () => {
+  it("gives only a server-confirmed founder the Pro entitlement", () => {
+    const founder = resolveAtlasEntitlements(
+      { tier: "free", status: "active" },
+      new Date(),
+      true,
+    );
+
+    assert.equal(isAtlasFounderEntitlement(true), true);
+    assert.equal(founder.tier, "elite");
+    assert.equal(founder.productName, "Pro");
+    assert.equal(founder.canPersistMemory, true);
+  });
+
+  it("does not grant Pro for admin or forged frontend founder claims", () => {
+    const freeUser = { tier: "free", status: "active" };
+    const ordinaryAdmin = resolveAtlasEntitlements(freeUser, new Date(), "admin");
+    const forgedStringClaim = resolveAtlasEntitlements(freeUser, new Date(), "founder");
+    const forgedObjectClaim = resolveAtlasEntitlements(freeUser, new Date(), { role: "founder" });
+
+    assert.equal(isAtlasFounderEntitlement("founder"), false);
+    assert.equal(isAtlasFounderEntitlement({ role: "founder" }), false);
+    assert.equal(ordinaryAdmin.tier, "free");
+    assert.equal(forgedStringClaim.tier, "free");
+    assert.equal(forgedObjectClaim.tier, "free");
+  });
+
   it("maps existing subscription identifiers to cumulative Basic, Plus, and Pro products", () => {
     const basic = resolveAtlasEntitlements({ tier: "builder", status: "active" });
     const plus = resolveAtlasEntitlements({ tier: "creator", status: "trialing" });
@@ -134,6 +161,13 @@ describe("Atlas server entitlements", () => {
       upgrade: false,
       message: "This Atlas capability is not available yet.",
     });
+  });
+
+  it("keeps founder requests subject to the standard rate limit", () => {
+    const founder = resolveAtlasEntitlements({ tier: "free", status: "active" }, new Date(), true);
+
+    assert.equal(founder.tier, "elite");
+    assert.equal(resolveAtlasRateLimit(false, null), "exhausted");
   });
 });
 
