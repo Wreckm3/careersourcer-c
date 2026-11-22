@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Json, Tables, TablesInsert } from "@/integrations/supabase/types";
+import type { Database, Json, Tables, TablesInsert } from "@/integrations/supabase/types";
 import type { Tier } from "@/lib/tiers";
 import type {
   AtlasConversationMessage,
@@ -22,6 +22,18 @@ const STRUGGLE_LIMIT = 20;
 
 type AtlasMemoryRow = Tables<"atlas_memories">;
 type AtlasMemoryInsert = TablesInsert<"atlas_memories">;
+type PersistedTier = Database["public"]["Enums"]["subscription_tier"];
+
+function toPersistedTier(tier: Tier): PersistedTier {
+  switch (tier) {
+    case "professional":
+      return "creator";
+    case "elite":
+      return "visionary";
+    default:
+      return tier;
+  }
+}
 
 function storageKey(userId: string) {
   return `${STORAGE_PREFIX}:${userId}`;
@@ -120,7 +132,7 @@ function memoryToRow(memory: AtlasMemory): AtlasMemoryInsert {
     learning_pace: memory.learningPace,
     learning_style: memory.learningStyle,
     last_celebrated_milestone: memory.lastCelebratedMilestone,
-    current_subscription_tier: memory.currentSubscriptionTier,
+    current_subscription_tier: toPersistedTier(memory.currentSubscriptionTier),
     last_active_date: memory.lastActiveDate,
     schema_version: memory.schemaVersion,
   };
