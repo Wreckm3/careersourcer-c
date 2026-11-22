@@ -54,11 +54,20 @@ export async function streamAtlasResponse(
     }
   };
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    processFrames();
+  try {
+    while (true) {
+      let chunk: ReadableStreamReadResult<Uint8Array>;
+      try {
+        chunk = await reader.read();
+      } catch {
+        throw new Error("Atlas response ended before completion. Please try again.");
+      }
+      if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream: true });
+      processFrames();
+    }
+  } finally {
+    reader.releaseLock();
   }
 
   buffer += decoder.decode();

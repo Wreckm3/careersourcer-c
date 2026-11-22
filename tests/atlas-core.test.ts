@@ -3,6 +3,15 @@ import { describe, it } from "node:test";
 import { limitAtlasRequestMessages } from "../src/lib/atlas/conversationHistory";
 import { mergeAtlasText, parseAtlasSseFrame, requireAtlasAnswer } from "../src/lib/atlas/sse";
 import {
+  isCurrentAtlasEntitlementRequest,
+  isVerifiedAtlasFounder,
+  resolveAtlasEffectiveTier,
+} from "../src/lib/atlas/effectiveTier";
+import {
+  isCurrentSubscriptionIdentity,
+  isCurrentSubscriptionRequest,
+} from "../src/lib/subscriptionState";
+import {
   authorizeAtlasFeature,
   getBearerToken,
   isAtlasFounderEntitlement,
@@ -11,7 +20,9 @@ import {
 } from "../supabase/functions/_shared/atlas/entitlements";
 import {
   AtlasProviderConfigurationError,
+  AtlasProviderTimeoutError,
   buildAtlasProviderRequest,
+  DEFAULT_ATLAS_PROVIDER_TIMEOUT_MS,
   resolveAtlasProviderConfig,
   streamAtlasCompletion,
 } from "../supabase/functions/_shared/atlas/provider";
@@ -80,6 +91,7 @@ describe("Atlas provider configuration", () => {
     const request = buildAtlasProviderRequest(config, { input: [] });
     assert.equal(request.url, "https://api.openai.com/v1/responses");
     assert.equal((request.init.headers as Record<string, string>).Authorization, "Bearer test-key");
+    assert.equal(config.timeoutMs, DEFAULT_ATLAS_PROVIDER_TIMEOUT_MS);
 
     const response = await streamAtlasCompletion(config, { input: [] }, async () =>
       new Response("provider unavailable", { status: 503 }),
@@ -98,6 +110,28 @@ describe("Atlas provider configuration", () => {
       AtlasProviderConfigurationError,
     );
   });
+
+  it("times out a provider stream that stalls before completion", async () => {
+    const config = resolveAtlasProviderConfig((key) => ({
+      ATLAS_PROVIDER: "openai",
+      ATLAS_MODEL: "test-model",
+      ATLAS_API_KEY: "test-key",
+    })[key] ?? null);
+
+    const response = await streamAtlasCompletion(
+      config,
+      { input: [] },
+      async (_url, init) => {
+        assert.ok(init?.signal);
+        return new Response(new ReadableStream<Uint8Array>({ start() {} }), {
+          headers: { "Content-Type": "text/event-stream" },
+        });
+      },
+      20,
+    );
+
+    await assert.rejects(response.body?.getReader().read(), AtlasProviderTimeoutError);
+  });
 });
 
 describe("Atlas server entitlements", () => {
@@ -112,6 +146,11 @@ describe("Atlas server entitlements", () => {
     assert.equal(founder.tier, "elite");
     assert.equal(founder.productName, "Pro");
     assert.equal(founder.canPersistMemory, true);
+    assert.deepEqual(authorizeAtlasFeature(founder, "memory"), {
+      allowed: true,
+      upgrade: false,
+      message: "",
+    });
   });
 
   it("does not grant Pro for admin or forged frontend founder claims", () => {
@@ -168,6 +207,82 @@ describe("Atlas server entitlements", () => {
 
     assert.equal(founder.tier, "elite");
     assert.equal(resolveAtlasRateLimit(false, null), "exhausted");
+  });
+});
+
+describe("Atlas frontend founder entitlement", () => {
+  it("grants the Atlas-only Pro tier only for a verified founder response", () => {
+    assert.equal(isVerifiedAtlasFounder(true), true);
+    assert.equal(resolveAtlasEffectiveTier("free", true), "elite");
+    assert.equal(resolveAtlasEffectiveTier("free", false), "free");
+  });
+
+  it("keeps ordinary admins, free users, paid users, and expired users on their subscription tier", () => {
+    assert.equal(resolveAtlasEffectiveTier("free", "admin"), "free");
+    assert.equal(resolveAtlasEffectiveTier("free", { role: "founder" }), "free");
+    assert.equal(resolveAtlasEffectiveTier("builder", false), "builder");
+    assert.equal(resolveAtlasEffectiveTier("professional", null), "professional");
+    // Expiry is resolved by useSubscription before it reaches the Atlas hook.
+    assert.equal(resolveAtlasEffectiveTier("free", null), "free");
+  });
+
+  it("fails closed on founder RPC errors while preserving a valid paid subscription", () => {
+    const rpcError = new Error("founder RPC unavailable");
+
+    assert.equal(isVerifiedAtlasFounder(true, rpcError), false);
+    assert.equal(resolveAtlasEffectiveTier("free", true, rpcError), "free");
+    assert.equal(resolveAtlasEffectiveTier("elite", true, rpcError), "elite");
+  });
+
+  it("does not apply a founder result from a previous user or session", () => {
+    const originalSession = {};
+    const originalRequest = {
+      userId: "founder-user",
+      session: originalSession,
+      subscriptionTier: "free" as const,
+      revision: 0,
+    };
+    const resolution = {
+      request: originalRequest,
+      tier: "elite" as const,
+      isFounder: true,
+    };
+
+    assert.equal(isCurrentAtlasEntitlementRequest(resolution, originalRequest), true);
+    assert.equal(
+      isCurrentAtlasEntitlementRequest(resolution, {
+        ...originalRequest,
+        session: {},
+      }),
+      false,
+    );
+    assert.equal(
+      isCurrentAtlasEntitlementRequest(resolution, {
+        ...originalRequest,
+        userId: "next-user",
+      }),
+      false,
+    );
+    assert.equal(
+      isCurrentAtlasEntitlementRequest(resolution, {
+        ...originalRequest,
+        revision: 1,
+      }),
+      false,
+    );
+  });
+});
+
+describe("Subscription account-switch safety", () => {
+  it("fails closed while a new account has not resolved its own subscription", () => {
+    assert.equal(isCurrentSubscriptionIdentity("paid-user", "free-user"), false);
+    assert.equal(isCurrentSubscriptionIdentity("free-user", "free-user"), true);
+    assert.equal(isCurrentSubscriptionIdentity(null, null), true);
+  });
+
+  it("ignores an older subscription response after an account switch", () => {
+    assert.equal(isCurrentSubscriptionRequest(1, 2), false);
+    assert.equal(isCurrentSubscriptionRequest(2, 2), true);
   });
 });
 

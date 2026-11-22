@@ -4,6 +4,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@4";
 import {
   AtlasProviderConfigurationError,
+  AtlasProviderTimeoutError,
   getAtlasProviderConfig,
   streamAtlasCompletion,
 } from "../_shared/atlas/provider.ts";
@@ -158,6 +159,9 @@ Deno.serve(async (req) => {
     console.error("Atlas failed", error instanceof Error ? error.message : "unknown");
     if (error instanceof AtlasProviderConfigurationError) {
       return json({ error: "Atlas AI is not configured yet. Please contact support." }, 503);
+    }
+    if (error instanceof AtlasProviderTimeoutError) {
+      return json({ error: "Atlas AI took too long to respond. Please try again." }, 504);
     }
     return json({ error: "Atlas is temporarily unavailable. Please try again." }, 502);
   }

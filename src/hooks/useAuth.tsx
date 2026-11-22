@@ -22,21 +22,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up listener FIRST
+    let active = true;
+    // An auth event that arrives after the initial request is newer than the
+    // initial request result. Do not let that stale result restore an old
+    // account after sign-out or account switching.
+    let authEventVersion = 0;
+
+    const applySession = (nextSession: Session | null) => {
+      if (!active) return;
+
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      setLoading(false);
+    };
+
+    // Set up the listener before asking for the initial session.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      setLoading(false);
+      authEventVersion += 1;
+      applySession(newSession);
     });
 
-    // THEN check existing session
-    supabase.auth.getSession().then(({ data: { session: existing } }) => {
-      setSession(existing);
-      setUser(existing?.user ?? null);
-      setLoading(false);
-    });
+    // Only the first settled source may set the initial state. In particular,
+    // a delayed getSession() result must not overwrite a later auth event.
+    void supabase.auth.getSession()
+      .then(({ data: { session: existing } }) => {
+        if (authEventVersion === 0) applySession(existing);
+      })
+      .catch(() => {
+        if (authEventVersion === 0) applySession(null);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = useCallback(async () => {

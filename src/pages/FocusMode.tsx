@@ -17,6 +17,7 @@ import { isEnabled } from "@/config/features";
 import { focusMessage, completionMessage } from "@/lib/motivation";
 import { buildAtlasLessonContext, emitAtlasMission } from "@/lib/atlas/lessonContext";
 import { AtlasChat } from "@/components/career/AtlasChat";
+import { AtlasIcon } from "@/components/career/AtlasIcon";
 import { ErrorBoundary } from "@/components/career/ErrorBoundary";
 import { savePortfolioRecord } from "@/lib/portfolio";
 
@@ -616,7 +617,7 @@ export default function FocusMode() {
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors hover:bg-muted/50"
                         style={{ borderColor: category.color, color: category.color }}
                       >
-                        <Sparkles className="w-4 h-4" /> Get your Atlas progress review
+                        <AtlasIcon className="h-4 w-4" /> Get your Atlas progress review
                       </button>
                     </div>
                   </div>

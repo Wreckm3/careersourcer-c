@@ -1,20 +1,24 @@
 ﻿import { Link } from "react-router-dom";
 import { useCallback, useMemo, useState } from "react";
-import { Sparkles, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgress } from "@/hooks/useProgress";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAtlasEffectiveTier } from "@/hooks/useAtlasEffectiveTier";
 import { usePhases } from "@/lib/phases";
+import { meetsTier } from "@/lib/tiers";
 import { getBranch, getLesson } from "@/data/curriculum";
 import { AtlasActivation } from "@/components/career/AtlasActivation";
 import { AtlasChat } from "@/components/career/AtlasChat";
+import { AtlasIcon } from "@/components/career/AtlasIcon";
 import { PremiumGate } from "@/components/PremiumGate";
 import type { AtlasConversationMessage } from "@/lib/atlas/types";
 
 export default function AtlasWorkspace() {
   const { user, loading: authLoading } = useAuth();
   const { progress } = useProgress();
-  const { tier, loading: subscriptionLoading } = useSubscription();
+  const { loading: subscriptionLoading } = useSubscription();
+  const { tier: atlasTier, loading: atlasTierLoading } = useAtlasEffectiveTier();
   const phases = usePhases(progress.selectedPath);
   const [activated, setActivated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -44,13 +48,13 @@ export default function AtlasWorkspace() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {!activated && <AtlasActivation loading={authLoading || subscriptionLoading} onReady={onReady} />}
+      {!activated && <AtlasActivation loading={authLoading || subscriptionLoading || atlasTierLoading} onReady={onReady} />}
 
       <div className="relative mx-auto flex min-h-screen max-w-[1800px] flex-col lg:flex-row">
         <aside className="hidden shrink-0 border-r border-border bg-surface/70 lg:flex lg:w-[270px] lg:flex-col">
           <div className="sticky top-0 z-10 border-b border-border bg-background/95 px-5 py-5 backdrop-blur-sm">
             <div className="flex items-center gap-3 text-primary">
-              <Sparkles className="h-4 w-4" />
+              <AtlasIcon className="h-5 w-5" />
               <p className="text-xs uppercase tracking-[0.35em]">Atlas</p>
             </div>
             <h2 className="mt-4 text-xl font-black">AI Workspace</h2>
@@ -136,7 +140,7 @@ export default function AtlasWorkspace() {
             <div className="hidden text-right text-sm text-muted-foreground lg:block">
               <p>Branch: {branchData?.branch.title ?? "Not selected"}</p>
               <p className="mt-2">{estimatedTime} · {progressPercent}%</p>
-              <p className="mt-2">Tier: {tier}</p>
+              <p className="mt-2">Atlas tier: {atlasTier}</p>
             </div>
             <button
               type="button"
@@ -149,13 +153,23 @@ export default function AtlasWorkspace() {
 
           <div className="flex flex-1 min-h-0 overflow-hidden p-5 lg:p-8">
             <div className="relative flex flex-1 min-h-0 overflow-hidden rounded-[2rem] border border-border bg-background/90 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
-              <PremiumGate required="builder" featureName="Atlas Workspace">
+              {atlasTierLoading ? (
+                <div className="h-24 w-full animate-pulse rounded-xl bg-muted" aria-hidden="true" />
+              ) : meetsTier(atlasTier, "builder") ? (
                 <AtlasChat
                   layout="workspace"
                   conversationKey={conversationKey}
                   onMessagesChange={setSessionHistory}
                 />
-              </PremiumGate>
+              ) : (
+                <PremiumGate required="builder" featureName="Atlas Workspace">
+                  <AtlasChat
+                    layout="workspace"
+                    conversationKey={conversationKey}
+                    onMessagesChange={setSessionHistory}
+                  />
+                </PremiumGate>
+              )}
             </div>
           </div>
         </main>
@@ -169,7 +183,7 @@ export default function AtlasWorkspace() {
             </button>
             <div className="pt-8">
               <div className="flex items-center gap-3 text-primary">
-                <Sparkles className="h-4 w-4" />
+                <AtlasIcon className="h-5 w-5" />
                 <p className="text-xs uppercase tracking-[0.35em]">Atlas</p>
               </div>
               <h2 className="mt-4 text-xl font-black">Workspace</h2>

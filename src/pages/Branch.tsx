@@ -1,9 +1,10 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Circle, Play, Clock, Lock, Sparkles, Target } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Play, Clock, Lock, Target } from "lucide-react";
 import { getBranch, getBranchProgress, getLessonAccess } from "@/data/curriculum";
 import { useProgress } from "@/hooks/useProgress";
 import { useSubscription } from "@/hooks/useSubscription";
+import { AtlasIcon } from "@/components/career/AtlasIcon";
 import { meetsTier } from "@/lib/tiers";
 
 function ProgressRing({ percent, color, size = 72 }: { percent: number; color: string; size?: number }) {
@@ -73,7 +74,7 @@ export default function Branch() {
             </h1>
           </div>
           <Link to="/atlas" className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10">
-            <Sparkles className="h-3.5 w-3.5" /> Atlas workspace
+            <AtlasIcon className="h-4 w-4" /> Atlas workspace
           </Link>
         </div>
 
@@ -137,7 +138,7 @@ export default function Branch() {
                     className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-primary-foreground"
                     style={{ backgroundColor: category.color }}
                   >
-                    <Sparkles className="h-4 w-4" /> Ask Atlas for your progress review
+                    <AtlasIcon className="h-4 w-4" /> Ask Atlas for your progress review
                   </Link>
                   {!hasBuilder && (
                     <Link to="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted/50">

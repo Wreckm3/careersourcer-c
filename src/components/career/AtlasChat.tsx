@@ -1,9 +1,10 @@
 ﻿﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, X, Send, Loader2, Lock } from "lucide-react";
+import { X, Send, Loader2, Lock } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
-import { useSubscription } from "@/hooks/useSubscription";
+import { useAtlasEffectiveTier } from "@/hooks/useAtlasEffectiveTier";
+import { AtlasIcon } from "@/components/career/AtlasIcon";
 import { useAuth } from "@/hooks/useAuth";
 import { isEnabled } from "@/config/features";
 import type { AtlasLessonContext } from "@/lib/atlas/lessonContext";
@@ -74,7 +75,7 @@ export function AtlasChat({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
-  const { loading, tier } = useSubscription();
+  const { loading, tier } = useAtlasEffectiveTier();
   const { progress } = useProgress();
 
   const allowed = getAtlasSubscriptionCapabilities(tier).canUseAtlas;
@@ -183,7 +184,7 @@ export function AtlasChat({
         whileTap={{ scale: 0.94 }}
         aria-label={open ? "Close Atlas" : "Ask Atlas"}
       >
-        {open ? <X className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
+        {open ? <X className="w-5 h-5" /> : <AtlasIcon className="h-6 w-6" />}
       </motion.button>}
 
       <AnimatePresence>
@@ -203,7 +204,7 @@ export function AtlasChat({
 
 
             <header className="flex items-center gap-2 px-4 py-3 border-b border-border">
-              <Sparkles className="w-4 h-4 text-primary" />
+              <AtlasIcon className="h-5 w-5" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-foreground">Atlas</p>
                 <p className="text-[11px] text-muted-foreground truncate">

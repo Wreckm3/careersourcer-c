@@ -1,5 +1,8 @@
 project_id = "isfoizzpfskatsgesnbn"
 
+[functions.atlas]
+verify_jwt = true
+
 [functions.stripe-webhook]
 verify_jwt = false
 
