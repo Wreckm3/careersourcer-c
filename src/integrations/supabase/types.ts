@@ -324,7 +324,7 @@ export type Database = {
         | "canceled"
         | "expired"
         | "trialing"
-      subscription_tier: "free" | "builder" | "professional" | "elite"
+      subscription_tier: "free" | "builder" | "creator" | "visionary"
       upload_review_status: "pending" | "reviewing" | "reviewed" | "rejected"
     }
     CompositeTypes: {
@@ -461,7 +461,7 @@ export const Constants = {
         "expired",
         "trialing",
       ],
-      subscription_tier: ["free", "builder", "professional", "elite"],
+      subscription_tier: ["free", "builder", "creator", "visionary"],
       upload_review_status: ["pending", "reviewing", "reviewed", "rejected"],
     },
   },
