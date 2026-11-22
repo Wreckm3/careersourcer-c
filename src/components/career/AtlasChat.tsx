@@ -158,14 +158,6 @@ export function AtlasChat({
         setMessages([...plan.messages, { role: "assistant", content: answer }]);
       });
 
-      if (!answer.trim()) {
-        setMessages([
-          ...plan.messages,
-          { role: "assistant", content: "I didn't catch that. Try asking it a different way." },
-        ]);
-        return;
-      }
-
       await controller.recordAssistantReply(plan, answer);
       controller.getEntryState(controllerContext).then(setEntryState).catch(() => {});
     } catch (err) {

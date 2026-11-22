@@ -8,7 +8,7 @@ interface SubscriptionState {
   isAdmin: boolean;
   status: string;
   loading: boolean;
-  /** `true` if the effective tier meets the required tier (admin always passes). */
+  /** `true` if the active subscription tier meets the required tier. */
   hasAccess: (required: Tier) => boolean;
   refresh: () => Promise<void>;
 }
@@ -21,6 +21,12 @@ const SubscriptionContext = createContext<SubscriptionState>({
   hasAccess: () => false,
   refresh: async () => {},
 });
+
+function normalizeTier(value: string): Tier {
+  if (value === "creator") return "professional";
+  if (value === "visionary") return "elite";
+  return value === "builder" || value === "professional" || value === "elite" ? value : "free";
+}
 
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
@@ -64,14 +70,11 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     const admin = !!roleRes.data;
     setIsAdmin(admin);
 
-    if (admin) {
-      setTier("elite");
-      setStatus("active");
-    } else if (subRes.data) {
+    if (subRes.data) {
       const active =
         (subRes.data.status === "active" || subRes.data.status === "trialing") &&
         (!subRes.data.current_period_end || new Date(subRes.data.current_period_end) > new Date());
-      setTier(active ? (subRes.data.tier as Tier) : "free");
+      setTier(active ? normalizeTier(subRes.data.tier) : "free");
       setStatus(subRes.data.status);
     } else {
       setTier("free");

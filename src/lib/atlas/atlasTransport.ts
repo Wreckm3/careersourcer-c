@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { AtlasTurnPlan } from "./types";
+import { mergeAtlasText, parseAtlasSseFrame, requireAtlasAnswer } from "./sse";
 
 const ATLAS_ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/atlas`;
 
@@ -35,28 +36,30 @@ export async function streamAtlasResponse(
   let buffer = "";
   let answer = "";
 
+  const processFrames = (complete = false) => {
+    const frames = buffer.split(/\r?\n\r?\n/);
+    buffer = complete ? "" : frames.pop() ?? "";
+
+    for (const frame of frames) {
+      const update = parseAtlasSseFrame(frame);
+      if (!update) continue;
+      if (update.error) throw new Error(update.error);
+      const next = mergeAtlasText(answer, update);
+      if (next !== answer) {
+        answer = next;
+        onDelta(answer);
+      }
+    }
+  };
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-
-    for (const line of lines) {
-      if (!line.startsWith("data:")) continue;
-      const raw = line.slice(5).trim();
-      if (!raw || raw === "[DONE]") continue;
-      try {
-        const evt = JSON.parse(raw) as { type?: string; delta?: string };
-        if (evt.type === "response.output_text.delta" && typeof evt.delta === "string") {
-          answer += evt.delta;
-          onDelta(answer);
-        }
-      } catch {
-        /* Partial SSE frames are safe to ignore until the next chunk. */
-      }
-    }
+    processFrames();
   }
 
-  return { answer };
+  buffer += decoder.decode();
+  processFrames(true);
+  return { answer: requireAtlasAnswer(answer) };
 }

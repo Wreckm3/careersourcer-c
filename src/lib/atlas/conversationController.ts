@@ -23,6 +23,7 @@ import { buildAtlasProgressSnapshot } from "./progressService";
 import { getAtlasRecommendation } from "./recommendationEngine";
 import { getAtlasSubscriptionCapabilities } from "./subscriptionCapabilities";
 import { buildAtlasMissionSystemState } from "./missionSystem";
+import { limitAtlasRequestMessages } from "./conversationHistory";
 
 export interface AtlasConversationController {
   getEntryState(context: AtlasControllerContext): Promise<AtlasEntryState>;
@@ -162,7 +163,7 @@ export function createAtlasConversationController({
         progress: progressWithActiveState,
         recommendation,
         request: {
-          messages,
+          messages: limitAtlasRequestMessages(messages),
           lessonContext: context.lessonContext ?? null,
           learnerProfile: buildAtlasLearnerProfile(
             categories,

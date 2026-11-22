@@ -17,7 +17,7 @@ export function getAtlasSubscriptionCapabilities(tier: Tier): AtlasSubscriptionC
   if (tier === "builder") {
     return {
       tier,
-      productName: "Builder",
+      productName: "Basic",
       atlasLevel: "lite",
       canUseAtlas: true,
       canPersistProjectMemory: true,
@@ -31,7 +31,7 @@ export function getAtlasSubscriptionCapabilities(tier: Tier): AtlasSubscriptionC
   if (tier === "professional") {
     return {
       tier,
-      productName: "Professional",
+      productName: "Plus",
       atlasLevel: "smart",
       canUseAtlas: true,
       canPersistProjectMemory: true,
@@ -45,7 +45,7 @@ export function getAtlasSubscriptionCapabilities(tier: Tier): AtlasSubscriptionC
   if (tier === "elite") {
     return {
       tier,
-      productName: "Elite",
+      productName: "Pro",
       atlasLevel: "pro",
       canUseAtlas: true,
       canPersistProjectMemory: true,
