@@ -149,9 +149,11 @@ export function AtlasChat({
     setError(null);
     setInput("");
     setStreaming(true);
+    let pendingMessages: AtlasConversationMessage[] | null = null;
 
     try {
       const plan = await controller.prepareTurn(controllerContext, messages, trimmed);
+      pendingMessages = plan.messages;
       setMessages([...plan.messages, { role: "assistant", content: "" }]);
 
       const { answer } = await streamAtlasResponse(plan.request, (answer) => {
@@ -162,7 +164,7 @@ export function AtlasChat({
       controller.getEntryState(controllerContext).then(setEntryState).catch(() => {});
     } catch (err) {
       const failure = err as Error & { upgrade?: boolean };
-      setMessages((current) => current.filter((message) => message.content));
+      setMessages(pendingMessages ?? messages);
       setError({
         message: failure.message || "Network problem reaching Atlas. Try again.",
         upgrade: failure.upgrade,

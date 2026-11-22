@@ -59,6 +59,18 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
+      <motion.button
+        onClick={() => navigate("/")}
+        className="fixed top-5 left-5 z-50 flex h-10 w-20 items-center justify-center rounded-xl border border-white/20 bg-slate-950/95 px-2 shadow-lg ring-1 ring-black/20 transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        whileTap={{ scale: 0.96 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.25 }}
+        aria-label="CareerSourcer home"
+      >
+        <img src="/new-logo.png" alt="" className="h-6 w-auto object-contain drop-shadow-[0_1px_1px_rgba(0,0,0,0.65)]" />
+      </motion.button>
+
       {/* Profile icon */}
       <motion.button
         onClick={() => navigate(user ? "/profile" : "/auth")}

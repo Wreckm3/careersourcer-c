@@ -35,6 +35,7 @@ export async function streamAtlasResponse(
   const decoder = new TextDecoder();
   let buffer = "";
   let answer = "";
+  let completed = false;
 
   const processFrames = (complete = false) => {
     const frames = buffer.split(/\r?\n\r?\n/);
@@ -44,6 +45,7 @@ export async function streamAtlasResponse(
       const update = parseAtlasSseFrame(frame);
       if (!update) continue;
       if (update.error) throw new Error(update.error);
+      completed ||= Boolean(update.completed);
       const next = mergeAtlasText(answer, update);
       if (next !== answer) {
         answer = next;
@@ -61,5 +63,5 @@ export async function streamAtlasResponse(
 
   buffer += decoder.decode();
   processFrames(true);
-  return { answer: requireAtlasAnswer(answer) };
+  return { answer: requireAtlasAnswer(answer, completed) };
 }

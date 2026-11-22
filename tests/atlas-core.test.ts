@@ -23,12 +23,26 @@ describe("Atlas stream parsing", () => {
     const partial = mergeAtlasText("", delta ?? {});
     const answer = mergeAtlasText(partial, completed ?? {});
 
-    assert.equal(requireAtlasAnswer(answer), "Build a basic character controller first.");
+    assert.equal(requireAtlasAnswer(answer, true), "Build a basic character controller first.");
   });
 
   it("does not turn malformed or empty streams into a fake assistant response", () => {
-    assert.equal(parseAtlasSseFrame("data: not-json"), null);
-    assert.throws(() => requireAtlasAnswer(""), /no readable response/i);
+    assert.equal(parseAtlasSseFrame("data: not-json")?.error, "Atlas returned an unreadable response. Please try again.");
+    assert.throws(() => requireAtlasAnswer("", true), /no readable response/i);
+    assert.throws(() => requireAtlasAnswer("partial response", false), /ended before completion/i);
+  });
+
+  it("requires a terminal response event before accepting streamed text", () => {
+    const partial = parseAtlasSseFrame('data: {"type":"response.output_text.delta","delta":"partial"}');
+    const completed = parseAtlasSseFrame("data: [DONE]");
+
+    assert.equal(partial?.completed, undefined);
+    assert.equal(completed?.completed, true);
+    assert.throws(
+      () => requireAtlasAnswer(partial?.text ?? "", partial?.completed === true),
+      /ended before completion/i,
+    );
+    assert.equal(requireAtlasAnswer(partial?.text ?? "", completed?.completed === true), "partial");
   });
 
   it("turns streamed provider error events into a visible failure", () => {
@@ -124,11 +138,17 @@ describe("Atlas server entitlements", () => {
 });
 
 describe("Atlas request guards", () => {
-  it("rejects missing authentication and distinguishes rate-limit outcomes", () => {
+  it("rejects missing authentication", () => {
     assert.equal(getBearerToken(null), null);
     assert.equal(getBearerToken("Bearer session-token"), "session-token");
+  });
+
+  it("fails closed for unexpected rate-limit RPC responses", () => {
     assert.equal(resolveAtlasRateLimit(true, null), "allowed");
     assert.equal(resolveAtlasRateLimit(false, null), "exhausted");
+    assert.equal(resolveAtlasRateLimit(null, null), "unavailable");
+    assert.equal(resolveAtlasRateLimit(undefined, null), "unavailable");
     assert.equal(resolveAtlasRateLimit(null, new Error("missing RPC")), "unavailable");
+    assert.equal(resolveAtlasRateLimit(true, { message: "database error" }), "unavailable");
   });
 });

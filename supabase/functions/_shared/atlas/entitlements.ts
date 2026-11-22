@@ -134,6 +134,6 @@ export function resolveAtlasRateLimit(
   allowed: boolean | null | undefined,
   error: unknown,
 ): "allowed" | "exhausted" | "unavailable" {
-  if (error) return "unavailable";
-  return allowed === false ? "exhausted" : "allowed";
+  if (error || typeof allowed !== "boolean") return "unavailable";
+  return allowed ? "allowed" : "exhausted";
 }

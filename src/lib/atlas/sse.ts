@@ -2,6 +2,7 @@ export interface AtlasSseUpdate {
   text?: string;
   replace?: boolean;
   error?: string;
+  completed?: boolean;
 }
 
 type UnknownRecord = Record<string, unknown>;
@@ -51,11 +52,12 @@ export function parseAtlasSseFrame(frame: string): AtlasSseUpdate | null {
     .join("\n")
     .trim();
 
-  if (!data || data === "[DONE]") return null;
+  if (!data) return null;
+  if (data === "[DONE]") return { completed: true };
 
   try {
     const payload = asRecord(JSON.parse(data));
-    if (!payload) return null;
+    if (!payload) return { error: "Atlas returned an unreadable response. Please try again." };
 
     const error = providerError(payload);
     if (error) return { error };
@@ -72,18 +74,21 @@ export function parseAtlasSseFrame(frame: string): AtlasSseUpdate | null {
 
     if (payload.type === "response.completed") {
       const text = responseOutputText(payload.response);
-      return text ? { text, replace: true } : null;
+      return text ? { text, replace: true, completed: true } : { completed: true };
     }
 
     const choices = Array.isArray(payload.choices) ? payload.choices : [];
     const choice = asRecord(choices[0]);
     const delta = asText(asRecord(choice?.delta)?.content);
-    if (delta) return { text: delta };
+    const isFinalChoice = Boolean(asText(choice?.finish_reason));
+    if (delta) return { text: delta, completed: isFinalChoice };
 
-    const completed = asText(asRecord(choice?.message)?.content) ?? asText(payload.output_text);
-    return completed ? { text: completed, replace: true } : null;
+    const messageText = asText(asRecord(choice?.message)?.content) ?? asText(payload.output_text);
+    return messageText
+      ? { text: messageText, replace: true, completed: isFinalChoice }
+      : isFinalChoice ? { completed: true } : null;
   } catch {
-    return null;
+    return { error: "Atlas returned an unreadable response. Please try again." };
   }
 }
 
@@ -95,7 +100,10 @@ export function mergeAtlasText(current: string, update: AtlasSseUpdate): string 
   return current + update.text;
 }
 
-export function requireAtlasAnswer(answer: string): string {
+export function requireAtlasAnswer(answer: string, completed: boolean): string {
+  if (!completed) {
+    throw new Error("Atlas response ended before completion. Please try again.");
+  }
   if (!answer.trim()) {
     throw new Error("Atlas returned no readable response. Please try again.");
   }
