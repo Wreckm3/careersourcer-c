@@ -181,8 +181,6 @@ export function classifyAtlasProviderFailure(
   if (status === 402) return "billing";
   if (status === 429) return "rate_limit";
   if (status === 408 || status === 504) return "timeout";
-  if (status === 404) return "model";
-  if (status === 400 || status === 422) return "request";
   if (status !== null && status >= 500) return "provider";
 
   if (/(?:api[_-]?key|authentication|unauthori[sz]ed|forbidden|access[_-]?denied)/.test(signals)) {
@@ -201,6 +199,7 @@ export function classifyAtlasProviderFailure(
   if (/(?:invalid[_-]?(?:request|parameter)|validation|unprocessable|bad[_-]?request)/.test(signals)) {
     return "request";
   }
+  if (status === 400 || status === 404 || status === 422) return "request";
 
   return "unknown";
 }

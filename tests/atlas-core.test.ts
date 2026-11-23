@@ -155,6 +155,7 @@ describe("Atlas provider configuration", () => {
     assert.equal(JSON.stringify(httpFailure).includes(sensitiveMessage), false);
 
     assert.equal(classifyAtlasProviderFailure(401, null), "authentication");
+    assert.equal(classifyAtlasProviderFailure(404, null), "request");
     assert.equal(classifyAtlasProviderFailure(422, null), "request");
     assert.equal(classifyAtlasProviderFailure(429, null), "rate_limit");
     assert.equal(classifyAtlasProviderFailure(503, null), "provider");
