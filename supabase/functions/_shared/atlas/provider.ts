@@ -161,7 +161,6 @@ function providerFailureSignals(payload: unknown): string {
     record?.type,
     error?.code,
     error?.type,
-    error?.param,
   ];
 
   // Provider messages can contain request data. Only machine-oriented fields
