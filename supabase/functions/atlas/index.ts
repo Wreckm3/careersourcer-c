@@ -174,10 +174,22 @@ Deno.serve(async (req) => {
       return json({ error: "Atlas provider returned an unreadable response. Please try again." }, 502);
     }
 
-    const body = observeAtlasProviderSseStream(upstream.body, upstream.status, (failure) => {
-      logProviderFailure(provider, failure);
-    });
-    return new Response(body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" } });
+    const providerStream = observeAtlasProviderSseStream(
+  upstream.body,
+  upstream.status,
+  (failure) => {
+    logProviderFailure(provider, failure);
+  }
+);
+
+return new Response(providerStream, {
+  headers: {
+    ...corsHeaders,
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  },
+});
   } catch (error) {
     console.error("Atlas failed", error instanceof Error ? error.message : "unknown");
     if (error instanceof AtlasProviderConfigurationError) {
