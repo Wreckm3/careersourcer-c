@@ -12,6 +12,28 @@ export interface AtlasProviderConfig {
   timeoutMs: number;
 }
 
+export type AtlasProviderFailureCategory =
+  | "authentication"
+  | "billing"
+  | "model"
+  | "request"
+  | "rate_limit"
+  | "timeout"
+  | "provider"
+  | "unknown";
+
+export interface AtlasProviderFailure {
+  /** HTTP status from the upstream provider, including 200 for streamed failures. */
+  status: number | null;
+  /** A small, whitelisted event label; never a provider-supplied string. */
+  eventType: "error" | "response.failed" | "error_field" | "unknown";
+  /** A sanitized, stable failure classification suitable for server logs. */
+  category: AtlasProviderFailureCategory;
+}
+
+const MAX_PROVIDER_FAILURE_BODY_CHARS = 16_384;
+const MAX_PROVIDER_SSE_FRAME_CHARS = 16_384;
+
 export class AtlasProviderConfigurationError extends Error {
   constructor(message = "Atlas model provider is not configured.") {
     super(message);
@@ -73,6 +95,20 @@ export function getAtlasProviderConfig(): AtlasProviderConfig {
   return resolveAtlasProviderConfig((key) => Deno.env.get(key));
 }
 
+/**
+ * A configuration summary that is safe to place in a server log. API keys are
+ * deliberately omitted and malformed model identifiers are not echoed.
+ */
+export function atlasProviderDiagnostics(config: AtlasProviderConfig) {
+  return {
+    provider: config.provider,
+    model: /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,119}$/.test(config.model)
+      ? config.model
+      : "unrecognized",
+    timeoutMs: config.timeoutMs,
+  };
+}
+
 export function buildAtlasProviderRequest(config: AtlasProviderConfig, body: Record<string, unknown>) {
   const url = config.provider === "openai"
     ? "https://api.openai.com/v1/responses"
@@ -99,6 +135,196 @@ export function buildAtlasProviderRequest(config: AtlasProviderConfig, body: Rec
     body: JSON.stringify({ ...body, model: config.model, stream: true, store: false }),
     } satisfies RequestInit,
   };
+}
+
+type UnknownRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): UnknownRecord | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as UnknownRecord
+    : null;
+}
+
+function providerEventType(payload: unknown): AtlasProviderFailure["eventType"] {
+  const record = asRecord(payload);
+  if (!record) return "unknown";
+  if (record.type === "error") return "error";
+  if (record.type === "response.failed") return "response.failed";
+  return record.error ? "error_field" : "unknown";
+}
+
+function providerFailureSignals(payload: unknown): string {
+  const record = asRecord(payload);
+  const response = asRecord(record?.response);
+  const error = asRecord(record?.error) ?? asRecord(response?.error);
+  const signals = [
+    record?.type,
+    error?.code,
+    error?.type,
+    error?.param,
+  ];
+
+  // Provider messages can contain request data. Only machine-oriented fields
+  // participate in classification and none are emitted to logs.
+  return signals
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .toLowerCase();
+}
+
+export function classifyAtlasProviderFailure(
+  status: number | null,
+  payload: unknown,
+): AtlasProviderFailureCategory {
+  const signals = providerFailureSignals(payload);
+
+  if (status === 401 || status === 403) return "authentication";
+  if (status === 402) return "billing";
+  if (status === 429) return "rate_limit";
+  if (status === 408 || status === 504) return "timeout";
+  if (status === 404) return "model";
+  if (status === 400 || status === 422) return "request";
+  if (status !== null && status >= 500) return "provider";
+
+  if (/(?:api[_-]?key|authentication|unauthori[sz]ed|forbidden|access[_-]?denied)/.test(signals)) {
+    return "authentication";
+  }
+  if (/(?:quota|credit|billing|payment|insufficient[_-]?(?:funds|quota))/.test(signals)) {
+    return "billing";
+  }
+  if (/(?:model[_-]?(?:not[_-]?found|unsupported|unavailable)|unsupported[_-]?model)/.test(signals)) {
+    return "model";
+  }
+  if (/(?:rate[_-]?limit|too[_-]?many[_-]?requests)/.test(signals)) {
+    return "rate_limit";
+  }
+  if (/(?:timeout|timed[_-]?out|deadline)/.test(signals)) return "timeout";
+  if (/(?:invalid[_-]?(?:request|parameter)|validation|unprocessable|bad[_-]?request)/.test(signals)) {
+    return "request";
+  }
+
+  return "unknown";
+}
+
+export function describeAtlasProviderFailure(
+  status: number | null,
+  payload: unknown,
+): AtlasProviderFailure {
+  return {
+    status,
+    eventType: providerEventType(payload),
+    category: classifyAtlasProviderFailure(status, payload),
+  };
+}
+
+function parseSsePayload(frame: string): unknown {
+  const data = frame
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith("data:"))
+    .map((line) => line.slice(5).trimStart())
+    .join("\n")
+    .trim();
+
+  if (!data || data === "[DONE]") return null;
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
+
+function parseProviderFailurePayload(body: string): unknown {
+  const value = body.trim();
+  if (!value) return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return parseSsePayload(value);
+  }
+}
+
+async function readProviderFailurePayload(response: Response): Promise<unknown> {
+  const reader = response.body?.getReader();
+  if (!reader) return null;
+
+  const decoder = new TextDecoder();
+  let body = "";
+  try {
+    while (body.length <= MAX_PROVIDER_FAILURE_BODY_CHARS) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      body += decoder.decode(value, { stream: true });
+    }
+    body += decoder.decode();
+  } catch {
+    return null;
+  } finally {
+    await reader.cancel().catch(() => undefined);
+    reader.releaseLock();
+  }
+
+  return body.length <= MAX_PROVIDER_FAILURE_BODY_CHARS
+    ? parseProviderFailurePayload(body)
+    : null;
+}
+
+/** Reads a failed non-streaming provider response without retaining raw text. */
+export async function getAtlasProviderFailure(response: Response): Promise<AtlasProviderFailure> {
+  return describeAtlasProviderFailure(response.status, await readProviderFailurePayload(response));
+}
+
+/**
+ * Inspects SSE failure events while passing every byte through unchanged. The
+ * observer receives only a whitelisted event label and categorized failure;
+ * neither provider messages nor learner prompts are retained or logged.
+ */
+export function observeAtlasProviderSseStream(
+  body: ReadableStream<Uint8Array>,
+  status: number,
+  onFailure: (failure: AtlasProviderFailure) => void,
+): ReadableStream<Uint8Array> {
+  const decoder = new TextDecoder();
+  let pending = "";
+  let reported = false;
+
+  const inspect = (frame: string) => {
+    if (reported || frame.length > MAX_PROVIDER_SSE_FRAME_CHARS) return;
+    const payload = parseSsePayload(frame);
+    const eventType = providerEventType(payload);
+    if (eventType === "unknown") return;
+
+    reported = true;
+    try {
+      onFailure(describeAtlasProviderFailure(status, payload));
+    } catch {
+      // Telemetry must never disrupt an answer stream.
+    }
+  };
+
+  const inspectCompleteFrames = () => {
+    while (true) {
+      const separator = pending.match(/\r?\n\r?\n/);
+      if (!separator || separator.index === undefined) break;
+      const frame = pending.slice(0, separator.index);
+      pending = pending.slice(separator.index + separator[0].length);
+      inspect(frame);
+    }
+
+    // Do not retain an unbounded malformed upstream stream in memory.
+    if (pending.length > MAX_PROVIDER_SSE_FRAME_CHARS) pending = "";
+  };
+
+  return body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, controller) {
+      pending += decoder.decode(chunk, { stream: true });
+      inspectCompleteFrames();
+      controller.enqueue(chunk);
+    },
+    flush() {
+      pending += decoder.decode();
+      inspect(pending);
+    },
+  }));
 }
 
 function withProviderStreamTimeout(

@@ -21,8 +21,13 @@ import {
 import {
   AtlasProviderConfigurationError,
   AtlasProviderTimeoutError,
+  atlasProviderDiagnostics,
   buildAtlasProviderRequest,
+  classifyAtlasProviderFailure,
   DEFAULT_ATLAS_PROVIDER_TIMEOUT_MS,
+  describeAtlasProviderFailure,
+  getAtlasProviderFailure,
+  observeAtlasProviderSseStream,
   resolveAtlasProviderConfig,
   streamAtlasCompletion,
 } from "../supabase/functions/_shared/atlas/provider";
@@ -109,6 +114,83 @@ describe("Atlas provider configuration", () => {
       () => resolveAtlasProviderConfig((key) => key === "ATLAS_PROVIDER" ? "unsupported" : "test"),
       AtlasProviderConfigurationError,
     );
+  });
+
+  it("classifies upstream failures without retaining provider messages or key material", async () => {
+    const sensitiveMessage = "learner prompt must never enter diagnostics";
+    const streamFailure = describeAtlasProviderFailure(200, {
+      type: "error",
+      error: {
+        code: "insufficient_quota",
+        type: "billing_error",
+        message: sensitiveMessage,
+      },
+    });
+    assert.deepEqual(streamFailure, {
+      status: 200,
+      eventType: "error",
+      category: "billing",
+    });
+    assert.equal(JSON.stringify(streamFailure).includes(sensitiveMessage), false);
+
+    const responseFailure = describeAtlasProviderFailure(200, {
+      type: "response.failed",
+      response: { error: { code: "model_not_found", message: sensitiveMessage } },
+    });
+    assert.deepEqual(responseFailure, {
+      status: 200,
+      eventType: "response.failed",
+      category: "model",
+    });
+    assert.equal(JSON.stringify(responseFailure).includes(sensitiveMessage), false);
+
+    const httpFailure = await getAtlasProviderFailure(new Response(JSON.stringify({
+      error: { code: "model_not_found", message: sensitiveMessage },
+    }), { status: 404 }));
+    assert.deepEqual(httpFailure, {
+      status: 404,
+      eventType: "error_field",
+      category: "model",
+    });
+    assert.equal(JSON.stringify(httpFailure).includes(sensitiveMessage), false);
+
+    assert.equal(classifyAtlasProviderFailure(401, null), "authentication");
+    assert.equal(classifyAtlasProviderFailure(422, null), "request");
+    assert.equal(classifyAtlasProviderFailure(429, null), "rate_limit");
+    assert.equal(classifyAtlasProviderFailure(503, null), "provider");
+
+    assert.deepEqual(atlasProviderDiagnostics({
+      provider: "openai",
+      model: "gpt-5.6-mini",
+      apiKey: "must-not-appear",
+      timeoutMs: 60_000,
+    }), {
+      provider: "openai",
+      model: "gpt-5.6-mini",
+      timeoutMs: 60_000,
+    });
+  });
+
+  it("observes a split provider SSE error while forwarding bytes unchanged", async () => {
+    const frame = 'data: {"type":"error","error":{"code":"invalid_api_key","message":"private learner text"}}\n\n';
+    const encoder = new TextEncoder();
+    const source = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode(frame.slice(0, 34)));
+        controller.enqueue(encoder.encode(frame.slice(34)));
+        controller.close();
+      },
+    });
+    const observed: unknown[] = [];
+    const body = observeAtlasProviderSseStream(source, 200, (failure) => observed.push(failure));
+
+    assert.equal(await new Response(body).text(), frame);
+    assert.deepEqual(observed, [{
+      status: 200,
+      eventType: "error",
+      category: "authentication",
+    }]);
+    assert.equal(JSON.stringify(observed).includes("private learner text"), false);
   });
 
   it("times out a provider stream that stalls before completion", async () => {
