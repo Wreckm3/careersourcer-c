@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Focus, Menu, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgress } from "@/hooks/useProgress";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -17,9 +18,11 @@ import { AtlasSidebar } from "@/components/atlas/AtlasSidebar";
 import { AtlasContextPanel, type AtlasWorkspaceProject } from "@/components/atlas/AtlasContextPanel";
 import { AtlasConversation } from "@/components/atlas/AtlasConversation";
 import { AtlasOrb } from "@/components/atlas/AtlasOrb";
+import { AtlasMissionCelebration } from "@/components/atlas/AtlasMissionCelebration";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import type { AtlasOrbState, AtlasResponseMode, AtlasWorkspacePanel } from "@/components/atlas/workspaceTypes";
+import { ATLAS_MISSION_EVENT, type AtlasLessonContext } from "@/lib/atlas/lessonContext";
 
 const MODE_PREFIXES: Record<AtlasResponseMode, (input: string) => string> = {
   Adaptive: (input) => input,
@@ -51,6 +54,7 @@ export default function AtlasWorkspace() {
   const { tier: subscriptionTier, loading: subscriptionLoading } = useSubscription();
   const { tier: atlasTier, loading: atlasTierLoading } = useAtlasEffectiveTier();
   const phases = usePhases(progress.selectedPath);
+  const reducedMotion = useReducedMotion();
   const [messages, setMessages] = useState<AtlasConversationMessage[]>([]);
   const [archivedMessages, setArchivedMessages] = useState<AtlasConversationMessage[]>([]);
   const [storedMessages, setStoredMessages] = useState<AtlasConversationMessage[]>([]);
@@ -66,6 +70,9 @@ export default function AtlasWorkspace() {
   const [focusMode, setFocusMode] = useState(false);
   const [mobileDrawer, setMobileDrawer] = useState<"navigation" | "context" | null>(null);
   const [activePanel, setActivePanel] = useState<AtlasWorkspacePanel>("learning");
+  const [celebrationKey, setCelebrationKey] = useState<number | null>(null);
+  const celebrationTimerRef = useRef<number | null>(null);
+  const sidebarPanelRef = useRef<HTMLDivElement>(null);
 
   const memoryService = useMemo(() => createAtlasMemoryService(), []);
   const controller = useMemo(
@@ -122,6 +129,28 @@ export default function AtlasWorkspace() {
       cancelled = true;
     };
   }, [atlasTier, atlasTierLoading, memoryService, user]);
+
+  useEffect(() => {
+    const handleMissionCompletion = (event: Event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail = event.detail as Partial<AtlasLessonContext> | undefined;
+      if (detail?.missionCompleted !== true) return;
+
+      setCelebrationKey((current) => (current ?? 0) + 1);
+      if (celebrationTimerRef.current !== null) window.clearTimeout(celebrationTimerRef.current);
+      celebrationTimerRef.current = window.setTimeout(() => setCelebrationKey(null), 1200);
+    };
+
+    window.addEventListener(ATLAS_MISSION_EVENT, handleMissionCompletion);
+    return () => {
+      window.removeEventListener(ATLAS_MISSION_EVENT, handleMissionCompletion);
+      if (celebrationTimerRef.current !== null) window.clearTimeout(celebrationTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    sidebarPanelRef.current?.toggleAttribute("inert", focusMode);
+  }, [focusMode]);
 
   const preparePrompt = useCallback((prompt: string) => {
     setDraft(prompt);
@@ -192,6 +221,10 @@ export default function AtlasWorkspace() {
     if (lastFailedPrompt) void send(lastFailedPrompt, lastFailedPrompt);
   }, [lastFailedPrompt, send]);
 
+  const panelTransition = reducedMotion
+    ? { duration: 0 }
+    : { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const };
+
   if (!user) {
     return <div className="atlas-workspace grid min-h-screen place-items-center px-6"><Link className="rounded-md bg-atlas-accent px-4 py-2 text-sm font-semibold text-atlas-button-foreground hover:opacity-90" to="/auth">Sign in to open Atlas</Link></div>;
   }
@@ -237,9 +270,22 @@ export default function AtlasWorkspace() {
   );
 
   return (
-    <div className="atlas-workspace h-[100dvh] min-h-[32rem] overflow-hidden">
+    <div className="atlas-workspace relative h-[100dvh] min-h-[32rem] overflow-hidden">
       <div className="flex h-full min-h-0">
-        {!focusMode && <div className="hidden min-h-0 lg:flex">{sidebar}</div>}
+        <motion.div
+          ref={sidebarPanelRef}
+          className="atlas-side-panel-enter hidden min-h-0 overflow-hidden lg:flex"
+          initial={false}
+          animate={{
+            width: focusMode ? 0 : sidebarCollapsed ? 72 : 264,
+            opacity: focusMode ? 0 : 1,
+          }}
+          transition={panelTransition}
+          aria-hidden={focusMode || undefined}
+          style={{ pointerEvents: focusMode ? "none" : "auto" }}
+        >
+          {sidebar}
+        </motion.div>
 
         <main className="flex min-w-0 flex-1 flex-col bg-atlas-background">
           <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-atlas-border px-3 sm:px-5">
@@ -266,7 +312,7 @@ export default function AtlasWorkspace() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground sm:w-auto sm:px-3"
+                className="atlas-context-trigger text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground sm:w-auto sm:px-3"
                 onClick={() => {
                   setFocusMode((active) => !active);
                   setMobileDrawer(null);
@@ -281,7 +327,7 @@ export default function AtlasWorkspace() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"
+                className="atlas-context-trigger text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"
                 onClick={() => {
                   if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
                     setMobileDrawer("context");
@@ -334,12 +380,25 @@ export default function AtlasWorkspace() {
               )}
             </section>
 
-            {!focusMode && contextOpen && (
-              <div className="hidden w-[304px] min-h-0 shrink-0 lg:flex">{contextPanel}</div>
-            )}
+            <AnimatePresence initial={false}>
+              {!focusMode && contextOpen && (
+                <motion.div
+                  key="atlas-context-panel"
+                  className="atlas-side-panel-enter hidden min-h-0 shrink-0 overflow-hidden lg:flex"
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 304, opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  transition={panelTransition}
+                >
+                  {contextPanel}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </main>
       </div>
+
+      {celebrationKey !== null && <AtlasMissionCelebration key={celebrationKey} />}
 
       <Sheet open={mobileDrawer === "navigation"} onOpenChange={(open) => setMobileDrawer(open ? "navigation" : null)}>
         <SheetContent side="left" className="atlas-workspace w-[min(88vw,20rem)] border-atlas-border bg-atlas-sidebar p-0 text-atlas-foreground sm:max-w-none">

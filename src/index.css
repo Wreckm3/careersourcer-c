@@ -122,34 +122,37 @@
     --atlas-foreground: 0 0% 98.039%;
     --atlas-muted-foreground: 240 5.03% 64.902%;
     --atlas-button-foreground: 0 0% 5%;
+    --atlas-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --atlas-motion-fast: 160ms;
+    --atlas-motion-base: 240ms;
     color-scheme: dark;
     background: hsl(var(--atlas-background));
     color: hsl(var(--atlas-foreground));
   }
 
-  .atlas-mark-logo {
+  .atlas-workspace .atlas-mark-logo {
     filter: drop-shadow(0 0 22px hsl(var(--atlas-accent) / 0.2));
-    animation: atlas-breathe 5.6s var(--ease-premium) infinite;
+    animation: atlas-breathe 5.6s var(--atlas-ease) infinite;
   }
 
-  .atlas-mark-processing .atlas-orbit-ring {
-    animation-duration: 5s;
+  .atlas-workspace .atlas-mark-processing .atlas-orbit-ring {
+    animation-duration: 4.8s;
   }
 
-  .atlas-mark-streaming .atlas-mark-logo {
-    animation: atlas-stream-pulse 1.8s var(--ease-premium) infinite;
+  .atlas-workspace .atlas-mark-streaming .atlas-mark-logo {
+    animation: atlas-stream-pulse 1.8s var(--atlas-ease) infinite;
   }
 
-  .atlas-mark-error .atlas-orbit-ring {
-    animation: atlas-error-pulse 1.4s var(--ease-premium) infinite;
+  .atlas-workspace .atlas-mark-error .atlas-orbit-ring {
+    animation: atlas-error-pulse 1.4s var(--atlas-ease) infinite;
     border-color: hsl(var(--atlas-accent) / 0.58);
   }
 
-  .atlas-mark-error .atlas-mark-logo {
-    animation: atlas-error-pulse 1.4s var(--ease-premium) infinite;
+  .atlas-workspace .atlas-mark-error .atlas-mark-logo {
+    animation: atlas-error-pulse 1.4s var(--atlas-ease) infinite;
   }
 
-  .atlas-orbit-ring {
+  .atlas-workspace .atlas-orbit-ring {
     position: absolute;
     inset: -12%;
     border: 1px solid hsl(var(--atlas-accent) / 0.28);
@@ -157,13 +160,13 @@
     animation: atlas-orbit 26s linear infinite;
   }
 
-  .atlas-orbit-ring-tilted {
+  .atlas-workspace .atlas-orbit-ring-tilted {
     transform: rotate(48deg) scaleY(0.68);
     animation-name: atlas-orbit-tilted;
     animation-duration: 34s;
   }
 
-  .atlas-orbit-particle {
+  .atlas-workspace .atlas-orbit-particle {
     position: absolute;
     top: 50%;
     left: -2px;
@@ -174,13 +177,143 @@
     box-shadow: 0 0 10px hsl(var(--atlas-accent) / 0.55);
   }
 
-  .atlas-scrollbar {
+  .atlas-workspace .atlas-scrollbar {
     scrollbar-color: hsl(var(--atlas-border)) transparent;
     scrollbar-width: thin;
   }
 
-  .atlas-scrollbar::-webkit-scrollbar-thumb {
+  .atlas-workspace .atlas-scrollbar::-webkit-scrollbar-thumb {
     background: hsl(var(--atlas-border));
+  }
+
+  /* Atlas 3.0 motion primitives. These classes stay inert until a presentation
+     component opts in, keeping the surrounding application free of movement. */
+  .atlas-workspace .atlas-welcome-orb,
+  .atlas-workspace .atlas-welcome-kicker,
+  .atlas-workspace .atlas-welcome-heading,
+  .atlas-workspace .atlas-welcome-subtitle,
+  .atlas-workspace .atlas-welcome-cards {
+    animation: atlas-welcome-enter 560ms var(--atlas-ease) both;
+  }
+
+  .atlas-workspace .atlas-welcome-kicker { animation-delay: 70ms; }
+  .atlas-workspace .atlas-welcome-heading { animation-delay: 130ms; }
+  .atlas-workspace .atlas-welcome-subtitle { animation-delay: 190ms; }
+  .atlas-workspace .atlas-welcome-cards { animation-delay: 250ms; }
+
+  .atlas-workspace .atlas-welcome-cards > .atlas-suggestion-card {
+    animation: atlas-welcome-card-enter 440ms var(--atlas-ease) both;
+  }
+
+  .atlas-workspace .atlas-welcome-cards > .atlas-suggestion-card:nth-child(1) { animation-delay: 270ms; }
+  .atlas-workspace .atlas-welcome-cards > .atlas-suggestion-card:nth-child(2) { animation-delay: 320ms; }
+  .atlas-workspace .atlas-welcome-cards > .atlas-suggestion-card:nth-child(3) { animation-delay: 370ms; }
+  .atlas-workspace .atlas-welcome-cards > .atlas-suggestion-card:nth-child(4) { animation-delay: 420ms; }
+
+  .atlas-workspace .atlas-suggestion-card {
+    transform: translateZ(0);
+    transition:
+      transform var(--atlas-motion-base) var(--atlas-ease),
+      border-color var(--atlas-motion-base) var(--atlas-ease),
+      box-shadow var(--atlas-motion-base) var(--atlas-ease),
+      background-color var(--atlas-motion-base) var(--atlas-ease);
+  }
+
+  @media (hover: hover) {
+    .atlas-workspace .atlas-suggestion-card:hover,
+    .atlas-workspace .atlas-suggestion-card:focus-visible {
+      transform: translateY(-2px);
+      border-color: hsl(var(--atlas-accent) / 0.64);
+      box-shadow: 0 12px 24px -18px hsl(0 0% 0% / 0.88), 0 0 0 1px hsl(var(--atlas-accent) / 0.12);
+    }
+  }
+
+  .atlas-workspace .atlas-suggestion-card:active {
+    transform: translateY(0) scale(0.985);
+  }
+
+  .atlas-workspace .atlas-side-panel-enter {
+    animation: atlas-panel-enter 280ms var(--atlas-ease) both;
+  }
+
+  .atlas-workspace .atlas-sidebar-shell,
+  .atlas-workspace .atlas-context-shell {
+    transition:
+      transform var(--atlas-motion-base) var(--atlas-ease),
+      opacity var(--atlas-motion-fast) var(--atlas-ease),
+      width var(--atlas-motion-base) var(--atlas-ease),
+      flex-basis var(--atlas-motion-base) var(--atlas-ease);
+  }
+
+  .atlas-workspace .atlas-mode-control,
+  .atlas-workspace .atlas-context-trigger {
+    transition:
+      transform var(--atlas-motion-fast) var(--atlas-ease),
+      color var(--atlas-motion-fast) var(--atlas-ease),
+      background-color var(--atlas-motion-fast) var(--atlas-ease),
+      box-shadow var(--atlas-motion-fast) var(--atlas-ease);
+  }
+
+  .atlas-workspace .atlas-mode-control:hover,
+  .atlas-workspace .atlas-context-trigger:hover {
+    transform: translateY(-1px);
+  }
+
+  .atlas-workspace .atlas-mode-control:active,
+  .atlas-workspace .atlas-context-trigger:active {
+    transform: scale(0.98);
+  }
+
+  .atlas-workspace .atlas-dropdown-enter {
+    transform-origin: top right;
+    animation: atlas-dropdown-enter 200ms var(--atlas-ease) both;
+  }
+
+  .atlas-workspace .atlas-send-button {
+    transform: translateZ(0);
+    transition:
+      transform var(--atlas-motion-fast) var(--atlas-ease),
+      box-shadow var(--atlas-motion-base) var(--atlas-ease),
+      opacity var(--atlas-motion-fast) linear;
+  }
+
+  .atlas-workspace .atlas-send-button:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px -10px hsl(var(--atlas-accent) / 0.86);
+  }
+
+  .atlas-workspace .atlas-send-button:not(:disabled):active {
+    transform: translateY(0) scale(0.96);
+  }
+
+  .atlas-workspace .atlas-processing-indicator {
+    animation: atlas-processing-breathe 1.4s var(--atlas-ease) infinite;
+  }
+
+  .atlas-workspace .atlas-processing-dot {
+    animation: atlas-processing-dot 1.05s var(--atlas-ease) infinite;
+    animation-delay: calc(var(--atlas-dot-index, 0) * 120ms);
+  }
+
+  .atlas-workspace .atlas-mission-celebration {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .atlas-workspace .atlas-mission-particle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--atlas-particle-size, 4px);
+    height: var(--atlas-particle-size, 4px);
+    border-radius: 9999px;
+    background: hsl(var(--atlas-accent));
+    box-shadow: 0 0 8px hsl(var(--atlas-accent) / 0.7);
+    opacity: 0;
+    animation: atlas-mission-particle 620ms var(--atlas-ease) both;
+    animation-delay: var(--atlas-particle-delay, 0ms);
   }
 
   .surface-card {
@@ -288,8 +421,72 @@
   to { transform: rotate(408deg) scaleY(0.68); }
 }
 
+@keyframes atlas-welcome-enter {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes atlas-welcome-card-enter {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes atlas-dropdown-enter {
+  from { opacity: 0; transform: translate3d(0, -4px, 0) scale(0.98); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes atlas-panel-enter {
+  from { opacity: 0; transform: translate3d(10px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes atlas-processing-breathe {
+  0%, 100% { opacity: 0.52; transform: translateZ(0) scale(0.94); }
+  50% { opacity: 1; transform: translateZ(0) scale(1); }
+}
+
+@keyframes atlas-processing-dot {
+  0%, 100% { opacity: 0.28; transform: translate3d(0, 1px, 0) scale(0.86); }
+  50% { opacity: 1; transform: translate3d(0, -1px, 0) scale(1); }
+}
+
+@keyframes atlas-mission-particle {
+  0% { opacity: 0; transform: translate3d(-50%, -50%, 0) scale(0.55); }
+  18% { opacity: 0.95; }
+  100% {
+    opacity: 0;
+    transform: translate3d(
+      calc(-50% + var(--atlas-particle-x, 0px)),
+      calc(-50% + var(--atlas-particle-y, -32px)),
+      0
+    ) scale(0.9);
+  }
+}
+
 /* Reduced motion - respect the user */
 @media (prefers-reduced-motion: reduce) {
+  .atlas-workspace .atlas-welcome-orb,
+  .atlas-workspace .atlas-welcome-kicker,
+  .atlas-workspace .atlas-welcome-heading,
+  .atlas-workspace .atlas-welcome-subtitle,
+  .atlas-workspace .atlas-welcome-cards,
+  .atlas-workspace .atlas-welcome-cards > .atlas-suggestion-card,
+  .atlas-workspace .atlas-side-panel-enter,
+  .atlas-workspace .atlas-dropdown-enter,
+  .atlas-workspace .atlas-processing-indicator,
+  .atlas-workspace .atlas-processing-dot,
+  .atlas-workspace .atlas-mission-particle {
+    animation: none !important;
+  }
+
+  .atlas-workspace .atlas-suggestion-card,
+  .atlas-workspace .atlas-mode-control,
+  .atlas-workspace .atlas-context-trigger,
+  .atlas-workspace .atlas-send-button {
+    transform: none !important;
+  }
+
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;

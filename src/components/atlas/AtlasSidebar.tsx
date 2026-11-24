@@ -65,7 +65,7 @@ export function AtlasSidebar({
 
   return (
     <aside
-      className={`flex h-full min-h-0 shrink-0 flex-col border-r border-atlas-border bg-atlas-sidebar transition-[width] duration-200 ${collapsed ? "w-[72px]" : "w-[264px]"}`}
+      className={`atlas-sidebar-shell flex h-full min-h-0 shrink-0 flex-col border-r border-atlas-border bg-atlas-sidebar ${collapsed ? "w-[72px]" : "w-[264px]"}`}
       aria-label="Atlas navigation"
     >
       <div className={`flex h-16 shrink-0 items-center border-b border-atlas-border ${collapsed ? "justify-center px-2" : "justify-between px-4"}`}>

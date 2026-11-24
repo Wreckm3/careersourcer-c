@@ -64,7 +64,7 @@ export function AtlasContextPanel({
   const shownActions = expandedActions ? contextualActions : contextualActions.slice(0, 4);
 
   return (
-    <aside className="flex h-full min-h-0 w-full flex-col border-l border-atlas-border bg-atlas-sidebar" aria-label="Atlas learning context">
+    <aside className="atlas-context-shell flex h-full min-h-0 w-full flex-col border-l border-atlas-border bg-atlas-sidebar" aria-label="Atlas learning context">
       <header className="flex h-16 shrink-0 items-center justify-between border-b border-atlas-border px-4">
         <div>
           <p className="text-sm font-semibold text-atlas-foreground">Context</p>
@@ -74,7 +74,7 @@ export function AtlasContextPanel({
           type="button"
           variant="ghost"
           size="icon"
-          className="h-9 w-9 text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"
+          className="atlas-context-trigger h-9 w-9 text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"
           onClick={onClose}
           aria-label="Hide context panel"
           title="Hide context panel"
@@ -94,7 +94,7 @@ export function AtlasContextPanel({
             type="button"
             variant={activePanel === panel ? "secondary" : "ghost"}
             size="sm"
-            className={activePanel === panel ? "bg-atlas-surface text-atlas-foreground" : "text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"}
+            className={`atlas-mode-control ${activePanel === panel ? "bg-atlas-surface text-atlas-foreground" : "text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"}`}
             onClick={() => onSelectPanel(panel)}
             role="tab"
             aria-selected={activePanel === panel}
@@ -200,7 +200,7 @@ export function AtlasContextPanel({
 
         <section className="mt-6 border-t border-atlas-border pt-4" aria-labelledby="atlas-context-tools">
           <h3 id="atlas-context-tools" className="text-[11px] font-medium uppercase text-atlas-muted">Tools for this moment</h3>
-          <div className="mt-2 space-y-1">
+          <div key={expandedActions ? "all-context-actions" : "primary-context-actions"} className="atlas-dropdown-enter mt-2 space-y-1">
             {shownActions.map((action) => (
               <Button
                 key={action.label}

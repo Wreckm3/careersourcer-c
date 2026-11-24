@@ -1,5 +1,6 @@
-import { isValidElement, type ReactNode, useEffect, useRef, useState } from "react";
+import { isValidElement, type CSSProperties, type ReactNode, useEffect, useRef, useState } from "react";
 import { Check, Copy, Loader2, Lock, RotateCcw, Send } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import type { AtlasConversationMessage } from "@/lib/atlas/types";
@@ -47,6 +48,7 @@ const starterCards = [
 ];
 
 const responseModes: AtlasResponseMode[] = ["Adaptive", "Learn", "Build", "Challenge", "Career"];
+const atlasEase = [0.22, 1, 0.36, 1] as const;
 
 function textFromNode(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") return String(node);
@@ -154,6 +156,29 @@ function MarkdownMessage({ content }: { content: string }) {
   );
 }
 
+function AtlasMessageMotion({
+  children,
+  className,
+  shouldEnter,
+}: {
+  children: ReactNode;
+  className: string;
+  shouldEnter: boolean;
+}) {
+  const entersOnMount = useRef(shouldEnter).current;
+
+  return (
+    <motion.article
+      className={className}
+      initial={entersOnMount ? { opacity: 0, y: 8 } : false}
+      animate={{ opacity: 1, y: 0 }}
+      transition={entersOnMount ? { duration: 0.26, ease: atlasEase } : { duration: 0 }}
+    >
+      {children}
+    </motion.article>
+  );
+}
+
 export function AtlasConversation({
   messages,
   draft,
@@ -173,6 +198,10 @@ export function AtlasConversation({
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastComposerFocusKey = useRef(composerFocusKey);
+  const renderedMessageKeys = useRef(new Set<string>());
+  const previousMessageCount = useRef(messages.length);
+  const reducedMotion = useReducedMotion();
+  const viewTransition = reducedMotion ? { duration: 0 } : { duration: 0.3, ease: atlasEase };
 
   const resizeTextarea = () => {
     const textarea = textareaRef.current;
@@ -194,9 +223,28 @@ export function AtlasConversation({
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
+      behavior: streaming ? "auto" : "smooth",
     });
   }, [messages, streaming, error]);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      renderedMessageKeys.current.clear();
+      previousMessageCount.current = 0;
+      return;
+    }
+
+    if (messages.length < previousMessageCount.current) {
+      renderedMessageKeys.current = new Set(
+        messages.map((message, index) => `${message.role}-${index}`),
+      );
+    }
+
+    messages.forEach((message, index) => {
+      renderedMessageKeys.current.add(`${message.role}-${index}`);
+    });
+    previousMessageCount.current = messages.length;
+  }, [messages]);
 
   const preparePrompt = (prompt: string) => {
     onPreparePrompt(prompt);
@@ -227,62 +275,84 @@ export function AtlasConversation({
 
   return (
     <section className="flex min-h-0 flex-1 flex-col" aria-label="Atlas conversation">
-      <div ref={scrollRef} className="atlas-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        {messages.length === 0 ? (
-          <div className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-5 py-8 text-center sm:px-8 sm:py-12">
-            <AtlasOrb state={orbState} />
-            <p className="mt-7 text-[11px] font-medium uppercase tracking-[0.28em] text-atlas-muted">Atlas 3.0</p>
-            <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-atlas-foreground sm:text-4xl">What&apos;s your next move?</h1>
-            <p className="mt-3 text-sm text-atlas-muted sm:text-base">Your mentor. Your partner. Your potential.</p>
+      <div ref={scrollRef} className="atlas-scrollbar relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <AnimatePresence initial={false} mode="popLayout">
+          {messages.length === 0 ? (
+            <motion.div
+              key="atlas-welcome"
+              className="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-5 py-8 text-center sm:px-8 sm:py-12"
+              initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reducedMotion ? undefined : { opacity: 0, y: -4 }}
+              transition={viewTransition}
+            >
+              <div className="atlas-welcome-orb"><AtlasOrb state={orbState} /></div>
+              <p className="atlas-welcome-kicker mt-7 text-[11px] font-medium uppercase tracking-[0.28em] text-atlas-muted">Atlas 3.0</p>
+              <h1 className="atlas-welcome-heading mt-3 font-display text-3xl font-semibold tracking-tight text-atlas-foreground sm:text-4xl">What&apos;s your next move?</h1>
+              <p className="atlas-welcome-subtitle mt-3 text-sm text-atlas-muted sm:text-base">Your mentor. Your partner. Your potential.</p>
 
-            <div className="mt-8 grid w-full grid-cols-1 gap-2 text-left sm:grid-cols-2">
-              {starterCards.map((card) => (
-                <button
-                  key={card.label}
-                  type="button"
-                  onClick={() => preparePrompt(card.prompt)}
-                  className="group rounded-lg border border-atlas-border bg-atlas-surface px-4 py-3 text-left transition-colors hover:border-atlas-accent/60 hover:bg-atlas-surface/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-accent"
-                >
-                  <span className="block text-sm font-medium text-atlas-foreground">{card.label}</span>
-                  <span className="mt-1 block text-xs leading-5 text-atlas-muted">{card.description}</span>
-                </button>
-              ))}
-            </div>
+              <div className="atlas-welcome-cards mt-8 grid w-full grid-cols-1 gap-2 text-left sm:grid-cols-2">
+                {starterCards.map((card) => (
+                  <button
+                    key={card.label}
+                    type="button"
+                    onClick={() => preparePrompt(card.prompt)}
+                    className="atlas-suggestion-card group rounded-lg border border-atlas-border bg-atlas-surface px-4 py-3 text-left hover:border-atlas-accent/60 hover:bg-atlas-surface/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-accent"
+                  >
+                    <span className="block text-sm font-medium text-atlas-foreground">{card.label}</span>
+                    <span className="mt-1 block text-xs leading-5 text-atlas-muted">{card.description}</span>
+                  </button>
+                ))}
+              </div>
 
-            {error && <ConversationError error={error} canUpgrade={errorCanUpgrade} onRetry={onRetry} />}
-          </div>
-        ) : (
-          <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
-            {messages.map((message, index) => {
-              const isUser = message.role === "user";
-              const isPending = !isUser && !message.content && streaming;
+              {error && <ConversationError error={error} canUpgrade={errorCanUpgrade} onRetry={onRetry} />}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="atlas-thread"
+              className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8"
+              initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reducedMotion ? undefined : { opacity: 0, y: -4 }}
+              transition={viewTransition}
+            >
+              {messages.map((message, index) => {
+                const messageKey = `${message.role}-${index}`;
+                const isUser = message.role === "user";
+                const isPending = !isUser && !message.content && streaming;
+                const shouldEnter = !reducedMotion && !renderedMessageKeys.current.has(messageKey);
 
-              return (
-                <article key={`${message.role}-${index}`} className={isUser ? "ml-auto max-w-[88%] sm:max-w-[76%]" : "max-w-[95%] sm:max-w-[88%]"}>
-                  {isUser ? (
-                    <div className="rounded-2xl rounded-br-sm border border-atlas-border bg-atlas-surface px-4 py-3 text-sm leading-6 text-atlas-foreground">
-                      {message.content}
-                    </div>
-                  ) : (
-                    <div className="group">
-                      <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-atlas-muted">
-                        <span>Atlas</span>
-                        {isPending && <span className="normal-case tracking-normal">thinking</span>}
+                return (
+                  <AtlasMessageMotion
+                    key={messageKey}
+                    className={isUser ? "ml-auto max-w-[88%] sm:max-w-[76%]" : "max-w-[95%] sm:max-w-[88%]"}
+                    shouldEnter={shouldEnter}
+                  >
+                    {isUser ? (
+                      <div className="rounded-2xl rounded-br-sm border border-atlas-border bg-atlas-surface px-4 py-3 text-sm leading-6 text-atlas-foreground">
+                        {message.content}
                       </div>
-                      {isPending ? <TypingIndicator /> : <MarkdownMessage content={message.content} />}
-                      {!isPending && message.content && (
-                        <div className="mt-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                          <CopyButton value={message.content} />
+                    ) : (
+                      <div className="group">
+                        <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-atlas-muted">
+                          <span>Atlas</span>
+                          {isPending && <span className="normal-case tracking-normal">thinking</span>}
                         </div>
-                      )}
-                    </div>
-                  )}
-                </article>
-              );
-            })}
-            {error && <ConversationError error={error} canUpgrade={errorCanUpgrade} onRetry={onRetry} />}
-          </div>
-        )}
+                        {isPending ? <TypingIndicator /> : <MarkdownMessage content={message.content} />}
+                        {!isPending && message.content && (
+                          <div className="mt-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+                            <CopyButton value={message.content} />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </AtlasMessageMotion>
+                );
+              })}
+              {error && <ConversationError error={error} canUpgrade={errorCanUpgrade} onRetry={onRetry} />}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="shrink-0 border-t border-atlas-border bg-atlas-background px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:px-5">
@@ -294,7 +364,7 @@ export function AtlasConversation({
                 type="button"
                 onClick={() => onModeChange(responseMode)}
                 aria-pressed={mode === responseMode}
-                className={`h-8 shrink-0 rounded-md px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-accent ${mode === responseMode ? "bg-atlas-surface text-atlas-foreground" : "text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"}`}
+                className={`atlas-mode-control h-8 shrink-0 rounded-md px-2.5 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-accent ${mode === responseMode ? "bg-atlas-surface text-atlas-foreground" : "text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"}`}
               >
                 {responseMode}
               </button>
@@ -329,7 +399,7 @@ export function AtlasConversation({
             <button
               type="submit"
               disabled={streaming || !draft.trim()}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-atlas-accent text-atlas-button-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-accent focus-visible:ring-offset-2 focus-visible:ring-offset-atlas-surface"
+              className="atlas-send-button grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-atlas-accent text-atlas-button-foreground disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-accent focus-visible:ring-offset-2 focus-visible:ring-offset-atlas-surface"
               aria-label={streaming ? "Atlas is responding" : "Send message"}
             >
               {streaming ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
@@ -344,9 +414,9 @@ export function AtlasConversation({
 
 function TypingIndicator() {
   return (
-    <span className="flex h-8 items-center gap-1" aria-label="Atlas is typing" role="status">
+    <span className="atlas-processing-indicator flex h-8 items-center gap-1" aria-label="Atlas is typing" role="status">
       {[0, 1, 2].map((dot) => (
-        <span key={dot} className="h-1.5 w-1.5 animate-pulse rounded-full bg-atlas-muted" style={{ animationDelay: `${dot * 150}ms` }} />
+        <span key={dot} className="atlas-processing-dot h-1.5 w-1.5 rounded-full bg-atlas-muted" style={{ "--atlas-dot-index": dot } as CSSProperties} />
       ))}
     </span>
   );
