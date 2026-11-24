@@ -14,6 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
+      team_invitations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          invited_by: string
+          invitee_id: string
+          responded_at: string | null
+          status: Database["public"]["Enums"]["team_invitation_status"]
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          invitee_id: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["team_invitation_status"]
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          invitee_id?: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["team_invitation_status"]
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_join_requests: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          requester_id: string
+          responded_at: string | null
+          status: Database["public"]["Enums"]["team_join_request_status"]
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          requester_id: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["team_join_request_status"]
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          requester_id?: string
+          responded_at?: string | null
+          status?: Database["public"]["Enums"]["team_join_request_status"]
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_join_requests_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          joined_at: string
+          role: Database["public"]["Enums"]["team_member_role"]
+          status: Database["public"]["Enums"]["team_membership_status"]
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          role: Database["public"]["Enums"]["team_member_role"]
+          status?: Database["public"]["Enums"]["team_membership_status"]
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          role?: Database["public"]["Enums"]["team_member_role"]
+          status?: Database["public"]["Enums"]["team_membership_status"]
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_rate_limit_guards: {
+        Row: {
+          operation: string
+          touched_at: string
+          user_id: string
+        }
+        Insert: {
+          operation: string
+          touched_at?: string
+          user_id: string
+        }
+        Update: {
+          operation?: string
+          touched_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      teams: {
+        Row: {
+          collaboration_version: number
+          created_at: string
+          created_by: string | null
+          id: string
+          is_discoverable: boolean
+          name: string
+        }
+        Insert: {
+          collaboration_version?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_discoverable?: boolean
+          name: string
+        }
+        Update: {
+          collaboration_version?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_discoverable?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
       atlas_memories: {
         Row: {
           completed_foundation_paths: string[]
@@ -304,9 +460,45 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_team_invitation: {
+        Args: { _invitation_id: string }
+        Returns: string
+      }
+      approve_team_join_request: {
+        Args: { _request_id: string }
+        Returns: string
+      }
+      create_team: {
+        Args: { _is_discoverable?: boolean; _name: string }
+        Returns: string
+      }
+      create_team_invitation: {
+        Args: { _invitee_id: string; _team_id: string }
+        Returns: string
+      }
+      decline_team_invitation: {
+        Args: { _invitation_id: string }
+        Returns: undefined
+      }
+      decline_team_join_request: {
+        Args: { _request_id: string }
+        Returns: undefined
+      }
+      delete_team: {
+        Args: { _team_id: string }
+        Returns: undefined
+      }
       get_user_tier: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_tier"]
+      }
+      has_pending_team_invitation: {
+        Args: { _team_id: string }
+        Returns: boolean
+      }
+      has_pending_team_join_request: {
+        Args: { _team_id: string }
+        Returns: boolean
       }
       has_founder_atlas_entitlement: {
         Args: Record<PropertyKey, never>
@@ -319,6 +511,46 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_active_team_member: {
+        Args: { _team_id: string }
+        Returns: boolean
+      }
+      is_team_manager: {
+        Args: { _team_id: string }
+        Returns: boolean
+      }
+      leave_team: {
+        Args: { _team_id: string }
+        Returns: undefined
+      }
+      remove_team_member: {
+        Args: { _member_id: string; _team_id: string }
+        Returns: undefined
+      }
+      request_to_join_team: {
+        Args: { _team_id: string }
+        Returns: string
+      }
+      revoke_team_invitation: {
+        Args: { _invitation_id: string }
+        Returns: undefined
+      }
+      set_team_member_role: {
+        Args: {
+          _member_id: string
+          _role: Database["public"]["Enums"]["team_member_role"]
+          _team_id: string
+        }
+        Returns: undefined
+      }
+      transfer_team_ownership: {
+        Args: { _new_owner_id: string; _team_id: string }
+        Returns: undefined
+      }
+      withdraw_team_join_request: {
+        Args: { _request_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
@@ -330,6 +562,10 @@ export type Database = {
         | "trialing"
       subscription_tier: "free" | "builder" | "creator" | "visionary"
       upload_review_status: "pending" | "reviewing" | "reviewed" | "rejected"
+      team_invitation_status: "pending" | "accepted" | "declined" | "revoked" | "expired"
+      team_join_request_status: "pending" | "approved" | "declined" | "withdrawn" | "expired"
+      team_member_role: "owner" | "admin" | "member"
+      team_membership_status: "active" | "left" | "removed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -467,6 +703,10 @@ export const Constants = {
       ],
       subscription_tier: ["free", "builder", "creator", "visionary"],
       upload_review_status: ["pending", "reviewing", "reviewed", "rejected"],
+      team_invitation_status: ["pending", "accepted", "declined", "revoked", "expired"],
+      team_join_request_status: ["pending", "approved", "declined", "withdrawn", "expired"],
+      team_member_role: ["owner", "admin", "member"],
+      team_membership_status: ["active", "left", "removed"],
     },
   },
 } as const
