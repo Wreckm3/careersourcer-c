@@ -63,7 +63,7 @@ export function useAtlasEffectiveTier(): AtlasEffectiveTierState {
 
     void (async () => {
       try {
-        const { data, error } = await supabase.rpc("has_founder_atlas_entitlement");
+        const { data, error } = await supabase.rpc("has_founder_atlas_entitlement" as never);
         if (cancelled) return;
 
         setResolution({

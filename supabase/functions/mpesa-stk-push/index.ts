@@ -49,6 +49,10 @@ type MpesaDatabase = {
 type MpesaClient = ReturnType<typeof createClient<MpesaDatabase>>;
 const reply = (body: Record<string, unknown>, status = 200) => Response.json(body, { status, headers: corsHeaders });
 
+function isPaidTier(value: unknown): value is PaidTier {
+  return typeof value === "string" && Object.prototype.hasOwnProperty.call(prices, value);
+}
+
 function normalizePhone(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const compact = value.trim().replace(/[\s()\-]/g, "");
@@ -80,14 +84,14 @@ Deno.serve(async (req) => {
     const { data: { user } } = await auth.auth.getUser();
     if (!user) return reply({ error: "Sign in before starting M-Pesa checkout." }, 401);
     const body = await req.json().catch(() => null);
-    const tier = body?.tier as string;
+    const tier = body?.tier;
     const phone = normalizePhone(body?.phoneNumber);
-    if (!(tier in prices)) return reply({ error: "Invalid paid plan." }, 400);
+    if (!isPaidTier(tier)) return reply({ error: "Invalid paid plan." }, 400);
     if (!phone) return reply({ error: "Enter a valid Kenyan M-Pesa number." }, 400);
     const key = Deno.env.get("MPESA_CONSUMER_KEY"), secret = Deno.env.get("MPESA_CONSUMER_SECRET"), shortcode = Deno.env.get("MPESA_SHORTCODE"), passkey = Deno.env.get("MPESA_PASSKEY"), callbackUrl = Deno.env.get("MPESA_CALLBACK_URL"), callbackSecret = Deno.env.get("MPESA_CALLBACK_SECRET");
     if (!key || !secret || !shortcode || !passkey || !callbackUrl || !callbackSecret) return reply({ error: "M-Pesa checkout is not configured." }, 503);
     service = createClient<MpesaDatabase>(url, serviceKey, { auth: { persistSession: false } });
-    const amount = prices[tier as PaidTier];
+    const amount = prices[tier];
     const { data: payment, error: insertError } = await service.from("mpesa_payments").insert({ user_id: user.id, tier, amount_kes: amount, phone_number: phone }).select("id").single();
     if (insertError || !payment) throw new Error("Could not create pending payment");
     paymentId = payment.id;

@@ -492,14 +492,6 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_tier"]
       }
-      has_pending_team_invitation: {
-        Args: { _team_id: string }
-        Returns: boolean
-      }
-      has_pending_team_join_request: {
-        Args: { _team_id: string }
-        Returns: boolean
-      }
       has_founder_atlas_entitlement: {
         Args: Record<PropertyKey, never>
         Returns: boolean
