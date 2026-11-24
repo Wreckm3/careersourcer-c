@@ -20,6 +20,7 @@ import {
   resolveAtlasRateLimit,
   type AtlasFeature,
 } from "../_shared/atlas/entitlements.ts";
+import { estimateAtlasInputTokens, routeAtlasRequest } from "../_shared/atlas/credits.ts";
 
 const Message = z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(2000) });
 const Lesson = z.object({ skillLevel: z.string().max(80), categoryId: z.string().max(120), branchId: z.string().max(120), lessonId: z.string().max(120), mission: z.string().max(1000), missionCompleted: z.boolean(), toolsLearned: z.array(z.string().max(80)).max(12), projectCompleted: z.string().max(300).nullable(), progress: z.object({ lessonIndex: z.number().int().nonnegative(), totalLessons: z.number().int().positive(), completedInBranch: z.number().int().nonnegative(), percentBranch: z.number().min(0).max(100), streakCurrent: z.number().int().nonnegative() }), nextMission: z.object({ id: z.string().max(120), title: z.string().max(200), mission: z.string().max(1000) }).nullable() });
@@ -141,6 +142,67 @@ Deno.serve(async (req) => {
     }
     if (rateLimit === "exhausted") return json({ error: "Atlas is taking a short breather. Try again in a minute." }, 429);
 
+    const periodKey = subscription?.current_period_end
+      ? `atlas:${auth.user.id}:${new Date(subscription.current_period_end).toISOString().slice(0, 10)}`
+      : `atlas:${auth.user.id}:trial`;
+    const [walletResult] = await Promise.all([
+      db.rpc("ensure_atlas_allowance"),
+    ]);
+    if (walletResult.error || !walletResult.data) {
+      return json({ error: "Atlas credits are temporarily unavailable." }, 503);
+    }
+    const wallet = walletResult.data as {
+      available: number;
+      essential_mode: boolean;
+      period_key: string;
+    };
+    let route;
+    try {
+      route = routeAtlasRequest({
+        tier: entitlements.tier,
+        availableCredits: wallet.available,
+        essentialMode: wallet.essential_mode,
+        feature: parsed.data.feature,
+        messageCharacters: parsed.data.messages.reduce((sum, message) => sum + message.content.length, 0),
+      });
+    } catch {
+      return json({ error: "Atlas does not have enough credits for this request.", essentialMode: wallet.essential_mode }, 402);
+    }
+    const requestId = crypto.randomUUID();
+    const reserve = await db.rpc("atlas_reserve_request", {
+      _request_id: requestId,
+      _model: getAtlasProviderConfig().model,
+      _worst_case_credits: route.worstCaseCredits,
+      _worst_case_budget_micro_kes: route.worstCaseBudgetMicroKes.toString(),
+      _period_key: wallet.period_key ?? periodKey,
+    });
+    if (reserve.error || !reserve.data?.reserved) {
+      return json({
+        error: reserve.data?.reason === "insufficient_credits"
+          ? "Atlas does not have enough credits for this request."
+          : "Atlas credits are temporarily unavailable.",
+        essentialMode: wallet.essential_mode,
+      }, reserve.data?.reason === "insufficient_credits" ? 402 : 503);
+    }
+    const serviceUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const service = serviceUrl && serviceKey
+      ? createClient(serviceUrl, serviceKey, { auth: { persistSession: false } })
+      : null;
+    const settleReservation = async (status: "failed" | "uncertain" | "settled", reconciliation = "none") => {
+      if (!service || !reserve.data?.request_uuid) return;
+      await service.rpc("atlas_settle_request", {
+        _request_uuid: reserve.data.request_uuid,
+        _status: status,
+        _actual_credits: status === "settled" ? route.worstCaseCredits : 0,
+        _actual_budget_micro_kes: status === "settled" ? route.worstCaseBudgetMicroKes.toString() : 0,
+        _input_tokens: estimateAtlasInputTokens(parsed.data.messages, parsed.data.lessonContext),
+        _output_tokens: status === "settled" ? route.maxOutputTokens : 0,
+        _cached_tokens: 0,
+        _reconciliation: reconciliation,
+      }).catch(() => undefined);
+    };
+
     const [profile, progress, memory] = await Promise.all([
       db.from("profiles").select("display_name").eq("id", auth.user.id).maybeSingle(),
       db.from("user_progress").select("selected_path,completed_sessions,streak_current").eq("user_id", auth.user.id).maybeSingle(),
@@ -148,6 +210,18 @@ Deno.serve(async (req) => {
     ]);
     if (profile.error || progress.error || memory.error) {
       console.error("Atlas learner context lookup failed", profile.error?.message ?? progress.error?.message ?? memory.error?.message);
+      if (service && reserve.data?.request_uuid) {
+        await service.rpc("atlas_settle_request", {
+          _request_uuid: reserve.data.request_uuid,
+          _status: "failed",
+          _actual_credits: 0,
+          _actual_budget_micro_kes: 0,
+          _input_tokens: estimateAtlasInputTokens(parsed.data.messages, parsed.data.lessonContext),
+          _output_tokens: 0,
+          _cached_tokens: 0,
+          _reconciliation: "none",
+        }).catch(() => undefined);
+      }
       return json({ error: "Atlas learner context is temporarily unavailable." }, 503);
     }
 
@@ -166,23 +240,64 @@ Deno.serve(async (req) => {
 
     if (!upstream.ok || !upstream.body) {
       const message = await providerErrorMessage(upstream, provider);
+      if (service && reserve.data?.request_uuid) {
+        await service.rpc("atlas_settle_request", {
+          _request_uuid: reserve.data.request_uuid,
+          _status: "uncertain",
+          _actual_credits: 0,
+          _actual_budget_micro_kes: 0,
+          _input_tokens: estimateAtlasInputTokens(parsed.data.messages, parsed.data.lessonContext),
+          _output_tokens: 0,
+          _cached_tokens: 0,
+          _reconciliation: "provider_failure",
+        }).catch(() => undefined);
+      }
       return json({ error: message }, upstream.status === 429 ? 429 : 502);
     }
 
     if (!upstream.headers.get("content-type")?.toLowerCase().includes("text/event-stream")) {
       await upstream.body.cancel().catch(() => undefined);
+      if (service && reserve.data?.request_uuid) {
+        await service.rpc("atlas_settle_request", {
+          _request_uuid: reserve.data.request_uuid,
+          _status: "failed",
+          _actual_credits: 0,
+          _actual_budget_micro_kes: 0,
+          _input_tokens: estimateAtlasInputTokens(parsed.data.messages, parsed.data.lessonContext),
+          _output_tokens: 0,
+          _cached_tokens: 0,
+          _reconciliation: "none",
+        }).catch(() => undefined);
+      }
       return json({ error: "Atlas provider returned an unreadable response. Please try again." }, 502);
     }
 
+    let providerFailureObserved = false;
     const providerStream = observeAtlasProviderSseStream(
   upstream.body,
   upstream.status,
   (failure) => {
+    providerFailureObserved = true;
     logProviderFailure(provider, failure);
   }
 );
 
-return new Response(providerStream, {
+const settlementStream = new TransformStream<Uint8Array, Uint8Array>({
+  transform(chunk, controller) {
+    controller.enqueue(chunk);
+  },
+  cancel() {
+    void settleReservation("failed", "disconnected");
+  },
+  flush() {
+    void settleReservation(providerFailureObserved ? "uncertain" : "settled",
+      providerFailureObserved ? "provider_uncertain" : "none");
+  },
+});
+
+const finalStream = providerStream.pipeThrough(settlementStream);
+
+return new Response(finalStream, {
   headers: {
     ...corsHeaders,
     "Content-Type": "text/event-stream",
@@ -192,6 +307,23 @@ return new Response(providerStream, {
 });
   } catch (error) {
     console.error("Atlas failed", error instanceof Error ? error.message : "unknown");
+    if (typeof reserve !== "undefined" && reserve?.data?.request_uuid) {
+      const serviceUrl = Deno.env.get("SUPABASE_URL");
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (serviceUrl && serviceKey) {
+        const recovery = createClient(serviceUrl, serviceKey, { auth: { persistSession: false } });
+        await recovery.rpc("atlas_settle_request", {
+          _request_uuid: reserve.data.request_uuid,
+          _status: error instanceof AtlasProviderTimeoutError ? "uncertain" : "failed",
+          _actual_credits: 0,
+          _actual_budget_micro_kes: 0,
+          _input_tokens: estimateAtlasInputTokens(parsed.data.messages, parsed.data.lessonContext),
+          _output_tokens: 0,
+          _cached_tokens: 0,
+          _reconciliation: error instanceof AtlasProviderTimeoutError ? "provider_timeout" : "failed",
+        }).catch(() => undefined);
+      }
+    }
     if (error instanceof AtlasProviderConfigurationError) {
       return json({ error: "Atlas AI is not configured yet. Please contact support." }, 503);
     }

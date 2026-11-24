@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProgress } from "@/hooks/useProgress";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAtlasEffectiveTier } from "@/hooks/useAtlasEffectiveTier";
+import { useAtlasCredits } from "@/hooks/useAtlasCredits";
 import { usePhases } from "@/lib/phases";
 import { meetsTier, PLANS } from "@/lib/tiers";
 import { categories, getBranch, getLesson } from "@/data/curriculum";
@@ -53,6 +54,8 @@ export default function AtlasWorkspace() {
   const { progress } = useProgress();
   const { tier: subscriptionTier, loading: subscriptionLoading } = useSubscription();
   const { tier: atlasTier, loading: atlasTierLoading } = useAtlasEffectiveTier();
+  const atlasCredits = useAtlasCredits();
+  const refreshAtlasCredits = atlasCredits.refresh;
   const phases = usePhases(progress.selectedPath);
   const reducedMotion = useReducedMotion();
   const [messages, setMessages] = useState<AtlasConversationMessage[]>([]);
@@ -204,6 +207,7 @@ export default function AtlasWorkspace() {
       });
 
       await controller.recordAssistantReply(plan, answer);
+      await refreshAtlasCredits();
     } catch (caught) {
       const failure = caught as Error & { upgrade?: boolean };
       setMessages(pendingMessages ?? messages);
@@ -212,10 +216,11 @@ export default function AtlasWorkspace() {
         message: failure.message || "Network problem reaching Atlas. Try again.",
         upgrade: failure.upgrade,
       });
+      await refreshAtlasCredits();
     } finally {
       setStreaming(false);
     }
-  }, [accessLocked, controller, controllerContext, messages, mode, streaming]);
+  }, [accessLocked, refreshAtlasCredits, controller, controllerContext, messages, mode, streaming]);
 
   const retry = useCallback(() => {
     if (lastFailedPrompt) void send(lastFailedPrompt, lastFailedPrompt);
@@ -246,6 +251,13 @@ export default function AtlasWorkspace() {
       onToggleCollapsed={() => setSidebarCollapsed((collapsed) => !collapsed)}
       onOpenPanel={openContextPanel}
       onUseMessage={preparePrompt}
+      creditStatus={{
+        available: atlasCredits.available,
+        flexible: atlasCredits.flexible,
+        reserve: atlasCredits.reserve,
+        renewalAt: atlasCredits.renewalAt,
+        essentialMode: atlasCredits.essentialMode,
+      }}
     />
   );
 
