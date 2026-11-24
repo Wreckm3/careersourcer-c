@@ -60,6 +60,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        atlas: {
+          background: "hsl(var(--atlas-background))",
+          sidebar: "hsl(var(--atlas-sidebar))",
+          surface: "hsl(var(--atlas-surface))",
+          border: "hsl(var(--atlas-border))",
+          accent: "hsl(var(--atlas-accent))",
+          foreground: "hsl(var(--atlas-foreground))",
+          muted: "hsl(var(--atlas-muted-foreground))",
+          "button-foreground": "hsl(var(--atlas-button-foreground))",
+        },
         success: "hsl(var(--success))",
       },
       borderRadius: {

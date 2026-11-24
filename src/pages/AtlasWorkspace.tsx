@@ -1,232 +1,361 @@
-﻿import { Link } from "react-router-dom";
-import { useCallback, useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Focus, Menu, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProgress } from "@/hooks/useProgress";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAtlasEffectiveTier } from "@/hooks/useAtlasEffectiveTier";
 import { usePhases } from "@/lib/phases";
-import { meetsTier } from "@/lib/tiers";
-import { getBranch, getLesson } from "@/data/curriculum";
-import { AtlasActivation } from "@/components/career/AtlasActivation";
-import { AtlasChat } from "@/components/career/AtlasChat";
-import { AtlasIcon } from "@/components/career/AtlasIcon";
-import { PremiumGate } from "@/components/PremiumGate";
-import type { AtlasConversationMessage } from "@/lib/atlas/types";
+import { meetsTier, PLANS } from "@/lib/tiers";
+import { categories, getBranch, getLesson } from "@/data/curriculum";
+import { isEnabled } from "@/config/features";
+import { createAtlasConversationController } from "@/lib/atlas/conversationController";
+import { createAtlasMemoryService } from "@/lib/atlas/memoryService";
+import { streamAtlasResponse } from "@/lib/atlas/atlasTransport";
+import type { AtlasConversationMessage, AtlasMemory, AtlasProject } from "@/lib/atlas/types";
+import { AtlasSidebar } from "@/components/atlas/AtlasSidebar";
+import { AtlasContextPanel, type AtlasWorkspaceProject } from "@/components/atlas/AtlasContextPanel";
+import { AtlasConversation } from "@/components/atlas/AtlasConversation";
+import { AtlasOrb } from "@/components/atlas/AtlasOrb";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import type { AtlasOrbState, AtlasResponseMode, AtlasWorkspacePanel } from "@/components/atlas/workspaceTypes";
+
+const MODE_PREFIXES: Record<AtlasResponseMode, (input: string) => string> = {
+  Adaptive: (input) => input,
+  Learn: (input) => `Teach me this clearly and check my understanding: ${input}`,
+  Build: (input) => `Help me build this with practical, achievable steps: ${input}`,
+  Challenge: (input) => `Challenge my thinking about this and test what I know: ${input}`,
+  Career: (input) => `Give me practical career guidance about this: ${input}`,
+};
+
+function getLearnerName(user: { email?: string | null; user_metadata?: Record<string, unknown> } | null) {
+  if (!user) return "";
+  const metadata = user.user_metadata ?? {};
+  const candidate = typeof metadata.full_name === "string"
+    ? metadata.full_name
+    : typeof metadata.name === "string"
+      ? metadata.name
+      : user.email?.split("@")[0] ?? "";
+  return candidate.trim().split(/\s+/)[0] ?? "";
+}
+
+function toWorkspaceProject(project: AtlasProject | null): AtlasWorkspaceProject[] {
+  if (!project) return [];
+  return [{ id: project.id, title: project.title, summary: project.description }];
+}
 
 export default function AtlasWorkspace() {
   const { user, loading: authLoading } = useAuth();
   const { progress } = useProgress();
-  const { loading: subscriptionLoading } = useSubscription();
+  const { tier: subscriptionTier, loading: subscriptionLoading } = useSubscription();
   const { tier: atlasTier, loading: atlasTierLoading } = useAtlasEffectiveTier();
   const phases = usePhases(progress.selectedPath);
-  const [activated, setActivated] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [conversationKey, setConversationKey] = useState(String(Date.now()));
-  const [sessionHistory, setSessionHistory] = useState<AtlasConversationMessage[]>([]);
-  const onReady = useCallback(() => setActivated(true), []);
+  const [messages, setMessages] = useState<AtlasConversationMessage[]>([]);
+  const [archivedMessages, setArchivedMessages] = useState<AtlasConversationMessage[]>([]);
+  const [storedMessages, setStoredMessages] = useState<AtlasConversationMessage[]>([]);
+  const [storedProject, setStoredProject] = useState<AtlasProject | null>(null);
+  const [draft, setDraft] = useState("");
+  const [streaming, setStreaming] = useState(false);
+  const [error, setError] = useState<{ message: string; upgrade?: boolean } | null>(null);
+  const [lastFailedPrompt, setLastFailedPrompt] = useState<string | null>(null);
+  const [composerFocusKey, setComposerFocusKey] = useState(0);
+  const [mode, setMode] = useState<AtlasResponseMode>("Adaptive");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [contextOpen, setContextOpen] = useState(true);
+  const [focusMode, setFocusMode] = useState(false);
+  const [mobileDrawer, setMobileDrawer] = useState<"navigation" | "context" | null>(null);
+  const [activePanel, setActivePanel] = useState<AtlasWorkspacePanel>("learning");
+
+  const memoryService = useMemo(() => createAtlasMemoryService(), []);
+  const controller = useMemo(
+    () => createAtlasConversationController({ categories, memoryService }),
+    [memoryService],
+  );
+  const controllerContext = useMemo(
+    () => user
+      ? {
+          userId: user.id,
+          learnerName: getLearnerName(user) || null,
+          tier: atlasTier,
+          selectedPath: progress.selectedPath,
+          completedSessions: progress.completedSessions,
+          streakCurrent: progress.streakCurrent,
+        }
+      : null,
+    [atlasTier, progress.completedSessions, progress.selectedPath, progress.streakCurrent, user],
+  );
+
   const branchData = progress.selectedPath
     ? getBranch("technology", progress.selectedPath) ?? getBranch("business", progress.selectedPath) ?? getBranch("creative", progress.selectedPath)
     : undefined;
   const nextLessonId = phases.phaseStates.find((state) => state.unlocked && !state.isComplete)?.nextLessonId ?? null;
   const nextLesson = nextLessonId && progress.selectedPath ? getLesson(progress.selectedPath, nextLessonId) : undefined;
-  const currentProject = useMemo(
-    () => phases.projects.find((project) => project.project.requiredLessonIds.some((id) => progress.completedSessions.includes(id))) ?? phases.projects[0],
-    [phases.projects, progress.completedSessions],
-  );
-  const estimatedTime = nextLesson?.lesson.duration ?? "Choose a path";
   const progressPercent = branchData
     ? Math.round((branchData.branch.lessons.filter((lesson) => progress.completedSessions.includes(lesson.id)).length / branchData.branch.lessons.length) * 100)
     : 0;
+  const currentMission = nextLesson
+    ? { title: nextLesson.lesson.title, duration: nextLesson.lesson.duration }
+    : null;
+  const historyMessages = useMemo(
+    () => [...storedMessages, ...archivedMessages],
+    [archivedMessages, storedMessages],
+  );
+  const accessLocked = !atlasTierLoading && !meetsTier(atlasTier, "builder");
+  const orbState: AtlasOrbState = error
+    ? "error"
+    : streaming
+      ? messages[messages.length - 1]?.content ? "streaming" : "processing"
+      : "idle";
 
-  const handleNewConversation = () => {
-    setConversationKey(String(Date.now()));
-    setSessionHistory([]);
-  };
+  useEffect(() => {
+    if (!user || atlasTierLoading) return;
+    let cancelled = false;
 
-  if (!user) return <div className="min-h-screen grid place-items-center bg-background"><Link className="btn-primary-gold rounded-lg px-4 py-2" to="/auth">Sign in to open Atlas</Link></div>;
+    void memoryService.load(user.id, atlasTier).then((memory: AtlasMemory) => {
+      if (cancelled) return;
+      setStoredMessages(memory.recentConversations);
+      setStoredProject(memory.currentProject);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [atlasTier, atlasTierLoading, memoryService, user]);
+
+  const preparePrompt = useCallback((prompt: string) => {
+    setDraft(prompt);
+    setError(null);
+    setMobileDrawer(null);
+    setComposerFocusKey((key) => key + 1);
+  }, []);
+
+  const openContextPanel = useCallback((panel: AtlasWorkspacePanel) => {
+    setActivePanel(panel);
+    setContextOpen(true);
+    setFocusMode(false);
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+      setMobileDrawer("context");
+    }
+  }, []);
+
+  const handleNewConversation = useCallback(() => {
+    if (streaming) return;
+    if (messages.length > 0) {
+      setArchivedMessages((previous) => [...previous, ...messages].slice(-32));
+    }
+    setMessages([]);
+    setDraft("");
+    setError(null);
+    setLastFailedPrompt(null);
+    setMode("Adaptive");
+    setMobileDrawer(null);
+  }, [messages, streaming]);
+
+  const send = useCallback(async (input: string, retryPrompt?: string) => {
+    const rawInput = retryPrompt ?? input;
+    const trimmed = rawInput.trim();
+    if (!trimmed || streaming || !controllerContext || accessLocked) return;
+
+    const prompt = retryPrompt ?? MODE_PREFIXES[mode](trimmed);
+    setError(null);
+    setDraft("");
+    setStreaming(true);
+    setLastFailedPrompt(null);
+    let pendingMessages: AtlasConversationMessage[] | null = null;
+
+    try {
+      const plan = await controller.prepareTurn(controllerContext, messages, prompt);
+      pendingMessages = plan.messages;
+      setStoredProject(plan.memory.currentProject);
+      setMessages([...plan.messages, { role: "assistant", content: "" }]);
+
+      const { answer } = await streamAtlasResponse(plan.request, (answer) => {
+        setMessages([...plan.messages, { role: "assistant", content: answer }]);
+      });
+
+      await controller.recordAssistantReply(plan, answer);
+    } catch (caught) {
+      const failure = caught as Error & { upgrade?: boolean };
+      setMessages(pendingMessages ?? messages);
+      setLastFailedPrompt(prompt);
+      setError({
+        message: failure.message || "Network problem reaching Atlas. Try again.",
+        upgrade: failure.upgrade,
+      });
+    } finally {
+      setStreaming(false);
+    }
+  }, [accessLocked, controller, controllerContext, messages, mode, streaming]);
+
+  const retry = useCallback(() => {
+    if (lastFailedPrompt) void send(lastFailedPrompt, lastFailedPrompt);
+  }, [lastFailedPrompt, send]);
+
+  if (!user) {
+    return <div className="atlas-workspace grid min-h-screen place-items-center px-6"><Link className="rounded-md bg-atlas-accent px-4 py-2 text-sm font-semibold text-atlas-button-foreground hover:opacity-90" to="/auth">Sign in to open Atlas</Link></div>;
+  }
+
+  if (!isEnabled("atlas")) {
+    return <div className="atlas-workspace grid min-h-screen place-items-center px-6 text-center text-atlas-muted">Atlas is not available in this workspace.</div>;
+  }
+
+  const sidebar = (
+    <AtlasSidebar
+      collapsed={sidebarCollapsed}
+      email={user.email ?? ""}
+      name={getLearnerName(user)}
+      tier={PLANS[subscriptionTier].name}
+      recentMessages={historyMessages}
+      currentMessages={messages}
+      activePanel={activePanel}
+      onNewConversation={handleNewConversation}
+      onToggleCollapsed={() => setSidebarCollapsed((collapsed) => !collapsed)}
+      onOpenPanel={openContextPanel}
+      onUseMessage={preparePrompt}
+    />
+  );
+
+  const contextPanel = (
+    <AtlasContextPanel
+      activePanel={activePanel}
+      branchTitle={branchData?.branch.title ?? null}
+      phaseTitle={phases.currentPhase ? phases.currentPhase.charAt(0).toUpperCase() + phases.currentPhase.slice(1) : null}
+      progressPercent={progressPercent}
+      currentMission={currentMission}
+      projects={toWorkspaceProject(storedProject)}
+      xp={phases.xp.total}
+      level={phases.level.level}
+      streak={progress.streakCurrent}
+      onSelectPanel={setActivePanel}
+      onClose={() => {
+        setContextOpen(false);
+        setMobileDrawer(null);
+      }}
+      onPrompt={preparePrompt}
+    />
+  );
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {!activated && <AtlasActivation loading={authLoading || subscriptionLoading || atlasTierLoading} onReady={onReady} />}
+    <div className="atlas-workspace h-[100dvh] min-h-[32rem] overflow-hidden">
+      <div className="flex h-full min-h-0">
+        {!focusMode && <div className="hidden min-h-0 lg:flex">{sidebar}</div>}
 
-      <div className="relative mx-auto flex min-h-screen max-w-[1800px] flex-col lg:flex-row">
-        <aside className="hidden shrink-0 border-r border-border bg-surface/70 lg:flex lg:w-[270px] lg:flex-col">
-          <div className="sticky top-0 z-10 border-b border-border bg-background/95 px-5 py-5 backdrop-blur-sm">
-            <div className="flex items-center gap-3 text-primary">
-              <AtlasIcon className="h-5 w-5" />
-              <p className="text-xs uppercase tracking-[0.35em]">Atlas</p>
-            </div>
-            <h2 className="mt-4 text-xl font-black">AI Workspace</h2>
-            <p className="mt-3 text-sm text-muted-foreground">{branchData ? `${branchData.branch.title} · ${phases.currentPhase ?? "Explorer"}` : "Choose a branch to begin your roadmap."}</p>
-          </div>
-
-          <div className="flex flex-1 flex-col justify-between overflow-y-auto px-5 py-5">
-            <div className="space-y-5">
-              <button
-                onClick={handleNewConversation}
-                className="w-full rounded-full border border-primary/30 bg-primary/10 px-4 py-3 text-left text-sm font-semibold text-primary transition hover:bg-primary/15"
+        <main className="flex min-w-0 flex-1 flex-col bg-atlas-background">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-atlas-border px-3 sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground lg:hidden"
+                onClick={() => setMobileDrawer("navigation")}
+                aria-label="Open Atlas navigation"
               >
-                + New conversation
-              </button>
-
-              <div className="space-y-3">
-                <p className="text-xs uppercase tracking-[0.35em] text-primary">Conversation history</p>
-                {sessionHistory.length === 0 ? (
-                  <div className="rounded-3xl border border-border bg-muted/10 px-4 py-4 text-sm text-muted-foreground">
-                    Start a chat to see your recent conversation history here.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {sessionHistory
-                      .slice(-4)
-                      .reverse()
-                      .map((message, index) => (
-                        <div key={`${message.role}-${index}`} className="rounded-3xl border border-border bg-background/70 px-4 py-3 text-sm">
-                          <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">{message.role === "user" ? "You" : "Atlas"}</p>
-                          <p className="mt-2 line-clamp-2 text-sm text-foreground">{message.content}</p>
-                        </div>
-                      ))}
-                  </div>
-                )}
+                <Menu />
+              </Button>
+              <AtlasOrb state={orbState} size="compact" />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-atlas-foreground">Atlas 3.0</p>
+                <p className="hidden truncate text-xs text-atlas-muted sm:block">Learn. Build. Become.</p>
               </div>
+            </div>
 
-              <div className="rounded-3xl border border-border bg-background/70 p-4">
-                <p className="text-xs uppercase tracking-[0.35em] text-primary">Learning snapshot</p>
-                <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-                  <div className="flex items-center justify-between gap-3">
-                    <span>XP</span>
-                    <span className="font-semibold text-foreground">{phases.xp.total}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span>Level</span>
-                    <span className="font-semibold text-foreground">{phases.level.level}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span>Streak</span>
-                    <span className="font-semibold text-foreground">{progress.streakCurrent} days</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span>Progress</span>
-                    <span className="font-semibold text-foreground">{progressPercent}%</span>
+            <div className="flex shrink-0 items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground sm:w-auto sm:px-3"
+                onClick={() => {
+                  setFocusMode((active) => !active);
+                  setMobileDrawer(null);
+                }}
+                aria-pressed={focusMode}
+                aria-label={focusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
+              >
+                <Focus />
+                <span className="hidden sm:inline">{focusMode ? "Exit focus" : "Focus"}</span>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+                    setMobileDrawer("context");
+                    return;
+                  }
+                  setContextOpen((open) => !open);
+                  setFocusMode(false);
+                }}
+                aria-label={contextOpen ? "Hide learning context" : "Show learning context"}
+                aria-pressed={contextOpen}
+              >
+                {contextOpen ? <PanelRightClose /> : <PanelRightOpen />}
+              </Button>
+            </div>
+          </header>
+
+          <div className="flex min-h-0 flex-1">
+            <section className="flex min-h-0 min-w-0 flex-1">
+              {atlasTierLoading || authLoading || subscriptionLoading ? (
+                <div className="grid h-full w-full place-items-center" aria-live="polite">
+                  <div className="h-16 w-16 animate-pulse rounded-full border border-atlas-border bg-atlas-surface" aria-label="Loading Atlas workspace" />
+                </div>
+              ) : accessLocked ? (
+                <div className="grid h-full w-full place-items-center px-5">
+                  <div className="w-full max-w-md border border-atlas-border bg-atlas-surface p-6 text-center">
+                    <p className="text-sm font-medium text-atlas-foreground">Atlas Workspace is a Basic feature</p>
+                    <p className="mt-2 text-sm leading-6 text-atlas-muted">Your current subscription is {PLANS[subscriptionTier].name}. Upgrade to continue with persistent mentorship and project memory.</p>
+                    <Button asChild className="mt-5 bg-atlas-accent text-atlas-button-foreground hover:bg-atlas-accent/90">
+                      <Link to="/pricing">View plans</Link>
+                    </Button>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-4 border-t border-border pt-5 text-sm text-muted-foreground">
-              <div>
-                <p className="text-xs uppercase tracking-[0.35em] text-primary">Current project</p>
-                <p className="mt-2 font-semibold text-foreground">{currentProject?.project.title ?? branchData?.branch.projectArc?.projectName ?? "Foundation project"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{currentProject?.project.summary ?? branchData?.branch.projectArc?.promise ?? "Complete missions to turn learning into evidence you can show."}</p>
-              </div>
-              <Link
-                to="/profile"
-                className="inline-flex w-full items-center justify-center rounded-full border border-border bg-background/80 px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-muted/10"
-              >
-                Profile & settings
-              </Link>
-            </div>
-          </div>
-        </aside>
-
-        <main className="flex flex-1 flex-col">
-          <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-5 lg:px-8">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-primary">Atlas</p>
-              <h1 className="mt-3 text-2xl font-black">Your AI assistant workspace</h1>
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Ask Atlas about your current path, mission, or portfolio project. The chat is the center of this workspace.</p>
-            </div>
-            <div className="hidden text-right text-sm text-muted-foreground lg:block">
-              <p>Branch: {branchData?.branch.title ?? "Not selected"}</p>
-              <p className="mt-2">{estimatedTime} · {progressPercent}%</p>
-              <p className="mt-2">Atlas tier: {atlasTier}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(true)}
-              className="inline-flex items-center rounded-full border border-border bg-background/80 px-4 py-2 text-sm text-foreground transition hover:bg-muted/10 lg:hidden"
-            >
-              Workspace
-            </button>
-          </div>
-
-          <div className="flex flex-1 min-h-0 overflow-hidden p-5 lg:p-8">
-            <div className="relative flex flex-1 min-h-0 overflow-hidden rounded-[2rem] border border-border bg-background/90 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
-              {atlasTierLoading ? (
-                <div className="h-24 w-full animate-pulse rounded-xl bg-muted" aria-hidden="true" />
-              ) : meetsTier(atlasTier, "builder") ? (
-                <AtlasChat
-                  layout="workspace"
-                  conversationKey={conversationKey}
-                  onMessagesChange={setSessionHistory}
-                />
               ) : (
-                <PremiumGate required="builder" featureName="Atlas Workspace">
-                  <AtlasChat
-                    layout="workspace"
-                    conversationKey={conversationKey}
-                    onMessagesChange={setSessionHistory}
-                  />
-                </PremiumGate>
+                <AtlasConversation
+                  messages={messages}
+                  draft={draft}
+                  onDraftChange={setDraft}
+                  onSubmit={() => void send(draft)}
+                  streaming={streaming}
+                  error={error?.message ?? null}
+                  errorCanUpgrade={Boolean(error?.upgrade)}
+                  accessLocked={false}
+                  mode={mode}
+                  onModeChange={setMode}
+                  onPreparePrompt={preparePrompt}
+                  orbState={orbState}
+                  composerFocusKey={composerFocusKey}
+                  onRetry={lastFailedPrompt ? retry : undefined}
+                />
               )}
-            </div>
+            </section>
+
+            {!focusMode && contextOpen && (
+              <div className="hidden w-[304px] min-h-0 shrink-0 lg:flex">{contextPanel}</div>
+            )}
           </div>
         </main>
       </div>
 
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex bg-background/70 lg:hidden">
-          <div className="relative flex w-full max-w-[280px] flex-col border-l border-border bg-surface/95 px-5 py-5 shadow-2xl backdrop-blur-sm">
-            <button onClick={() => setSidebarOpen(false)} className="absolute right-4 top-4 rounded-full border border-border bg-background/80 p-2 text-muted-foreground">
-              <X className="h-4 w-4" />
-            </button>
-            <div className="pt-8">
-              <div className="flex items-center gap-3 text-primary">
-                <AtlasIcon className="h-5 w-5" />
-                <p className="text-xs uppercase tracking-[0.35em]">Atlas</p>
-              </div>
-              <h2 className="mt-4 text-xl font-black">Workspace</h2>
-              <p className="mt-3 text-sm text-muted-foreground">A compact view of your ongoing chat and learning progress.</p>
-            </div>
+      <Sheet open={mobileDrawer === "navigation"} onOpenChange={(open) => setMobileDrawer(open ? "navigation" : null)}>
+        <SheetContent side="left" className="atlas-workspace w-[min(88vw,20rem)] border-atlas-border bg-atlas-sidebar p-0 text-atlas-foreground sm:max-w-none">
+          <SheetTitle className="sr-only">Atlas navigation</SheetTitle>
+          <SheetDescription className="sr-only">Conversation history, learning links, and account details.</SheetDescription>
+          <div className="h-full min-h-0">{sidebar}</div>
+        </SheetContent>
+      </Sheet>
 
-            <div className="mt-6 flex flex-1 flex-col justify-between gap-5">
-              <div className="space-y-4">
-                <button
-                  onClick={handleNewConversation}
-                  className="w-full rounded-full border border-primary/30 bg-primary/10 px-4 py-3 text-left text-sm font-semibold text-primary transition hover:bg-primary/15"
-                >
-                  + New conversation
-                </button>
-                <div className="rounded-3xl border border-border bg-background/80 p-4">
-                  <p className="text-xs uppercase tracking-[0.35em] text-primary">Learning snapshot</p>
-                  <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-                    <div className="flex items-center justify-between gap-3">
-                      <span>XP</span>
-                      <span className="font-semibold text-foreground">{phases.xp.total}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span>Level</span>
-                      <span className="font-semibold text-foreground">{phases.level.level}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span>Progress</span>
-                      <span className="font-semibold text-foreground">{progressPercent}%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <Link
-                to="/profile"
-                className="inline-flex w-full items-center justify-center rounded-full border border-border bg-background/80 px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-muted/10"
-              >
-                Profile & settings
-              </Link>
-            </div>
-          </div>
-          <button onClick={() => setSidebarOpen(false)} className="flex-1 bg-transparent" aria-label="Close workspace menu" />
-        </div>
-      )}
+      <Sheet open={mobileDrawer === "context"} onOpenChange={(open) => setMobileDrawer(open ? "context" : null)}>
+        <SheetContent side="right" className="atlas-workspace w-[min(92vw,22rem)] border-atlas-border bg-atlas-sidebar p-0 text-atlas-foreground sm:max-w-none">
+          <SheetTitle className="sr-only">Atlas learning context</SheetTitle>
+          <SheetDescription className="sr-only">Your real learning path, progress, and contextual tools.</SheetDescription>
+          <div className="h-full min-h-0">{contextPanel}</div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
