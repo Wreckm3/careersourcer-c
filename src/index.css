@@ -113,6 +113,67 @@
 }
 
 @layer components {
+  .atlas-workspace {
+    --atlas-background: 0 0% 3.5%;
+    --atlas-sidebar: 0 0% 8%;
+    --atlas-surface: 0 0% 11%;
+    --atlas-border: 0 0% 15%;
+    --atlas-accent: 0 0% 75%;
+    --atlas-foreground: 0 0% 98%;
+    --atlas-muted-foreground: 240 4% 62%;
+    --atlas-button-foreground: 0 0% 5%;
+    color-scheme: dark;
+    background: hsl(var(--atlas-background));
+    color: hsl(var(--atlas-foreground));
+  }
+
+  .atlas-mark-logo {
+    filter: drop-shadow(0 0 22px hsl(var(--atlas-accent) / 0.2));
+    animation: atlas-breathe 5.6s var(--ease-premium) infinite;
+  }
+
+  .atlas-mark-processing .atlas-orbit-ring {
+    animation-duration: 5s;
+  }
+
+  .atlas-mark-streaming .atlas-mark-logo {
+    animation: atlas-stream-pulse 1.8s var(--ease-premium) infinite;
+  }
+
+  .atlas-orbit-ring {
+    position: absolute;
+    inset: -12%;
+    border: 1px solid hsl(var(--atlas-accent) / 0.28);
+    border-radius: 9999px;
+    animation: atlas-orbit 26s linear infinite;
+  }
+
+  .atlas-orbit-ring-tilted {
+    transform: rotate(48deg) scaleY(0.68);
+    animation-name: atlas-orbit-tilted;
+    animation-duration: 34s;
+  }
+
+  .atlas-orbit-particle {
+    position: absolute;
+    top: 50%;
+    left: -2px;
+    width: 4px;
+    height: 4px;
+    border-radius: 9999px;
+    background: hsl(var(--atlas-accent));
+    box-shadow: 0 0 10px hsl(var(--atlas-accent) / 0.55);
+  }
+
+  .atlas-scrollbar {
+    scrollbar-color: hsl(var(--atlas-border)) transparent;
+    scrollbar-width: thin;
+  }
+
+  .atlas-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--atlas-border));
+  }
+
   .surface-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
@@ -191,6 +252,26 @@
 @keyframes gold-pulse {
   0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.35); opacity: 0.85; }
   50%      { box-shadow: 0 0 0 6px hsl(var(--primary) / 0); opacity: 1; }
+}
+
+@keyframes atlas-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.025); }
+}
+
+@keyframes atlas-stream-pulse {
+  0%, 100% { filter: drop-shadow(0 0 18px hsl(var(--atlas-accent) / 0.18)); }
+  50% { filter: drop-shadow(0 0 28px hsl(var(--atlas-accent) / 0.34)); }
+}
+
+@keyframes atlas-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes atlas-orbit-tilted {
+  from { transform: rotate(48deg) scaleY(0.68); }
+  to { transform: rotate(408deg) scaleY(0.68); }
 }
 
 /* Reduced motion - respect the user */
