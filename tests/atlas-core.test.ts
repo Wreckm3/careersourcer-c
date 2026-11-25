@@ -32,6 +32,13 @@ import {
   resolveAtlasProviderConfig,
   streamAtlasCompletion,
 } from "../supabase/functions/_shared/atlas/provider";
+import { normalizeAtlasLessonContext } from "../supabase/functions/_shared/atlas/learningContext";
+import { extractAtlasStudyFlowText } from "../supabase/functions/_shared/atlas/studyflowStream";
+import {
+  atlasStudyFlowAssessmentSchema,
+  atlasStudyFlowRoadmapSchema,
+  parseAtlasStudyFlowRoadmap,
+} from "../src/lib/atlas/studyFlowSchema";
 
 describe("Atlas stream parsing", () => {
   it("collects delta events and a final Responses API payload", () => {
@@ -83,6 +90,117 @@ describe("Atlas conversation bounds", () => {
     assert.equal(requestMessages.length, 12);
     assert.equal(requestMessages[0]?.content, "message-1");
     assert.equal(requestMessages.at(-1)?.content, "message-12");
+  });
+});
+
+describe("Atlas learning context handoff", () => {
+  const lessonContext = {
+    categoryId: "technology",
+    branchId: "web-development",
+    lessonId: "web-1",
+    mission: "Build a small page.",
+    missionCompleted: true,
+    toolsLearned: ["HTML"],
+    projectCompleted: "claimed completion",
+    progress: { lessonIndex: 5, totalLessons: 5, completedInBranch: 5, percentBranch: 100, streakCurrent: 4 },
+    nextMission: null,
+  };
+
+  it("drops lesson context that does not match the server-selected path", () => {
+    assert.equal(normalizeAtlasLessonContext(lessonContext, "game-development", ["web-1"]), null);
+    assert.equal(normalizeAtlasLessonContext(lessonContext, null, ["web-1"]), null);
+  });
+
+  it("derives completion from saved sessions and omits client-asserted progress", () => {
+    const incomplete = normalizeAtlasLessonContext(lessonContext, "web-development", []);
+    assert.equal(incomplete?.missionCompleted, false);
+    assert.equal("progress" in (incomplete ?? {}), false);
+    assert.equal("projectCompleted" in (incomplete ?? {}), false);
+
+    const completed = normalizeAtlasLessonContext(lessonContext, "web-development", ["web-1"]);
+    assert.equal(completed?.missionCompleted, true);
+  });
+});
+
+describe("Atlas StudyFlow response validation", () => {
+  const validResponse = {
+    message: "I drafted a learner-led roadmap for you to review.",
+    roadmap: {
+      schemaVersion: 1,
+      title: "Build a first accessible website",
+      direction: "Learn web fundamentals through a small, useful project.",
+      objectives: [{
+        id: "web-foundation",
+        title: "Create a usable web page",
+        description: "Use HTML and CSS to communicate one clear idea.",
+        stages: [{
+          id: "page-basics",
+          title: "Page foundations",
+          purpose: "Build and inspect a simple page.",
+          milestone: { title: "Share a working page", criteria: "Open the saved page in a browser and explain its structure." },
+          lessons: [{
+            id: "inspect-web-page",
+            title: "Inspect a page",
+            objective: "Notice page structure and layout.",
+            prerequisites: [],
+            resource: {
+              title: "Browser developer tools",
+              kind: "documentation",
+              url: null,
+              why: "They expose page structure.",
+              observe: "Look at headings and layout elements.",
+              doAfter: "Write down one structure choice.",
+              objectiveContribution: "Connects structure to the page objective.",
+            },
+            exercise: "Inspect one familiar page.",
+            mission: "Describe its main sections.",
+            completionCriteria: "Save a short note naming three page sections.",
+          }],
+        }],
+      }],
+      currentObjectiveId: "web-foundation",
+      nextAction: { title: "Inspect one page", description: "Use browser tools to identify its heading and sections.", estimatedMinutes: 10 },
+      recoveryHint: "Start with one page section and ask Atlas for a smaller step if blocked.",
+    },
+  };
+
+  it("accepts a bounded structured roadmap with unverified links omitted", () => {
+    assert.equal(atlasStudyFlowRoadmapSchema.safeParse(validResponse.roadmap).success, true);
+    assert.ok(parseAtlasStudyFlowRoadmap(validResponse.roadmap));
+  });
+
+  it("rejects fabricated URLs and circular prerequisites", () => {
+    const urlResponse = structuredClone(validResponse);
+    const resource = urlResponse.roadmap.objectives[0].stages[0].lessons[0].resource as { url: string | null };
+    resource.url = "https://example.test/guide";
+    assert.equal(atlasStudyFlowRoadmapSchema.safeParse(urlResponse.roadmap).success, false);
+
+    const circularResponse = structuredClone(validResponse);
+    const lesson = circularResponse.roadmap.objectives[0].stages[0].lessons[0] as { prerequisites: string[] };
+    lesson.prerequisites = ["inspect-web-page"];
+    assert.equal(atlasStudyFlowRoadmapSchema.safeParse(circularResponse.roadmap).success, true);
+    assert.equal(parseAtlasStudyFlowRoadmap(circularResponse.roadmap), null);
+  });
+
+  it("extracts complete JSON from mocked provider events and rejects provider errors", () => {
+    const response = [
+      'data: {"type":"response.output_text.delta","delta":"{\\"message\\":\\"Ready\\",\\"assessment\\":"}',
+      'data: {"type":"response.output_text.delta","delta":"{\\"decision\\":\\"developing\\"}}"}',
+      'data: {"type":"response.completed","response":{"output_text":"{\\"message\\":\\"Ready\\",\\"assessment\\":{\\"decision\\":\\"developing\\"}}"}}',
+    ].join("\n\n");
+    const output = extractAtlasStudyFlowText(response);
+    assert.equal(JSON.parse(output).message, "Ready");
+    assert.throws(
+      () => extractAtlasStudyFlowText('data: {"type":"response.failed"}'),
+      /provider failed/i,
+    );
+    assert.equal(atlasStudyFlowAssessmentSchema.safeParse({
+      decision: "criteria_met",
+      feedback: "Your evidence demonstrates the stated lesson criteria.",
+      criteriaMet: ["Created and opened a page"],
+      remainingGaps: [],
+      nextStep: "Explain how the page sections are organized.",
+    }).success, true);
   });
 });
 

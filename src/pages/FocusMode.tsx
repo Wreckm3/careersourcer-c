@@ -169,7 +169,7 @@ function StatTile({ icon: Icon, label, value, color }: {
 export default function FocusMode() {
   const { pathId: branchId, sessionId: lessonId } = useParams<{ pathId: string; sessionId: string }>();
   const navigate = useNavigate();
-  const { completeSession, isCompleted, progress } = useProgress();
+  const { completeSession, isCompleted, progress, selectPath } = useProgress();
   const { tier } = useSubscription();
   const [step, setStep] = useState<Step>("mission");
   const [taskChecked, setTaskChecked] = useState(false);
@@ -182,6 +182,11 @@ export default function FocusMode() {
   const { start: startTimer, pause: pauseTimer, resume: resumeTimer, reset: resetTimer } = timer;
 
   const data = getLesson(branchId || "", lessonId || "");
+  const activeBranchId = data?.branch.id;
+  useEffect(() => {
+    if (activeBranchId) selectPath(activeBranchId);
+  }, [activeBranchId, selectPath]);
+
   const lesson = data?.lesson;
   const lessonAccess = data
     ? getLessonAccess(data.branch.id, data.lesson.id, progress.completedSessions, tier)
@@ -613,11 +618,11 @@ export default function FocusMode() {
                         You’ve finished the starter mission. Atlas can now review the builds you completed and choose a practical next mission.
                       </p>
                       <button
-                        onClick={() => navigate("/atlas")}
+                        onClick={() => navigate("/atlas", { state: { lessonContext: atlas } })}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors hover:bg-muted/50"
                         style={{ borderColor: category.color, color: category.color }}
                       >
-                        <AtlasIcon className="h-4 w-4" /> Get your Atlas progress review
+                        <AtlasIcon className="h-4 w-4" /> Continue with personalized Atlas mentorship
                       </button>
                     </div>
                   </div>

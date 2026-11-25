@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Focus, Menu, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,6 +24,20 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import type { AtlasOrbState, AtlasResponseMode, AtlasWorkspacePanel } from "@/components/atlas/workspaceTypes";
 import { ATLAS_MISSION_EVENT, type AtlasLessonContext } from "@/lib/atlas/lessonContext";
+import {
+  approveAtlasStudyFlow,
+  assessAtlasStudyFlowEvidence,
+  emptyAtlasStudyProfile,
+  generateAtlasStudyFlow,
+  loadAtlasStudyFlow,
+  saveAtlasStudyProfile,
+  submitAtlasStudyFlowEvidence,
+  type AtlasStudyFlowEvidence,
+  type AtlasStudyFlowAssessmentRecord,
+  type AtlasStudyFlowRecord,
+  type AtlasStudyProfile,
+} from "@/lib/atlas/studyFlow";
+import { AtlasStudyFlowPanel } from "@/components/atlas/AtlasStudyFlowPanel";
 
 const MODE_PREFIXES: Record<AtlasResponseMode, (input: string) => string> = {
   Adaptive: (input) => input,
@@ -50,6 +64,7 @@ function toWorkspaceProject(project: AtlasProject | null): AtlasWorkspaceProject
 }
 
 export default function AtlasWorkspace() {
+  const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const { progress } = useProgress();
   const { tier: subscriptionTier, loading: subscriptionLoading } = useSubscription();
@@ -74,6 +89,13 @@ export default function AtlasWorkspace() {
   const [mobileDrawer, setMobileDrawer] = useState<"navigation" | "context" | null>(null);
   const [activePanel, setActivePanel] = useState<AtlasWorkspacePanel>("learning");
   const [celebrationKey, setCelebrationKey] = useState<number | null>(null);
+  const [studyProfile, setStudyProfile] = useState<AtlasStudyProfile>(emptyAtlasStudyProfile);
+  const [studyFlow, setStudyFlow] = useState<AtlasStudyFlowRecord | null>(null);
+  const [studyEvidence, setStudyEvidence] = useState<AtlasStudyFlowEvidence[]>([]);
+  const [studyAssessments, setStudyAssessments] = useState<AtlasStudyFlowAssessmentRecord[]>([]);
+  const [studyFlowLoading, setStudyFlowLoading] = useState(false);
+  const [studyFlowBusy, setStudyFlowBusy] = useState(false);
+  const [studyFlowError, setStudyFlowError] = useState<string | null>(null);
   const celebrationTimerRef = useRef<number | null>(null);
   const sidebarPanelRef = useRef<HTMLDivElement>(null);
 
@@ -82,6 +104,8 @@ export default function AtlasWorkspace() {
     () => createAtlasConversationController({ categories, memoryService }),
     [memoryService],
   );
+  const navigationState = location.state as { lessonContext?: AtlasLessonContext } | null;
+  const navigationLessonContext = navigationState?.lessonContext ?? null;
   const controllerContext = useMemo(
     () => user
       ? {
@@ -91,9 +115,10 @@ export default function AtlasWorkspace() {
           selectedPath: progress.selectedPath,
           completedSessions: progress.completedSessions,
           streakCurrent: progress.streakCurrent,
+          lessonContext: navigationLessonContext,
         }
       : null,
-    [atlasTier, progress.completedSessions, progress.selectedPath, progress.streakCurrent, user],
+    [atlasTier, navigationLessonContext, progress.completedSessions, progress.selectedPath, progress.streakCurrent, user],
   );
 
   const branchData = progress.selectedPath
@@ -107,6 +132,139 @@ export default function AtlasWorkspace() {
   const currentMission = nextLesson
     ? { title: nextLesson.lesson.title, duration: nextLesson.lesson.duration }
     : null;
+  const refreshStudyFlow = useCallback(async () => {
+    if (!user || !progress.selectedPath) {
+      setStudyProfile(emptyAtlasStudyProfile);
+      setStudyFlow(null);
+      setStudyEvidence([]);
+      setStudyAssessments([]);
+      return;
+    }
+    const saved = await loadAtlasStudyFlow(user.id, progress.selectedPath);
+    setStudyProfile(saved.profile);
+    setStudyFlow(saved.flow);
+    setStudyEvidence(saved.evidence);
+    setStudyAssessments(saved.assessments);
+  }, [progress.selectedPath, user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setStudyFlowError(null);
+    if (!user || !progress.selectedPath) {
+      setStudyProfile(emptyAtlasStudyProfile);
+      setStudyFlow(null);
+      setStudyEvidence([]);
+      setStudyAssessments([]);
+      setStudyFlowLoading(false);
+      return;
+    }
+    setStudyProfile(emptyAtlasStudyProfile);
+    setStudyFlow(null);
+    setStudyEvidence([]);
+    setStudyAssessments([]);
+    setStudyFlowLoading(true);
+    void loadAtlasStudyFlow(user.id, progress.selectedPath)
+      .then((saved) => {
+        if (cancelled) return;
+        setStudyProfile(saved.profile);
+        setStudyFlow(saved.flow);
+        setStudyEvidence(saved.evidence);
+        setStudyAssessments(saved.assessments);
+      })
+      .catch((caught) => {
+        if (cancelled) return;
+        console.error("Could not load Atlas StudyFlow", caught);
+        setStudyFlowError("Your saved StudyFlow could not be loaded. Please try again.");
+      })
+      .finally(() => {
+        if (!cancelled) setStudyFlowLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [progress.selectedPath, user]);
+
+  const handleSaveStudyProfile = useCallback(async (profile: AtlasStudyProfile) => {
+    if (!user) return;
+    setStudyFlowBusy(true);
+    setStudyFlowError(null);
+    try {
+      await saveAtlasStudyProfile(user.id, profile);
+      setStudyProfile(profile);
+    } catch (caught) {
+      console.error("Could not save Atlas learner profile", caught);
+      setStudyFlowError(caught instanceof Error ? caught.message : "Your learner profile could not be saved.");
+    } finally {
+      setStudyFlowBusy(false);
+    }
+  }, [user]);
+
+  const handleGenerateStudyFlow = useCallback(async (
+    operation: "generate" | "revise",
+    instruction: string,
+  ) => {
+    if (!progress.selectedPath || studyFlowBusy || streaming) return;
+    setStudyFlowBusy(true);
+    setStudyFlowError(null);
+    try {
+      const result = await generateAtlasStudyFlow(operation, instruction);
+      setMessages((previous) => [...previous, { role: "assistant", content: result.message }]);
+      await refreshStudyFlow();
+    } catch (caught) {
+      console.error("Could not generate Atlas StudyFlow", caught);
+      setStudyFlowError(caught instanceof Error ? caught.message : "Atlas could not prepare a StudyFlow.");
+    } finally {
+      await refreshAtlasCredits();
+      setStudyFlowBusy(false);
+    }
+  }, [progress.selectedPath, refreshAtlasCredits, refreshStudyFlow, streaming, studyFlowBusy]);
+
+  const handleApproveStudyFlow = useCallback(async () => {
+    if (!progress.selectedPath || studyFlowBusy) return;
+    setStudyFlowBusy(true);
+    setStudyFlowError(null);
+    try {
+      const approved = await approveAtlasStudyFlow(progress.selectedPath);
+      if (!approved) throw new Error("The approved roadmap could not be loaded.");
+      await refreshStudyFlow();
+    } catch (caught) {
+      console.error("Could not approve Atlas StudyFlow", caught);
+      setStudyFlowError(caught instanceof Error ? caught.message : "The StudyFlow could not be approved.");
+    } finally {
+      setStudyFlowBusy(false);
+    }
+  }, [progress.selectedPath, refreshStudyFlow, studyFlowBusy]);
+
+  const handleSubmitStudyEvidence = useCallback(async (itemId: string, evidenceText: string) => {
+    if (!progress.selectedPath || studyFlowBusy) return;
+    setStudyFlowBusy(true);
+    setStudyFlowError(null);
+    try {
+      await submitAtlasStudyFlowEvidence(progress.selectedPath, itemId, evidenceText);
+      await refreshStudyFlow();
+    } catch (caught) {
+      console.error("Could not submit StudyFlow evidence", caught);
+      setStudyFlowError(caught instanceof Error ? caught.message : "Your evidence could not be saved.");
+    } finally {
+      setStudyFlowBusy(false);
+    }
+  }, [progress.selectedPath, refreshStudyFlow, studyFlowBusy]);
+
+  const handleAssessStudyEvidence = useCallback(async (evidenceId: string) => {
+    if (!progress.selectedPath || studyFlowBusy || streaming) return;
+    setStudyFlowBusy(true);
+    setStudyFlowError(null);
+    try {
+      await assessAtlasStudyFlowEvidence(evidenceId);
+      await refreshStudyFlow();
+    } catch (caught) {
+      console.error("Could not assess StudyFlow evidence", caught);
+      setStudyFlowError(caught instanceof Error ? caught.message : "Atlas could not assess this evidence.");
+    } finally {
+      await refreshAtlasCredits();
+      setStudyFlowBusy(false);
+    }
+  }, [progress.selectedPath, refreshAtlasCredits, refreshStudyFlow, streaming, studyFlowBusy]);
   const historyMessages = useMemo(
     () => [...storedMessages, ...archivedMessages],
     [archivedMessages, storedMessages],
@@ -272,6 +430,24 @@ export default function AtlasWorkspace() {
       xp={phases.xp.total}
       level={phases.level.level}
       streak={progress.streakCurrent}
+      studyFlowContent={(
+        <AtlasStudyFlowPanel
+          branchId={branchData?.branch.id ?? null}
+          branchTitle={branchData?.branch.title ?? null}
+          profile={studyProfile}
+          flow={studyFlow}
+          evidence={studyEvidence}
+          assessments={studyAssessments}
+          busy={studyFlowBusy || studyFlowLoading || streaming}
+          error={studyFlowError}
+          onSaveProfile={(profile) => void handleSaveStudyProfile(profile)}
+          onGenerate={(operation, instruction) => void handleGenerateStudyFlow(operation, instruction)}
+          onApprove={() => void handleApproveStudyFlow()}
+          onSubmitEvidence={(itemId, evidence) => void handleSubmitStudyEvidence(itemId, evidence)}
+          onAssessEvidence={(evidenceId) => void handleAssessStudyEvidence(evidenceId)}
+          onPrompt={preparePrompt}
+        />
+      )}
       onSelectPanel={setActivePanel}
       onClose={() => {
         setContextOpen(false);

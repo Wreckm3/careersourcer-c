@@ -365,6 +365,140 @@ export type Database = {
         }
         Relationships: []
       }
+      atlas_study_profiles: {
+        Row: {
+          profile: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          profile?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          profile?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      atlas_studyflows: {
+        Row: {
+          active_roadmap: Json | null
+          branch_id: string
+          proposal_id: string | null
+          proposed_roadmap: Json | null
+          roadmap_history: Json
+          revision: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_roadmap?: Json | null
+          branch_id: string
+          proposal_id?: string | null
+          proposed_roadmap?: Json | null
+          roadmap_history?: Json
+          revision?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_roadmap?: Json | null
+          branch_id?: string
+          proposal_id?: string | null
+          proposed_roadmap?: Json | null
+          roadmap_history?: Json
+          revision?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      atlas_studyflow_evidence: {
+        Row: {
+          branch_id: string
+          created_at: string
+          evidence_text: string
+          id: string
+          item_id: string
+          roadmap_revision: number
+          user_id: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          evidence_text: string
+          id?: string
+          item_id: string
+          roadmap_revision: number
+          user_id: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          evidence_text?: string
+          id?: string
+          item_id?: string
+          roadmap_revision?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      atlas_studyflow_assessments: {
+        Row: {
+          branch_id: string
+          created_at: string
+          criteria_met: string[]
+          decision: string
+          evidence_id: string
+          feedback: string
+          id: string
+          next_step: string
+          remaining_gaps: string[]
+          roadmap_revision: number
+          user_id: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          criteria_met?: string[]
+          decision: string
+          evidence_id: string
+          feedback: string
+          id?: string
+          next_step: string
+          remaining_gaps?: string[]
+          roadmap_revision: number
+          user_id: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          criteria_met?: string[]
+          decision?: string
+          evidence_id?: string
+          feedback?: string
+          id?: string
+          next_step?: string
+          remaining_gaps?: string[]
+          roadmap_revision?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atlas_studyflow_assessments_user_id_evidence_id_fkey"
+            columns: ["user_id", "evidence_id"]
+            isOneToOne: false
+            referencedRelation: "atlas_studyflow_evidence"
+            referencedColumns: ["user_id", "id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -502,6 +636,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      atlas_approve_studyflow_proposal: {
+        Args: { _branch_id: string }
+        Returns: Database["public"]["Tables"]["atlas_studyflows"]["Row"]
+      }
+      atlas_submit_studyflow_evidence: {
+        Args: { _branch_id: string; _evidence_text: string; _item_id: string }
+        Returns: string
       }
       is_active_team_member: {
         Args: { _team_id: string }

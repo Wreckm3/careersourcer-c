@@ -1,4 +1,4 @@
-export type AtlasWorkspacePanel = "learning" | "projects" | "progress";
+export type AtlasWorkspacePanel = "learning" | "projects" | "progress" | "studyflow";
 
 export type AtlasResponseMode = "Adaptive" | "Learn" | "Build" | "Challenge" | "Career";
 

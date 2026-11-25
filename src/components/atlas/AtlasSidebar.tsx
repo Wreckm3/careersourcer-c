@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   BarChart3,
+  BookOpenCheck,
   Compass,
   FolderKanban,
   MessageSquareText,
@@ -135,6 +136,17 @@ export function AtlasSidebar({
         >
           <BarChart3 />
           {!collapsed && <span>My progress</span>}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className={navClass(activePanel === "studyflow")}
+          onClick={() => onOpenPanel("studyflow")}
+          title={collapsed ? "StudyFlow" : undefined}
+          aria-pressed={activePanel === "studyflow"}
+        >
+          <BookOpenCheck />
+          {!collapsed && <span>StudyFlow</span>}
         </Button>
       </nav>
 
