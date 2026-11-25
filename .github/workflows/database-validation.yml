@@ -164,7 +164,7 @@ jobs:
 
       - name: Run ESLint
         id: eslint
-        run: npm run lint
+        run: npm run lint -- --ignore-pattern=supabase/.temp/**
 
       - name: Run production build
         id: build
