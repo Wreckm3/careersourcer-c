@@ -4,6 +4,9 @@ SELECT plan(19);
 INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 VALUES ('ce000000-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000',
   'authenticated', 'authenticated', 'mpesa-fixture@example.test', '', now(), '{}', '{}', now(), now());
+INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+VALUES ('ce000000-0000-4000-8000-000000000002', '00000000-0000-0000-0000-000000000000',
+  'authenticated', 'authenticated', 'stripe-isolation-fixture@example.test', '', now(), '{}', '{}', now(), now());
 
 INSERT INTO public.mpesa_payments
   (id, user_id, tier, amount_kes, phone_number, status, checkout_request_id, currency)
@@ -60,11 +63,11 @@ SELECT is((SELECT status FROM public.mpesa_payments WHERE id = 'ce100000-0000-40
 INSERT INTO public.mpesa_payments
   (id, user_id, tier, amount_kes, phone_number, status, checkout_request_id)
 VALUES ('ce100000-0000-4000-8000-000000000004',
-  'ce000000-0000-4000-8000-000000000001', 'elite', 499,
+  'ce000000-0000-4000-8000-000000000002', 'elite', 499,
   '254712345678', 'pending', 'wsCO_stripe_guard');
 INSERT INTO public.subscriptions
   (user_id, tier, status, provider, provider_subscription_id, current_period_end)
-VALUES ('ce000000-0000-4000-8000-000000000001', 'elite', 'active', 'stripe',
+VALUES ('ce000000-0000-4000-8000-000000000002', 'elite', 'active', 'stripe',
   'sub_stripe_guard', now() + interval '30 days');
 SELECT is(public.finalize_mpesa_payment(
   'ce100000-0000-4000-8000-000000000004', 'success', 'ABC125', 0, 'Success',

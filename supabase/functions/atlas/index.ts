@@ -169,12 +169,20 @@ Deno.serve(async (req) => {
       return json({ error: "Atlas does not have enough credits for this request.", essentialMode: wallet.essential_mode }, 402);
     }
     const requestId = crypto.randomUUID();
-    const reserve = await db.rpc("atlas_reserve_request", {
+    const serviceUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const service = serviceUrl && serviceKey
+      ? createClient(serviceUrl, serviceKey, { auth: { persistSession: false } })
+      : null;
+    if (!service) {
+      return json({ error: "Atlas credits are temporarily unavailable." }, 503);
+    }
+    const reserve = await service.rpc("atlas_reserve_request", {
+      _user_id: auth.user.id,
       _request_id: requestId,
       _model: getAtlasProviderConfig().model,
       _worst_case_credits: route.worstCaseCredits,
       _worst_case_budget_micro_kes: route.worstCaseBudgetMicroKes.toString(),
-      _period_key: wallet.period_key ?? periodKey,
     });
     if (reserve.error || !reserve.data?.reserved) {
       return json({
@@ -184,11 +192,6 @@ Deno.serve(async (req) => {
         essentialMode: wallet.essential_mode,
       }, reserve.data?.reason === "insufficient_credits" ? 402 : 503);
     }
-    const serviceUrl = Deno.env.get("SUPABASE_URL");
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const service = serviceUrl && serviceKey
-      ? createClient(serviceUrl, serviceKey, { auth: { persistSession: false } })
-      : null;
     const settleReservation = async (status: "failed" | "uncertain" | "settled", reconciliation = "none") => {
       if (!service || !reserve.data?.request_uuid) return;
       await service.rpc("atlas_settle_request", {
@@ -273,12 +276,16 @@ Deno.serve(async (req) => {
     }
 
     let providerFailureObserved = false;
+    let providerUsage: { inputTokens: number; outputTokens: number; cachedTokens: number } | null = null;
     const providerStream = observeAtlasProviderSseStream(
   upstream.body,
   upstream.status,
   (failure) => {
     providerFailureObserved = true;
     logProviderFailure(provider, failure);
+  },
+  (usage) => {
+    providerUsage = usage;
   }
 );
 
@@ -290,6 +297,10 @@ const settlementStream = new TransformStream<Uint8Array, Uint8Array>({
     void settleReservation("failed", "disconnected");
   },
   flush() {
+    if (providerUsage) {
+      void settleReservation("uncertain", "usage_unpriced");
+      return;
+    }
     void settleReservation(providerFailureObserved ? "uncertain" : "settled",
       providerFailureObserved ? "provider_uncertain" : "none");
   },

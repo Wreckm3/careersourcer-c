@@ -28,6 +28,7 @@ import {
   describeAtlasProviderFailure,
   getAtlasProviderFailure,
   observeAtlasProviderSseStream,
+  parseAtlasProviderUsage,
   resolveAtlasProviderConfig,
   streamAtlasCompletion,
 } from "../supabase/functions/_shared/atlas/provider";
@@ -86,6 +87,22 @@ describe("Atlas conversation bounds", () => {
 });
 
 describe("Atlas provider configuration", () => {
+  it("extracts server-side provider usage without retaining raw payloads", () => {
+    assert.deepEqual(parseAtlasProviderUsage({
+      type: "response.completed",
+      response: {
+        usage: {
+          input_tokens: 120,
+          output_tokens: 80,
+          input_tokens_details: { cached_tokens: 20 },
+        },
+      },
+    }), {
+      inputTokens: 120,
+      outputTokens: 80,
+      cachedTokens: 20,
+    });
+  });
   it("builds an OpenAI request with a mocked provider configuration", async () => {
     const config = resolveAtlasProviderConfig((key) => ({
       ATLAS_PROVIDER: "openai",

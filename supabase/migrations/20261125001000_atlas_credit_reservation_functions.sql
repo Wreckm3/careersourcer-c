@@ -111,11 +111,11 @@ GRANT EXECUTE ON FUNCTION public.atlas_grant_allowance(uuid, public.subscription
   TO service_role;
 
 CREATE OR REPLACE FUNCTION public.atlas_reserve_request(
+  _user_id uuid,
   _request_id text,
   _model text,
   _worst_case_credits integer,
-  _worst_case_budget_micro_kes bigint,
-  _period_key text
+  _worst_case_budget_micro_kes bigint
 )
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -123,7 +123,7 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 DECLARE
-  account_id uuid := auth.uid();
+  account_id uuid := _user_id;
   wallet public.atlas_credit_wallets%ROWTYPE;
   existing_request public.atlas_usage_requests%ROWTYPE;
   controls public.atlas_financial_controls%ROWTYPE;
@@ -136,7 +136,7 @@ DECLARE
   reserved_reserve integer;
 BEGIN
   IF account_id IS NULL OR NULLIF(_request_id, '') IS NULL
-     OR NULLIF(_model, '') IS NULL OR NULLIF(_period_key, '') IS NULL
+     OR NULLIF(_model, '') IS NULL
      OR _worst_case_credits <= 0 OR _worst_case_budget_micro_kes <= 0 THEN
     RAISE EXCEPTION 'Invalid Atlas reservation';
   END IF;
@@ -177,9 +177,18 @@ BEGIN
   END IF;
 
   SELECT * INTO wallet FROM public.atlas_credit_wallets
-    WHERE user_id = account_id AND period_key = _period_key FOR UPDATE;
+    WHERE user_id = account_id FOR UPDATE;
   IF NOT FOUND THEN
     RETURN jsonb_build_object('reserved', false, 'reason', 'wallet_unavailable');
+  END IF;
+  IF wallet.flexible_balance = 0 AND wallet.reserve_balance > 0 THEN
+    UPDATE public.atlas_credit_wallets
+      SET essential_mode = true, updated_at = pg_catalog.now()
+      WHERE user_id = account_id;
+    wallet.essential_mode := true;
+  END IF;
+  IF wallet.flexible_balance = 0 AND _worst_case_credits > 4 THEN
+    RETURN jsonb_build_object('reserved', false, 'reason', 'reserve_pacing');
   END IF;
   available := wallet.flexible_balance + wallet.reserve_balance + wallet.purchased_balance + wallet.promotional_balance;
   IF available < _worst_case_credits THEN
@@ -193,7 +202,7 @@ BEGIN
   INSERT INTO public.atlas_usage_requests
     (request_id, user_id, period_key, model, status, reserved_credits, reserved_budget_micro_kes,
      reserved_promotional, reserved_purchased, reserved_flexible, reserved_reserve)
-  VALUES (_request_id, account_id, _period_key, _model, 'reserved',
+  VALUES (_request_id, account_id, wallet.period_key, _model, 'reserved',
           _worst_case_credits, _worst_case_budget_micro_kes,
           LEAST(_worst_case_credits, wallet.promotional_balance),
           LEAST(GREATEST(_worst_case_credits - wallet.promotional_balance, 0), wallet.purchased_balance),
@@ -220,23 +229,23 @@ BEGIN
         LEAST(GREATEST(_worst_case_credits - promotional_balance - purchased_balance, 0),
               flexible_balance) = 0
       )
-  WHERE user_id = account_id AND period_key = _period_key;
+  WHERE user_id = account_id AND period_key = wallet.period_key;
 
   INSERT INTO public.atlas_credit_ledger
     (user_id, period_key, bucket, delta, reason, reference_type, reference_id)
   VALUES
-    (account_id, _period_key, 'promotional',
+    (account_id, wallet.period_key, 'promotional',
      -LEAST(_worst_case_credits, wallet.promotional_balance),
      'Atlas request reservation', 'atlas_request', existing_request.id::text),
-    (account_id, _period_key, 'purchased',
+    (account_id, wallet.period_key, 'purchased',
      -LEAST(GREATEST(_worst_case_credits - wallet.promotional_balance, 0),
             wallet.purchased_balance),
      'Atlas request reservation', 'atlas_request', existing_request.id::text),
-    (account_id, _period_key, 'flexible',
+    (account_id, wallet.period_key, 'flexible',
      -LEAST(GREATEST(_worst_case_credits - wallet.promotional_balance -
                      wallet.purchased_balance, 0), wallet.flexible_balance),
      'Atlas request reservation', 'atlas_request', existing_request.id::text),
-    (account_id, _period_key, 'reserve',
+    (account_id, wallet.period_key, 'reserve',
      -LEAST(GREATEST(_worst_case_credits - wallet.promotional_balance -
                      wallet.purchased_balance - wallet.flexible_balance, 0),
             wallet.reserve_balance),
@@ -253,10 +262,10 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.atlas_reserve_request(text, text, integer, bigint, text)
+REVOKE ALL ON FUNCTION public.atlas_reserve_request(uuid, text, text, integer, bigint)
   FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.atlas_reserve_request(text, text, integer, bigint, text)
-  TO authenticated;
+GRANT EXECUTE ON FUNCTION public.atlas_reserve_request(uuid, text, text, integer, bigint)
+  TO service_role;
 
 CREATE OR REPLACE FUNCTION public.atlas_settle_request(
   _request_uuid uuid,
