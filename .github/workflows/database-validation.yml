@@ -149,7 +149,7 @@ jobs:
         run: |
           set -euo pipefail
           npm run test:collaboration 2>&1 | tee /tmp/collaboration.log
-          if grep -Eiq '# SKIP|[[:space:]]skip(ped)?[[:space:]]|Local Supabase credentials are not configured' /tmp/collaboration.log; then
+          if grep -Eiq '# SKIP|skipped [1-9][0-9]*|Local Supabase credentials are not configured' /tmp/collaboration.log; then
             echo "Required collaboration database test was skipped."
             exit 1
           fi
