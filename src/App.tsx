@@ -23,6 +23,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const AtlasWorkspace = lazy(() => import("./pages/AtlasWorkspace"));
 const Demo = lazy(() => import("./pages/Demo"));
 const Pool = lazy(() => import("./pages/Pool"));
+const CollaborationWorkspace = lazy(() => import("./pages/CollaborationWorkspace"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
@@ -59,6 +60,7 @@ function ProductApp() {
                     <Route path="/session/:pathId/:sessionId" element={<><PageMeta title="Focus Mode" description="Complete a CareerSourcer lesson and build a real project artifact." /><FocusMode /></>} />
                     <Route path="/profile" element={<RequireAuth><PageMeta title="Profile" description="Review your CareerSourcer progress, achievements, portfolio, and streak." /><Profile /></RequireAuth>} />
                     <Route path="/pool" element={<><PageMeta title="Collaboration Pool" description="Find CareerSourcer learners in your branch and build projects together." /><Pool /></>} />
+                    <Route path="/collaboration" element={<RequireAuth><PageMeta title="Team Workspaces" description="Coordinate team projects, tasks, discussions, and verified contributions." /><CollaborationWorkspace /></RequireAuth>} />
                     <Route path="*" element={<><PageMeta title="Page Not Found" description="This CareerSourcer page could not be found." /><NotFound /></>} />
                 </Routes>
               </Suspense>

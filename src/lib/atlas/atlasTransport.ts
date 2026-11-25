@@ -8,8 +8,13 @@ export interface AtlasStreamResult {
   answer: string;
 }
 
+type AtlasTransportRequest = Pick<AtlasTurnPlan["request"], "messages" | "lessonContext"> & {
+  feature?: "mentorship";
+  teamTaskId?: string;
+};
+
 export async function streamAtlasResponse(
-  request: AtlasTurnPlan["request"],
+  request: AtlasTransportRequest,
   onDelta: (answer: string) => void,
 ): Promise<AtlasStreamResult> {
   const { data: sessionData } = await supabase.auth.getSession();
@@ -73,4 +78,16 @@ export async function streamAtlasResponse(
   buffer += decoder.decode();
   processFrames(true);
   return { answer: requireAtlasAnswer(answer, completed) };
+}
+
+export function streamAtlasTeamRecommendation(
+  taskId: string,
+  onDelta: (answer: string) => void,
+) {
+  return streamAtlasResponse({
+    messages: [{ role: "user", content: "Recommend a practical learning exercise for my assigned team task." }],
+    lessonContext: null,
+    feature: "mentorship",
+    teamTaskId: taskId,
+  }, onDelta);
 }

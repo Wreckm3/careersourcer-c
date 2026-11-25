@@ -215,6 +215,13 @@ export default function Pool() {
           </button>
         </motion.div>
 
+        <button
+          onClick={() => navigate("/collaboration")}
+          className="mb-6 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-accent-blue/40 hover:bg-muted"
+        >
+          <Users className="h-4 w-4 text-accent-blue" /> Open team workspaces
+        </button>
+
         {/* Search */}
         <div className="relative mb-4">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
