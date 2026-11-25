@@ -1,5 +1,5 @@
 BEGIN;
-SELECT plan(19);
+SELECT plan(20);
 
 INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 VALUES ('ce000000-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000',
@@ -65,10 +65,23 @@ INSERT INTO public.mpesa_payments
 VALUES ('ce100000-0000-4000-8000-000000000004',
   'ce000000-0000-4000-8000-000000000002', 'elite', 499,
   '254712345678', 'pending', 'wsCO_stripe_guard');
-INSERT INTO public.subscriptions
-  (user_id, tier, status, provider, provider_subscription_id, current_period_end)
-VALUES ('ce000000-0000-4000-8000-000000000002', 'elite', 'active', 'stripe',
-  'sub_stripe_guard', now() + interval '30 days');
+UPDATE public.subscriptions
+SET tier = 'elite',
+    status = 'active',
+    provider = 'stripe',
+    provider_subscription_id = 'sub_stripe_guard',
+    current_period_start = now(),
+    current_period_end = now() + interval '30 days',
+    cancel_at_period_end = false
+WHERE user_id = 'ce000000-0000-4000-8000-000000000002';
+SELECT ok(EXISTS (
+  SELECT 1 FROM public.subscriptions
+  WHERE user_id = 'ce000000-0000-4000-8000-000000000002'
+    AND tier = 'elite'
+    AND status IN ('active', 'trialing')
+    AND provider = 'stripe'
+    AND current_period_end > now()
+), 'Stripe-isolation fixture has a valid active Stripe entitlement');
 SELECT is(public.finalize_mpesa_payment(
   'ce100000-0000-4000-8000-000000000004', 'success', 'ABC125', 0, 'Success',
   '{}'::jsonb, '20261124000100', '254712345678', 499), false,
