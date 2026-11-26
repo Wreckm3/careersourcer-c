@@ -38,6 +38,7 @@ import {
   type AtlasStudyProfile,
 } from "@/lib/atlas/studyFlow";
 import { AtlasStudyFlowPanel } from "@/components/atlas/AtlasStudyFlowPanel";
+import { AtlasOpportunityPanel } from "@/components/atlas/AtlasOpportunityPanel";
 
 const MODE_PREFIXES: Record<AtlasResponseMode, (input: string) => string> = {
   Adaptive: (input) => input,
@@ -431,22 +432,27 @@ export default function AtlasWorkspace() {
       level={phases.level.level}
       streak={progress.streakCurrent}
       studyFlowContent={(
-        <AtlasStudyFlowPanel
-          branchId={branchData?.branch.id ?? null}
-          branchTitle={branchData?.branch.title ?? null}
-          profile={studyProfile}
-          flow={studyFlow}
-          evidence={studyEvidence}
-          assessments={studyAssessments}
-          busy={studyFlowBusy || studyFlowLoading || streaming}
-          error={studyFlowError}
-          onSaveProfile={(profile) => void handleSaveStudyProfile(profile)}
-          onGenerate={(operation, instruction) => void handleGenerateStudyFlow(operation, instruction)}
-          onApprove={() => void handleApproveStudyFlow()}
-          onSubmitEvidence={(itemId, evidence) => void handleSubmitStudyEvidence(itemId, evidence)}
-          onAssessEvidence={(evidenceId) => void handleAssessStudyEvidence(evidenceId)}
-          onPrompt={preparePrompt}
-        />
+        <>
+          <AtlasStudyFlowPanel
+            branchId={branchData?.branch.id ?? null}
+            branchTitle={branchData?.branch.title ?? null}
+            profile={studyProfile}
+            flow={studyFlow}
+            evidence={studyEvidence}
+            assessments={studyAssessments}
+            busy={studyFlowBusy || studyFlowLoading || streaming}
+            error={studyFlowError}
+            onSaveProfile={(profile) => void handleSaveStudyProfile(profile)}
+            onGenerate={(operation, instruction) => void handleGenerateStudyFlow(operation, instruction)}
+            onApprove={() => void handleApproveStudyFlow()}
+            onSubmitEvidence={(itemId, evidence) => void handleSubmitStudyEvidence(itemId, evidence)}
+            onAssessEvidence={(evidenceId) => void handleAssessStudyEvidence(evidenceId)}
+            onPrompt={preparePrompt}
+          />
+          {user && !atlasTierLoading && atlasTier === "elite" && branchData?.branch.id && (
+            <AtlasOpportunityPanel key={`${user.id}:${branchData.branch.id}`} branchId={branchData.branch.id} />
+          )}
+        </>
       )}
       onSelectPanel={setActivePanel}
       onClose={() => {
