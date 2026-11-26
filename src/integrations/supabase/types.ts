@@ -1012,6 +1012,10 @@ export type Database = {
         Args: { _branch_id: string }
         Returns: Database["public"]["Tables"]["atlas_studyflows"]["Row"]
       }
+      atlas_studyflow_mastery_snapshot: {
+        Args: { _branch_id: string; _revision: number }
+        Returns: Json
+      }
       atlas_submit_studyflow_evidence: {
         Args: { _branch_id: string; _evidence_text: string; _item_id: string }
         Returns: string

@@ -83,22 +83,31 @@ export function parseAtlasStudyFlowRecord(value: unknown): AtlasStudyFlowRecord 
 }
 
 export async function loadAtlasStudyFlow(userId: string, branchId: string) {
-  const [profileResult, flowResult, evidenceResult, assessmentResult] = await Promise.all([
+  const [profileResult, flowResult] = await Promise.all([
     supabase.from("atlas_study_profiles").select("profile").eq("user_id", userId).maybeSingle(),
     supabase.from("atlas_studyflows").select("*").eq("user_id", userId).eq("branch_id", branchId).maybeSingle(),
-    supabase.from("atlas_studyflow_evidence").select("*").eq("user_id", userId).eq("branch_id", branchId).order("created_at", { ascending: false }).limit(12),
-    supabase.from("atlas_studyflow_assessments").select("*").eq("user_id", userId).eq("branch_id", branchId).order("created_at", { ascending: false }).limit(12),
   ]);
-  if (profileResult.error || flowResult.error || evidenceResult.error || assessmentResult.error) {
-    throw profileResult.error ?? flowResult.error ?? evidenceResult.error ?? assessmentResult.error;
+  if (profileResult.error || flowResult.error) {
+    throw profileResult.error ?? flowResult.error;
   }
   const flow = parseAtlasStudyFlowRecord(flowResult.data);
   if (flowResult.data && !flow) throw new Error("Saved StudyFlow data is invalid.");
+  type AssessmentRow = import("@/integrations/supabase/types").Database["public"]["Tables"]["atlas_studyflow_assessments"]["Row"];
+  let snapshot: { evidence: AtlasStudyFlowEvidence[]; assessments: AssessmentRow[] } = { evidence: [], assessments: [] };
+  if (flow?.active_roadmap) {
+    const result = await supabase.rpc("atlas_studyflow_mastery_snapshot", { _branch_id: branchId, _revision: flow.revision });
+    if (result.error) throw result.error;
+    const data = result.data as unknown as typeof snapshot;
+    if (!data || !Array.isArray(data.evidence) || !Array.isArray(data.assessments)) {
+      throw new Error("Saved mastery data is invalid.");
+    }
+    snapshot = data;
+  }
   return {
     profile: parseAtlasStudyProfile(profileResult.data?.profile),
     flow,
-    evidence: evidenceResult.data as AtlasStudyFlowEvidence[],
-    assessments: assessmentResult.data.map((assessment) => {
+    evidence: snapshot.evidence,
+    assessments: snapshot.assessments.map((assessment) => {
       const parsed = atlasStudyFlowAssessmentSchema.safeParse({
         decision: assessment.decision,
         feedback: assessment.feedback,

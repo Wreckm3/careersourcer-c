@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, BookOpen, CheckCircle2, Compass, Loader2, RotateCcw, Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { deriveMastery } from "@/lib/atlas/masteryRecovery";
 import { AtlasLearningLab } from "./AtlasLearningLab";
 import {
   fromStudyFlowLines,
@@ -70,27 +71,11 @@ export function AtlasStudyFlowPanel({
       lesson,
     }))),
   ) ?? [];
-  const assessedLessonIds = useMemo(() => {
-    const latestEvidence = new Map<string, AtlasStudyFlowEvidence>();
-    for (const entry of evidence) {
-      const key = `${entry.roadmap_revision}:${entry.item_id}`;
-      if (!latestEvidence.has(key)) latestEvidence.set(key, entry);
-    }
-    const latestAssessment = new Map<string, AtlasStudyFlowAssessmentRecord>();
-    for (const assessment of assessments) {
-      if (!latestAssessment.has(assessment.evidence_id)) latestAssessment.set(assessment.evidence_id, assessment);
-    }
-    return new Set([...latestEvidence.values()]
-      .filter((entry) =>
-        entry.roadmap_revision === flow?.revision &&
-        latestAssessment.get(entry.id)?.decision === "criteria_met"
-      )
-      .map((entry) => entry.item_id));
-  }, [assessments, evidence, flow?.revision]);
-  const nextLesson = lessons.find(({ lesson }) =>
-    !assessedLessonIds.has(lesson.id) &&
-    lesson.prerequisites.every((prerequisite) => assessedLessonIds.has(prerequisite)),
-  ) ?? lessons.find(({ lesson }) => !assessedLessonIds.has(lesson.id));
+  const mastery = deriveMastery(lessons.map(({ lesson }) => lesson), flow?.revision ?? 0, evidence, assessments);
+  const assessedLessonIds = mastery.met;
+  const nextLesson = lessons.find(({ lesson }) => lesson.id === mastery.next?.lesson.id);
+  const nextInstruction = mastery.next?.assessment?.nextStep ?? nextLesson?.lesson.exercise ?? roadmap?.nextAction.description ?? "Review your saved direction.";
+  const allCriteriaMet = lessons.length > 0 && assessedLessonIds.size === lessons.length;
 
   if (!branchId || !branchTitle) {
     return (
@@ -252,12 +237,12 @@ export function AtlasStudyFlowPanel({
               {assessedLessonIds.size} of {lessons.length} lessons have evidence assessed as meeting criteria. Submission alone is not marked as completion.
             </p>
             <p className="mt-3 text-xs font-semibold text-atlas-foreground">
-              {nextLesson ? `Next action · ${nextLesson.lesson.title}` : "Current roadmap criteria met"}
+              {nextLesson ? `Next action · ${nextLesson.lesson.title}` : allCriteriaMet ? "Current roadmap criteria met" : "Review prerequisite lessons"}
             </p>
             <p className="mt-1 text-xs leading-5 text-atlas-muted">
-              {nextLesson ? nextLesson.lesson.exercise : "Review your next direction with Atlas or adjust your roadmap when your goals change."}
+              {mastery.next?.status === "awaiting_assessment" ? "Your latest attempt is saved. Review the criteria independently or request an assessment when you have credits." : nextInstruction}
             </p>
-            <Button type="button" variant="link" className="mt-2 h-auto p-0 text-xs text-atlas-accent" onClick={() => onPrompt(`Resume my saved StudyFlow for ${branchTitle}. My next action is: ${nextLesson?.lesson.exercise ?? roadmap.nextAction.description}. Help me start without repeating discovery.`)}>
+            <Button type="button" variant="link" className="mt-2 h-auto p-0 text-xs text-atlas-accent" onClick={() => onPrompt(`Resume my saved StudyFlow for ${branchTitle}. My next action is: ${nextInstruction}. Help me start without repeating discovery.`)}>
               Resume mentorship <ArrowRight className="ml-1 h-3 w-3" />
             </Button>
             {flow.roadmap_history.length > 0 && (
@@ -280,7 +265,30 @@ export function AtlasStudyFlowPanel({
             )}
           </div>
           <ObjectiveList roadmap={roadmap} assessedLessonIds={assessedLessonIds} />
-          {nextLesson && nextLesson.lesson.prerequisites.every((id) => assessedLessonIds.has(id)) && (
+          <section aria-label="Mastery and recovery" className="space-y-2 rounded-xl border border-atlas-border bg-atlas-surface/50 p-3">
+            <h3 className="text-sm font-semibold text-atlas-foreground">Mastery &amp; recovery</h3>
+            <p className="text-xs text-atlas-muted">Based on the latest assessed attempt for each lesson in this roadmap, not XP or self-reported completion.</p>
+            <div className="grid grid-cols-2 gap-2 text-xs text-atlas-muted">
+              <span>Criteria met: {assessedLessonIds.size}/{lessons.length}</span>
+              <span>Awaiting review: {mastery.entries.filter((entry) => entry.status === "awaiting_assessment").length}</span>
+              <span>More practice: {mastery.entries.filter((entry) => entry.status === "needs_practice" || entry.status === "developing").length}</span>
+              <span>Prerequisites pending: {mastery.blocked.length}</span>
+            </div>
+            {mastery.next?.assessment && (
+              <div className="space-y-1 rounded-md border border-atlas-border p-2 text-xs text-atlas-muted">
+                <p className="font-semibold text-atlas-foreground">Recover: {mastery.next.lesson.title}</p>
+                {mastery.next.assessment.remainingGaps.map((gap, index) => <p key={index}>• {gap}</p>)}
+                <p><strong>Try next:</strong> {mastery.next.assessment.nextStep}</p>
+                <p>Use Learning Lab to try again. Saved feedback and independent practice do not consume AI credits.</p>
+              </div>
+            )}
+            {mastery.next?.status === "awaiting_assessment" && mastery.next.attempt && (
+              <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => {
+                if (mastery.next?.attempt) onAssessEvidence(mastery.next.attempt.id);
+              }}>Request Atlas assessment (uses credits)</Button>
+            )}
+          </section>
+          {nextLesson && mastery.next?.status !== "awaiting_assessment" && nextLesson.lesson.prerequisites.every((id) => assessedLessonIds.has(id)) && (
             <AtlasLearningLab
               key={`${branchId}:${flow?.revision}:${nextLesson.lesson.id}`}
               lesson={nextLesson.lesson}
