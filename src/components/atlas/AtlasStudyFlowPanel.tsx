@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, BookOpen, CheckCircle2, Compass, Loader2, RotateCcw, Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AtlasLearningLab } from "./AtlasLearningLab";
 import {
   fromStudyFlowLines,
   toStudyFlowLines,
@@ -279,6 +280,16 @@ export function AtlasStudyFlowPanel({
             )}
           </div>
           <ObjectiveList roadmap={roadmap} assessedLessonIds={assessedLessonIds} />
+          {nextLesson && nextLesson.lesson.prerequisites.every((id) => assessedLessonIds.has(id)) && (
+            <AtlasLearningLab
+              key={`${branchId}:${flow?.revision}:${nextLesson.lesson.id}`}
+              lesson={nextLesson.lesson}
+              busy={busy}
+              onPrepareEvidence={(text) => {
+                setEvidenceDrafts((previous) => ({ ...previous, [`${branchId}:${flow?.revision}:${nextLesson.lesson.id}`]: text }));
+              }}
+            />
+          )}
           <div className="rounded-xl border border-atlas-border p-3">
             <p className="text-xs font-semibold text-atlas-foreground">If you get stuck</p>
             <p className="mt-1 text-xs leading-5 text-atlas-muted">{roadmap.recoveryHint}</p>
@@ -290,7 +301,8 @@ export function AtlasStudyFlowPanel({
             <p className="text-[11px] font-medium uppercase text-atlas-muted">Lessons and evidence</p>
             {lessons.map(({ objective, stage, lesson }) => {
               const priorEvidence = submittedEvidence.get(lesson.id) ?? [];
-              const draft = evidenceDrafts[lesson.id] ?? "";
+              const draftKey = `${branchId}:${flow?.revision}:${lesson.id}`;
+              const draft = evidenceDrafts[draftKey] ?? "";
               return (
                 <article key={lesson.id} className="rounded-xl border border-atlas-border p-3">
                   <p className="text-[10px] uppercase text-atlas-muted">{objective} · {stage}</p>
@@ -359,7 +371,7 @@ export function AtlasStudyFlowPanel({
                     className="mt-2 min-h-16 w-full resize-y rounded-md border border-atlas-border bg-atlas-background px-2 py-1.5 text-xs text-atlas-foreground outline-none focus:ring-1 focus:ring-atlas-accent"
                     maxLength={4000}
                     value={draft}
-                    onChange={(event) => setEvidenceDrafts((previous) => ({ ...previous, [lesson.id]: event.target.value }))}
+                    onChange={(event) => setEvidenceDrafts((previous) => ({ ...previous, [draftKey]: event.target.value }))}
                     placeholder="Describe or link the work you completed. Submission is evidence, not a mastery score."
                     aria-label={`Evidence for ${lesson.title}`}
                   />

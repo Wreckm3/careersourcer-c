@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { emptyLabDraft, formatLabEvidence, LAB_FIELDS } from "../src/lib/atlas/learningLab";
 import { limitAtlasRequestMessages } from "../src/lib/atlas/conversationHistory";
 import { mergeAtlasText, parseAtlasSseFrame, requireAtlasAnswer } from "../src/lib/atlas/sse";
 import {
@@ -39,6 +40,30 @@ import {
   atlasStudyFlowRoadmapSchema,
   parseAtlasStudyFlowRoadmap,
 } from "../src/lib/atlas/studyFlowSchema";
+
+describe("Atlas Learning Lab evidence", () => {
+  it("rejects incomplete or whitespace-only practice records", () => {
+    assert.equal(formatLabEvidence(emptyLabDraft()), null);
+    assert.equal(formatLabEvidence({ approach: "plan", result: "work", verification: "  ", reflection: "lesson" }), null);
+  });
+
+  it("keeps learner-reported work distinct from verified mastery", () => {
+    const evidence = formatLabEvidence({ approach: "  plan  ", result: "work", verification: "checked", reflection: "lesson" });
+    assert.ok(evidence);
+    assert.match(evidence, /not independently verified/);
+    assert.match(evidence, /Your approach:\nplan/);
+    assert.match(evidence, /How you checked it:\nchecked/);
+  });
+
+  it("keeps the largest valid draft within the existing evidence limit", () => {
+    const draft = emptyLabDraft();
+    for (const field of LAB_FIELDS) draft[field.key] = "x".repeat(field.maxLength);
+    const evidence = formatLabEvidence(draft);
+    assert.ok(evidence && evidence.length <= 4000);
+    draft.result += "x";
+    assert.equal(formatLabEvidence(draft), null);
+  });
+});
 
 describe("Atlas stream parsing", () => {
   it("collects delta events and a final Responses API payload", () => {
