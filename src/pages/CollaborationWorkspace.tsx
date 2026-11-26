@@ -786,7 +786,7 @@ export default function CollaborationWorkspace() {
           <h3 className="mb-3 font-bold">Recent project activity</h3>
           <div className="space-y-2">
             {props.data.activity.map((item) => <div key={item.id} className="rounded-lg border border-border px-3 py-2 text-sm">
-              <span className="font-semibold">{item.activity_type.replaceAll("_", " ")}</span>
+              <span className="font-semibold">{item.activity_type.replace(/_/g, " ")}</span>
               <span className="ml-2 text-xs text-muted-foreground">{item.actor_id ? `Learner ${item.actor_id.slice(0, 8)}… · ` : ""}{new Date(item.created_at).toLocaleString()}</span>
             </div>)}
             {!props.data.activity.length && <p className="text-sm text-muted-foreground">Project actions will appear here.</p>}

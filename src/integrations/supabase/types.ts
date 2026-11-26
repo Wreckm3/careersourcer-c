@@ -993,6 +993,10 @@ export type Database = {
         Args: { _team_id: string }
         Returns: undefined
       }
+      ensure_atlas_allowance: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_user_tier: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_tier"]

@@ -352,7 +352,7 @@ export function AtlasStudyFlowPanel({
                         return assessment ? (
                           <div className="mt-2 border-t border-atlas-border pt-2">
                             <p className="font-medium text-atlas-foreground">
-                              Atlas assessment · {assessment.decision.replaceAll("_", " ")}
+                              Atlas assessment · {assessment.decision.replace(/_/g, " ")}
                             </p>
                             <p className="mt-1">{assessment.feedback}</p>
                             {assessment.criteriaMet.length > 0 && <p className="mt-1">Shown: {assessment.criteriaMet.join("; ")}</p>}

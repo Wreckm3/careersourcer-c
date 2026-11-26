@@ -194,14 +194,14 @@ export function AtlasContextPanel({
                   <dd className="tabular-nums font-medium text-atlas-foreground">{progressPercent}%</dd>
                 </div>
               )}
-
-              {activePanel === "studyflow" && studyFlowContent}
             </dl>
             <Button asChild variant="outline" className="mt-4 w-full border-atlas-border bg-transparent text-atlas-foreground hover:bg-atlas-surface">
               <Link to="/profile">Open full profile</Link>
             </Button>
           </section>
         )}
+
+        {activePanel === "studyflow" && studyFlowContent}
 
         <section className="mt-6 border-t border-atlas-border pt-4" aria-labelledby="atlas-context-tools">
           <h3 id="atlas-context-tools" className="text-[11px] font-medium uppercase text-atlas-muted">Tools for this moment</h3>

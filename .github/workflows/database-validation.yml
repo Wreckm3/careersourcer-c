@@ -160,7 +160,9 @@ jobs:
 
       - name: Run TypeScript type check
         id: typescript
-        run: npx tsc --noEmit
+        run: |
+          npx tsc --noEmit -p tsconfig.app.json
+          npx tsc --noEmit -p tsconfig.node.json
 
       - name: Run ESLint
         id: eslint
