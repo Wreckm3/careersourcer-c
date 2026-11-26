@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { normalizeMpesaCallback } from "../_shared/mpesa/payments.ts";
+import { verifyStkResult } from "../_shared/mpesa/stkVerification.ts";
 
 const json = (body: Record<string, unknown>, status = 200) => Response.json(body, { headers: { "Content-Type": "application/json" }, status });
 
@@ -26,7 +27,7 @@ Deno.serve(async (req) => {
     const url = Deno.env.get("SUPABASE_URL"), key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !key) return new Response("Callback processing failed", { status: 500 });
     const service = createClient(url, key, { auth: { persistSession: false } });
-    const { data: payment, error: lookupError } = await service.from("mpesa_payments").select("id,amount_kes,phone_number,status").eq("checkout_request_id", checkoutId).maybeSingle();
+    const { data: payment, error: lookupError } = await service.from("mpesa_payments").select("id,amount_kes,phone_number,status,merchant_request_id").eq("checkout_request_id", checkoutId).maybeSingle();
     if (lookupError) throw lookupError;
     if (!payment) {
       console.warn("M-Pesa callback arrived before checkout reference persisted");
@@ -34,6 +35,14 @@ Deno.serve(async (req) => {
     }
     if (payment.status !== "pending") return json({ ResultCode: 0, ResultDesc: "Already processed" });
     const normalized = normalizeMpesaCallback(payload, checkoutId, payment);
+    // Require the stored merchant reference, the callback metadata and the
+    // independently queried outcome to agree before changing financial state.
+    if (normalized.status === "unknown" || !payment.merchant_request_id
+      || callback.MerchantRequestID !== payment.merchant_request_id
+      || !await verifyStkResult(checkoutId, payment.merchant_request_id, normalized.resultCode, (name) => Deno.env.get(name))) {
+      console.warn("M-Pesa outcome not independently confirmed; payment remains pending");
+      return json({ ResultCode: 1, ResultDesc: "Verification pending" }, 503);
+    }
     const { error } = await service.rpc("finalize_mpesa_payment", {
       _payment_id: payment.id,
       _status: normalized.status,
