@@ -62,7 +62,6 @@ export default function CollaborationWorkspace() {
   const [studyFlow, setStudyFlow] = useState<StudyFlowData | null>(null);
   const [teamId, setTeamId] = useState("");
   const [projectId, setProjectId] = useState("");
-  const [attachmentUrls, setAttachmentUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [revision, setRevision] = useState(0);
@@ -121,15 +120,10 @@ export default function CollaborationWorkspace() {
   useEffect(() => {
     let active = true;
     setProjectData(null);
-    setAttachmentUrls({});
     if (!user || !teamId || !projectId || !teamMembership) return () => { active = false; };
-    void loadTeamProjectWorkspace(teamId, projectId, user.id).then(async (data) => {
-      const signed = await Promise.all(data.resources
-        .filter((resource) => resource.storage_path)
-        .map(async (resource) => [resource.storage_path!, await getProjectAttachmentUrl(resource.storage_path!)] as const));
+    void loadTeamProjectWorkspace(teamId, projectId, user.id).then((data) => {
       if (!active) return;
       setProjectData(data);
-      setAttachmentUrls(Object.fromEntries(signed));
     }).catch((error: unknown) => {
       if (active) toast.error(`Could not load project: ${errorText(error)}`);
     });
@@ -183,8 +177,9 @@ export default function CollaborationWorkspace() {
     teamById.get(invitation.team_id)?.name ?? "Invited team";
 
   const acceptInvitation = (invitationId: string) => runAction(async () => {
-    const { error } = await supabase.rpc("accept_team_invitation", { _invitation_id: invitationId });
+    const { data, error } = await supabase.rpc("accept_team_invitation", { _invitation_id: invitationId });
     if (error) throw error;
+    if (!data) throw new Error("This invitation has expired. Ask the team manager for a new one.");
   }, "Invitation accepted");
   const declineInvitation = (invitationId: string) => runAction(async () => {
     const { error } = await supabase.rpc("decline_team_invitation", { _invitation_id: invitationId });
@@ -209,13 +204,13 @@ export default function CollaborationWorkspace() {
   const changeRole = (member: TeamMember, role: "admin" | "member") => runAction(async () => {
     const { error } = await supabase.rpc("set_team_member_role", {
       _team_id: teamId,
-      _member_id: member.id,
+      _member_id: member.user_id,
       _role: role,
     });
     if (error) throw error;
   }, "Member role updated");
   const removeMember = (member: TeamMember) => runAction(async () => {
-    const { error } = await supabase.rpc("remove_team_member", { _team_id: teamId, _member_id: member.id });
+    const { error } = await supabase.rpc("remove_team_member", { _team_id: teamId, _member_id: member.user_id });
     if (error) throw error;
   }, "Team access removed");
 
@@ -293,7 +288,7 @@ export default function CollaborationWorkspace() {
                 {home?.memberships.map((membership) => {
                   const team = teamById.get(membership.team_id);
                   return (
-                    <button key={membership.id} onClick={() => setTeamId(membership.team_id)} className={`w-full rounded-lg px-3 py-2 text-left text-sm ${teamId === membership.team_id ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}>
+                    <button key={membership.team_id} onClick={() => setTeamId(membership.team_id)} className={`w-full rounded-lg px-3 py-2 text-left text-sm ${teamId === membership.team_id ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}>
                       <span className="block font-semibold">{team?.name ?? "Team"}</span>
                       <span className="text-xs capitalize text-muted-foreground">{membership.role}</span>
                     </button>
@@ -309,7 +304,7 @@ export default function CollaborationWorkspace() {
                   return (
                     <div key={team.id} className="rounded-xl border border-border p-3">
                       <p className="font-semibold">{team.name}</p>
-                      <p className="my-2 text-xs text-muted-foreground">{team.description || "A CareerSourcer learning team."}</p>
+                      <p className="my-2 text-xs text-muted-foreground">A CareerSourcer learning team.</p>
                       {pending
                         ? <button disabled={busy} onClick={() => void withdrawRequest(pending.id)} className="text-xs font-semibold text-primary">Withdraw request</button>
                         : <button disabled={busy} onClick={() => void requestMembership(team)} className="text-xs font-semibold text-primary">Request to join</button>}
@@ -334,7 +329,7 @@ export default function CollaborationWorkspace() {
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{teamMembership.role} workspace</p>
                       <h2 className="mt-1 text-2xl font-bold">{activeTeam.name}</h2>
-                      <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{activeTeam.description || "A shared place for projects, tasks, and learning."}</p>
+                      <p className="mt-1 max-w-2xl text-sm text-muted-foreground">A shared place for projects, tasks, and learning.</p>
                     </div>
                     <button disabled={busy} onClick={() => void runAction(async () => {
                       const { error } = await supabase.rpc("leave_team", { _team_id: teamId });
@@ -360,7 +355,7 @@ export default function CollaborationWorkspace() {
                         }, "Ownership transferred");
                       }}>
                         <option value="">Transfer ownership…</option>
-                        {teamData?.members.filter((member) => member.id !== teamMembership.id).map((member) => <option key={member.id} value={member.user_id}>{member.user_id.slice(0, 8)}… ({member.role})</option>)}
+                        {teamData?.members.filter((member) => member.user_id !== teamMembership.user_id).map((member) => <option key={member.user_id} value={member.user_id}>{member.user_id.slice(0, 8)}… ({member.role})</option>)}
                       </select>}
                     </div>
                   )}
@@ -419,7 +414,7 @@ export default function CollaborationWorkspace() {
                     <h3 className="mb-2 text-sm font-bold">Active members ({teamData?.members.length ?? 0}/25)</h3>
                     <div className="space-y-2">
                       {teamData?.members.map((member) => (
-                        <div key={member.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/30 px-3 py-2 text-sm">
+                        <div key={member.user_id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/30 px-3 py-2 text-sm">
                           <span>Learner {member.user_id.slice(0, 8)}… <span className="capitalize text-muted-foreground">· {member.role}</span></span>
                           {member.user_id !== currentUserId && (
                             <div className="flex items-center gap-2">
@@ -465,7 +460,6 @@ export default function CollaborationWorkspace() {
                       manager={manager}
                       userId={currentUserId}
                       data={projectData}
-                      attachmentUrls={attachmentUrls}
                       roadmapOptions={roadmapOptions}
                       busy={busy}
                       atlasAnswer={atlasAnswer}
@@ -499,8 +493,20 @@ export default function CollaborationWorkspace() {
                         description,
                       })}
                       onOpenAttachment={(resource) => {
-                        const url = attachmentUrls[resource.storage_path ?? ""];
-                        if (url) window.open(url, "_blank", "noopener,noreferrer");
+                        const path = resource.storage_path;
+                        if (!path) return;
+                        const tab = window.open("about:blank", "_blank");
+                        if (!tab) {
+                          toast.error("Allow pop-ups to open the attachment.");
+                          return;
+                        }
+                        tab.opener = null;
+                        void getProjectAttachmentUrl(path).then((url) => {
+                          if (!tab.closed) tab.location.replace(url);
+                        }).catch((error: unknown) => {
+                          tab.close();
+                          toast.error(`Could not open attachment: ${errorText(error)}`);
+                        });
                       }}
                     />
                   )}
@@ -519,7 +525,6 @@ export default function CollaborationWorkspace() {
     manager: boolean;
     userId: string;
     data: ProjectWorkspaceData;
-    attachmentUrls: Record<string, string>;
     roadmapOptions: { id: string; title: string }[];
     busy: boolean;
     atlasAnswer: string;
@@ -590,7 +595,7 @@ export default function CollaborationWorkspace() {
             <input className={fieldClass} placeholder="Task title" value={task.title} onChange={(event) => setTask({ ...task, title: event.target.value })} required />
             <select className={fieldClass} aria-label="Assign task" value={task.assigneeId} onChange={(event) => setTask({ ...task, assigneeId: event.target.value })}>
               <option value="">Unassigned</option>
-              {props.teamMembers.map((member) => <option key={member.id} value={member.user_id}>{member.user_id.slice(0, 8)}…</option>)}
+              {props.teamMembers.map((member) => <option key={member.user_id} value={member.user_id}>{member.user_id.slice(0, 8)}…</option>)}
             </select>
             <input className={fieldClass} type="date" value={task.dueDate} onChange={(event) => setTask({ ...task, dueDate: event.target.value })} />
             <select className={fieldClass} value={task.priority} onChange={(event) => setTask({ ...task, priority: event.target.value as typeof task.priority })}>
@@ -611,11 +616,11 @@ export default function CollaborationWorkspace() {
                       <p className="mt-1 text-sm text-muted-foreground">{item.description || "No task details."}</p>
                       <p className="mt-2 text-xs text-muted-foreground">Assigned to {item.assignee_id ? `${item.assignee_id.slice(0, 8)}…` : "no one"} · {item.priority} priority{item.due_at ? ` · Due ${new Date(item.due_at).toLocaleDateString()}` : ""}</p>
                     </div>
-                    <select className="rounded-lg border border-border bg-background px-2 py-1 text-xs" value={item.status} aria-label={`Status for ${item.title}`} onChange={(event) => void props.onAction(() => props.onSetTaskStatus(item.id, event.target.value as TeamProjectTask["status"]), "Task updated")}>
+                    <select className="rounded-lg border border-border bg-background px-2 py-1 text-xs" value={item.status} disabled={props.busy || (!props.manager && !isAssigned)} aria-label={`Status for ${item.title}`} onChange={(event) => void props.onAction(() => props.onSetTaskStatus(item.id, event.target.value as TeamProjectTask["status"]), "Task updated")}>
                       {["todo", "in_progress", "blocked", "completed"].map((status) => <option value={status} key={status}>{status.replace("_", " ")}</option>)}
                     </select>
                   </div>
-                  {!item.assignee_id && <button disabled={props.busy} onClick={() => void props.onAction(() => props.onClaimTask(item.id), "Task assigned to you")} className="mt-3 text-sm font-semibold text-primary">Take responsibility</button>}
+                  {!item.assignee_id && item.status !== "completed" && <button disabled={props.busy} onClick={() => void props.onAction(() => props.onClaimTask(item.id), "Task assigned to you")} className="mt-3 text-sm font-semibold text-primary">Take responsibility</button>}
                   {isAssigned && !props.data.contributions.some((contribution) =>
                     contribution.task_id === item.id && contribution.contributor_id === props.userId &&
                     (contribution.status === "pending" || contribution.status === "approved")) && (

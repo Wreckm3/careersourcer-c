@@ -1,5 +1,5 @@
 BEGIN;
-SELECT plan(42);
+SELECT plan(52);
 
 INSERT INTO auth.users (
   id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -20,7 +20,7 @@ SELECT set_config(
   true
 );
 CREATE TEMP TABLE phase2_team AS
-SELECT public.create_team('Collaboration Phase 2 test team', true) AS id;
+SELECT public.create_team('Collaboration Phase 2 test team', false) AS id;
 INSERT INTO public.team_members (team_id, user_id, role, status)
 SELECT id, 'e2000000-0000-4000-8000-000000000002', 'member', 'active'
 FROM phase2_team;
@@ -116,7 +116,7 @@ SELECT throws_ok(
        current_setting('test.phase2_project_id')::uuid,
        'Assign another person',
        '',
-       'e2000000-0000-4000-8000-000000000003',
+       'e2000000-0000-4000-8000-000000000001',
        NULL,
        'normal'
      ) $$,
@@ -342,10 +342,11 @@ SELECT lives_ok(
   'a manager can invite an address before that person registers'
 );
 CREATE TEMP TABLE phase2_email_invitation AS
-SELECT id FROM public.team_invitations
+SELECT id, invitee_id FROM public.team_invitations
 WHERE team_id = current_setting('test.phase2_team_id')::uuid
   AND invitee_email = 'future-collaborator@example.test'
   AND status = 'pending';
+SELECT set_config('test.phase2_email_invitation_id', (SELECT id::text FROM phase2_email_invitation), true);
 SELECT is(
   (SELECT invitee_id FROM phase2_email_invitation),
   NULL::uuid,
@@ -363,6 +364,29 @@ SELECT id FROM public.team_invitations
 WHERE team_id = current_setting('test.phase2_team_id')::uuid
   AND invitee_email = 'decline-collaborator@example.test'
   AND status = 'pending';
+SELECT set_config('test.phase2_decline_invitation_id', (SELECT id::text FROM phase2_decline_invitation), true);
+RESET ROLE;
+
+-- An ordinary member must claim an unassigned task before changing it.
+SELECT set_config('request.jwt.claim.sub', 'e2000000-0000-4000-8000-000000000002', true);
+SET LOCAL ROLE authenticated;
+SELECT throws_ok(
+  $$ SELECT public.set_team_project_task_status(
+       current_setting('test.phase2_unassigned_task_id')::uuid, 'completed'
+     ) $$,
+  '42501', 'NOT_TASK_ASSIGNEE_OR_MANAGER',
+  'an ordinary member cannot change an unassigned task'
+);
+RESET ROLE;
+
+-- Knowing an email invitation UUID must not grant membership.
+SELECT set_config('request.jwt.claim.sub', 'e2000000-0000-4000-8000-000000000003', true);
+SET LOCAL ROLE authenticated;
+SELECT throws_ok(
+  $$ SELECT public.accept_team_invitation(current_setting('test.phase2_email_invitation_id')::uuid) $$,
+  'P0001', 'INVITATION_NOT_AVAILABLE',
+  'an unrelated account cannot accept an unbound invitation'
+);
 RESET ROLE;
 
 INSERT INTO auth.users (
@@ -371,13 +395,35 @@ INSERT INTO auth.users (
 )
 VALUES
   ('e2000000-0000-4000-8000-000000000004', '00000000-0000-0000-0000-000000000000',
-   'authenticated', 'authenticated', 'future-collaborator@example.test', '', now(), '{}', '{}', now(), now());
+   'authenticated', 'authenticated', 'future-collaborator@example.test', '', NULL, '{}', '{}', now(), now()),
+  ('e2000000-0000-4000-8000-000000000005', '00000000-0000-0000-0000-000000000000',
+   'authenticated', 'authenticated', 'decline-collaborator@example.test', '', now(), '{}', '{}', now(), now());
 SELECT set_config('request.jwt.claim.sub', 'e2000000-0000-4000-8000-000000000004', true);
 SELECT set_config(
   'request.jwt.claims',
   '{"sub":"e2000000-0000-4000-8000-000000000004","email":"future-collaborator@example.test"}',
   true
 );
+SET LOCAL ROLE authenticated;
+SELECT throws_ok(
+  $$ SELECT public.accept_team_invitation(current_setting('test.phase2_email_invitation_id')::uuid) $$,
+  'P0001', 'INVITATION_NOT_AVAILABLE',
+  'an unconfirmed email cannot accept an email invitation'
+);
+SELECT is(
+  (SELECT count(*)::integer FROM public.team_invitations
+   WHERE id = current_setting('test.phase2_email_invitation_id')::uuid),
+  0, 'an unconfirmed email cannot read its pending invitation'
+);
+RESET ROLE;
+UPDATE auth.users SET email_confirmed_at = now()
+WHERE id = 'e2000000-0000-4000-8000-000000000004';
+-- Simulate a competing invitation from the original user-ID invitation RPC.
+INSERT INTO public.team_invitations (id, team_id, invited_by, invitee_id)
+VALUES ('e2100000-0000-4000-8000-000000000001',
+  current_setting('test.phase2_team_id')::uuid,
+  'e2000000-0000-4000-8000-000000000001',
+  'e2000000-0000-4000-8000-000000000004');
 SET LOCAL ROLE authenticated;
 SELECT is(
   (SELECT count(*)::integer FROM public.teams
@@ -386,7 +432,7 @@ SELECT is(
   'the invited email can discover its pending team invitation'
 );
 SELECT lives_ok(
-  $$ SELECT public.accept_team_invitation((SELECT id FROM phase2_email_invitation)) $$,
+  $$ SELECT public.accept_team_invitation(current_setting('test.phase2_email_invitation_id')::uuid) $$,
   'the verified email owner can accept an invitation created before registration'
 );
 SELECT is(
@@ -396,10 +442,26 @@ SELECT is(
   1,
   'acceptance binds the pending email invitation to the authenticated user'
 );
+SELECT throws_ok(
+  $$ SELECT public.decline_team_invitation(current_setting('test.phase2_decline_invitation_id')::uuid) $$,
+  'P0001', 'INVITATION_NOT_AVAILABLE',
+  'a different verified email cannot decline an invitation'
+);
+RESET ROLE;
+SELECT set_config('request.jwt.claim.sub', 'e2000000-0000-4000-8000-000000000005', true);
+SET LOCAL ROLE authenticated;
 SELECT lives_ok(
-  $$ SELECT public.decline_team_invitation((SELECT id FROM phase2_decline_invitation)) $$,
+  $$ SELECT public.decline_team_invitation(current_setting('test.phase2_decline_invitation_id')::uuid) $$,
   'the verified email owner can decline a pending invitation'
 );
+RESET ROLE;
+SELECT is(
+  (SELECT status::text FROM public.team_invitations
+   WHERE id = current_setting('test.phase2_decline_invitation_id')::uuid),
+  'declined', 'declining persists the invitation state'
+);
+SELECT set_config('request.jwt.claim.sub', 'e2000000-0000-4000-8000-000000000004', true);
+SET LOCAL ROLE authenticated;
 SELECT lives_ok(
   $$ SELECT public.claim_team_project_task(
        current_setting('test.phase2_unassigned_task_id')::uuid
@@ -452,5 +514,43 @@ SELECT is(
 );
 RESET ROLE;
 
+-- Accepted email invitation invalidates competing legacy user-ID invites.
+SELECT is(
+  (SELECT status::text FROM public.team_invitations
+   WHERE id = 'e2100000-0000-4000-8000-000000000001'),
+  'revoked', 'acceptance revokes competing user-ID invitations'
+);
+
+-- Joining by an approved request also invalidates a previously unbound email invitation.
+SELECT set_config('request.jwt.claim.sub', 'e2000000-0000-4000-8000-000000000001', true);
+CREATE TEMP TABLE phase2_cross_team AS
+SELECT public.create_team('Phase 2 cross-path test', true) AS id;
+SELECT set_config('test.phase2_cross_team_id', (SELECT id::text FROM phase2_cross_team), true);
+INSERT INTO public.team_invitations (id, team_id, invited_by, invitee_email)
+VALUES ('e2100000-0000-4000-8000-000000000002',
+  current_setting('test.phase2_cross_team_id')::uuid,
+  'e2000000-0000-4000-8000-000000000001',
+  'decline-collaborator@example.test');
+SELECT set_config('request.jwt.claim.sub', 'e2000000-0000-4000-8000-000000000005', true);
+SELECT set_config('test.phase2_cross_request_id',
+  public.request_to_join_team(current_setting('test.phase2_cross_team_id')::uuid)::text, true);
+SELECT set_config('request.jwt.claim.sub', 'e2000000-0000-4000-8000-000000000001', true);
+SET LOCAL ROLE authenticated;
+SELECT lives_ok(
+  $$ SELECT public.approve_team_join_request(current_setting('test.phase2_cross_request_id')::uuid) $$,
+  'a manager can approve the competing join request'
+);
+RESET ROLE;
+SELECT is(
+  (SELECT status::text FROM public.team_invitations
+   WHERE id = 'e2100000-0000-4000-8000-000000000002'),
+  'revoked', 'join approval revokes competing verified email invitations'
+);
+SELECT is(
+  (SELECT count(*)::integer FROM public.team_members
+   WHERE team_id = current_setting('test.phase2_cross_team_id')::uuid
+     AND user_id = 'e2000000-0000-4000-8000-000000000005' AND status = 'active'),
+  1, 'join approval still grants exactly one active membership'
+);
 SELECT * FROM finish();
 ROLLBACK;
