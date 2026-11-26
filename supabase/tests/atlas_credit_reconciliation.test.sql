@@ -1,0 +1,32 @@
+BEGIN;
+SELECT plan(15);
+INSERT INTO auth.users (id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at)
+VALUES ('de000000-0000-4000-8000-000000000093','00000000-0000-0000-0000-000000000000','authenticated','authenticated','reconciliation-fixture@example.test','',now(),'{}','{}',now(),now());
+UPDATE public.atlas_financial_controls SET emergency_shutdown=false,individual_daily_budget_micro_kes=1000000000,global_daily_budget_micro_kes=2500000000 WHERE id=1;
+SELECT public.atlas_grant_allowance('de000000-0000-4000-8000-000000000093','builder','reconciliation-fixture',now()+interval '30 days','subscription');
+INSERT INTO public.atlas_verified_metering_rates(model,input_rate,cached_rate,output_rate,input_token_ceiling,verified_until,source)
+VALUES ('reconcile-fixture',1000000,250000,4000000,2000,now()+interval '1 day','synthetic test only');
+SELECT set_config('test.reconcile_id',public.atlas_reserve_metered_request('de000000-0000-4000-8000-000000000093','reconcile-a','reconcile-fixture',2,100)->>'request_uuid',true);
+SELECT is(public.atlas_reconcile_metered_request(current_setting('test.reconcile_id')::uuid,'no_charge',true,'fixture-ticket')->>'reason','request_not_stale','live reservation cannot be reconciled');
+SELECT is(public.atlas_settle_metered_request(current_setting('test.reconcile_id')::uuid,true,NULL,NULL,NULL,NULL)->>'status','uncertain','ambiguous provider usage retains hold');
+UPDATE public.atlas_usage_requests SET created_at=now()-interval '15 minutes' WHERE id=current_setting('test.reconcile_id')::uuid;
+SELECT is(public.atlas_reconcile_metered_request(current_setting('test.reconcile_id')::uuid,'priced',true,'fixture-verified-failed-delivery',100,20,10,'reconcile-response-a')->>'credits_restored','2','verified failed delivery restores credits');
+SELECT is((SELECT actual_budget_micro_kes FROM public.atlas_usage_requests WHERE id=current_setting('test.reconcile_id')::uuid),125::bigint,'refund does not erase verified provider cost');
+SELECT is((SELECT flexible_balance FROM public.atlas_credit_wallets WHERE user_id='de000000-0000-4000-8000-000000000093'),240,'wallet restored');
+SELECT is(public.atlas_reconcile_metered_request(current_setting('test.reconcile_id')::uuid,'priced',true,'fixture-repeat',100,20,10,'reconcile-response-a')->>'reason','already_final','duplicate reconciliation is harmless');
+SELECT is((SELECT count(*) FROM public.atlas_request_reconciliations WHERE request_uuid=current_setting('test.reconcile_id')::uuid),1::bigint,'single audit event');
+SELECT set_config('test.reconcile_id_b',public.atlas_reserve_metered_request('de000000-0000-4000-8000-000000000093','reconcile-b','reconcile-fixture',2,100)->>'request_uuid',true);
+UPDATE public.atlas_usage_requests SET created_at=now()-interval '15 minutes' WHERE id=current_setting('test.reconcile_id_b')::uuid;
+SELECT is(public.atlas_reconcile_metered_request(current_setting('test.reconcile_id_b')::uuid,'no_charge',true,'fixture-confirmed-no-charge')->>'provider_cost_micro_kes','0','verified no-charge releases estimated cash hold');
+SELECT is((SELECT status FROM public.atlas_usage_requests WHERE id=current_setting('test.reconcile_id_b')::uuid),'failed','verified no-charge finalizes as failed');
+SELECT is(public.atlas_settle_metered_request(current_setting('test.reconcile_id_b')::uuid,false,NULL,NULL,NULL,NULL)->>'duplicate','true','late settlement cannot double-refund');
+SELECT set_config('test.reconcile_id_c',public.atlas_reserve_metered_request('de000000-0000-4000-8000-000000000093','reconcile-c','reconcile-fixture',2,100)->>'request_uuid',true);
+UPDATE public.atlas_usage_requests SET created_at=now()-interval '15 minutes' WHERE id=current_setting('test.reconcile_id_c')::uuid;
+UPDATE public.atlas_credit_wallets SET period_key='new-fixture-period',flexible_balance=240 WHERE user_id='de000000-0000-4000-8000-000000000093';
+SELECT is(public.atlas_reconcile_metered_request(current_setting('test.reconcile_id_c')::uuid,'no_charge',true,'fixture-expired-period')->>'expired_subscription_credits','2','expired subscription credits are recorded, not regranted');
+SELECT is((SELECT flexible_balance FROM public.atlas_credit_wallets WHERE user_id='de000000-0000-4000-8000-000000000093'),240,'new allowance is not inflated');
+SELECT ok(NOT has_function_privilege('authenticated','public.atlas_reconcile_metered_request(uuid,text,boolean,text,integer,integer,integer,text)','EXECUTE') AND NOT has_function_privilege('anon','public.atlas_reconcile_metered_request(uuid,text,boolean,text,integer,integer,integer,text)','EXECUTE'),'only trusted service can reconcile');
+SELECT ok(NOT has_table_privilege('authenticated','public.atlas_request_reconciliations','SELECT') AND NOT has_table_privilege('authenticated','public.atlas_request_reconciliations','INSERT'),'reconciliation evidence is private');
+SELECT is((SELECT count(*) FROM public.atlas_credit_ledger WHERE reference_type='atlas_reconciliation' AND reference_id=current_setting('test.reconcile_id') AND bucket='flexible'),1::bigint,'refund ledger entry is exactly once');
+SELECT * FROM finish();
+ROLLBACK;
