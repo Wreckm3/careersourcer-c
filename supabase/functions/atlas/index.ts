@@ -20,7 +20,8 @@ import {
   resolveAtlasRateLimit,
   type AtlasFeature,
 } from "../_shared/atlas/entitlements.ts";
-import { estimateAtlasInputTokens, routeAtlasRequest } from "../_shared/atlas/credits.ts";
+import { routeAtlasRequest } from "../_shared/atlas/credits.ts";
+import { finalMeteredUsage, withMeteredSettlement, type MeteredUsage } from "../_shared/atlas/metering.ts";
 import { normalizeAtlasLessonContext } from "../_shared/atlas/learningContext.ts";
 import {
   AtlasStudyFlowAssessmentResponse,
@@ -243,6 +244,7 @@ Deno.serve(async (req) => {
     return json({ error: "Request too large." }, 413);
   }
 
+  let recoverSettlement: (() => Promise<void>) | undefined;
   try {
     const token = getBearerToken(req.headers.get("Authorization"));
     const url = Deno.env.get("SUPABASE_URL"), anon = Deno.env.get("SUPABASE_ANON_KEY");
@@ -324,6 +326,10 @@ Deno.serve(async (req) => {
     } catch {
       return json({ error: "Atlas does not have enough credits for this request.", essentialMode: wallet.essential_mode }, 402);
     }
+    const provider = getAtlasProviderConfig();
+    if (provider.provider !== "openai") {
+      return json({ error: "Atlas provider metering is not configured." }, 503);
+    }
     const requestId = crypto.randomUUID();
     const serviceUrl = Deno.env.get("SUPABASE_URL");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -333,39 +339,46 @@ Deno.serve(async (req) => {
     if (!service) {
       return json({ error: "Atlas credits are temporarily unavailable." }, 503);
     }
-    const reserve = await service.rpc("atlas_reserve_request", {
+    const reserve = await service.rpc("atlas_reserve_metered_request", {
       _user_id: auth.user.id,
       _request_id: requestId,
-      _model: getAtlasProviderConfig().model,
-      _worst_case_credits: route.worstCaseCredits,
-      _worst_case_budget_micro_kes: route.worstCaseBudgetMicroKes.toString(),
+      _model: provider.model,
+      _credits: route.worstCaseCredits,
+      _max_output: route.maxOutputTokens,
     });
-    if (reserve.error || !reserve.data?.reserved) {
+    if (reserve.error || !reserve.data?.reserved || reserve.data.duplicate || !reserve.data.request_uuid) {
       return json({
         error: reserve.data?.reason === "insufficient_credits"
           ? "Atlas does not have enough credits for this request."
-          : "Atlas credits are temporarily unavailable.",
+          : "Atlas credits or verified provider pricing are temporarily unavailable.",
         essentialMode: wallet.essential_mode,
       }, reserve.data?.reason === "insufficient_credits" ? 402 : 503);
     }
     let trustedLessonContext: unknown = null;
     let teamTaskContext: Record<string, unknown> | null = null;
-    const settleReservation = async (status: "failed" | "uncertain" | "settled", reconciliation = "none") => {
-      if (!service || !reserve.data?.request_uuid) return;
-      await service.rpc("atlas_settle_request", {
-        _request_uuid: reserve.data.request_uuid,
-        _status: status,
-        _actual_credits: status === "settled" ? route.worstCaseCredits : 0,
-        _actual_budget_micro_kes: status === "settled" ? route.worstCaseBudgetMicroKes.toString() : 0,
-        _input_tokens: estimateAtlasInputTokens(parsed.data.messages, {
-          lessonContext: trustedLessonContext,
-          assignedTeamTask: teamTaskContext,
-        }),
-        _output_tokens: status === "settled" ? route.maxOutputTokens : 0,
-        _cached_tokens: 0,
-        _reconciliation: reconciliation,
-      }).catch(() => undefined);
+    let dispatched = false;
+    let providerUsage: MeteredUsage | null = null;
+    let settlement: Promise<void> | undefined;
+    // The caller's success/failure is not evidence of provider cost. Only a
+    // pre-dispatch failure releases the reservation without usage.
+    const settleReservation = (status: "failed" | "uncertain" | "settled", reconciliation = "none") => {
+      return settlement ??= (async () => {
+        try {
+          const { error } = await service.rpc("atlas_settle_metered_request", {
+            _request_uuid: reserve.data.request_uuid,
+            _dispatched: dispatched,
+            _input: providerUsage?.inputTokens ?? null,
+            _cached: providerUsage?.cachedTokens ?? null,
+            _output: providerUsage?.outputTokens ?? null,
+            _response_id: providerUsage?.responseId ?? null,
+          });
+          if (error) console.error("Atlas settlement remains reserved", status, reconciliation);
+        } catch {
+          console.error("Atlas settlement remains reserved", status, reconciliation);
+        }
+      })();
     };
+    recoverSettlement = () => settleReservation("uncertain", "request_exception");
 
     const progress = await db
       .from("user_progress")
@@ -381,18 +394,7 @@ Deno.serve(async (req) => {
     ]);
     if (progress.error || profile.error || memory.error || studyProfile.error || studyFlow.error || evidence.error) {
       console.error("Atlas learner context lookup failed", profile.error?.message ?? progress.error?.message ?? memory.error?.message ?? studyProfile.error?.message ?? studyFlow.error?.message ?? evidence.error?.message);
-      if (service && reserve.data?.request_uuid) {
-        await service.rpc("atlas_settle_request", {
-          _request_uuid: reserve.data.request_uuid,
-          _status: "failed",
-          _actual_credits: 0,
-          _actual_budget_micro_kes: 0,
-          _input_tokens: estimateAtlasInputTokens(parsed.data.messages, trustedLessonContext),
-          _output_tokens: 0,
-          _cached_tokens: 0,
-          _reconciliation: "none",
-        }).catch(() => undefined);
-      }
+      await settleReservation("failed", "context_unavailable");
       return json({ error: "Atlas learner context is temporarily unavailable." }, 503);
     }
 
@@ -505,7 +507,6 @@ Deno.serve(async (req) => {
         evidence: item.evidence_text.slice(0, 320),
       })),
     };
-    const provider = getAtlasProviderConfig();
     const operation = parsed.data.studyFlowOperation;
     const instructions = teamTaskContext
       ? teamTaskPrompt(studyContext)
@@ -521,7 +522,7 @@ Deno.serve(async (req) => {
         : operation
           ? [{ role: "user", content: parsed.data.studyFlowInstruction! }]
           : parsed.data.messages.map((m) => ({ role: m.role, content: m.content }));
-    const upstream = await streamAtlasCompletion(provider, {
+    const providerBody = {
       instructions,
       input,
       reasoning: { effort: "medium", summary: "auto" },
@@ -530,44 +531,28 @@ Deno.serve(async (req) => {
         : { verbosity: "medium" },
       max_output_tokens: route.maxOutputTokens,
       safety_identifier: auth.user.id,
-    });
+      service_tier: "default",
+    };
+    if (new TextEncoder().encode(JSON.stringify(providerBody)).length > 128000) {
+      await settleReservation("failed", "context_too_large");
+      return json({ error: "Atlas context is too large for this request." }, 413);
+    }
+    dispatched = true;
+    const upstream = await streamAtlasCompletion(provider, providerBody);
 
     if (!upstream.ok || !upstream.body) {
       const message = await providerErrorMessage(upstream, provider);
-      if (service && reserve.data?.request_uuid) {
-        await service.rpc("atlas_settle_request", {
-          _request_uuid: reserve.data.request_uuid,
-          _status: "uncertain",
-          _actual_credits: 0,
-          _actual_budget_micro_kes: 0,
-          _input_tokens: estimateAtlasInputTokens(parsed.data.messages, trustedLessonContext),
-          _output_tokens: 0,
-          _cached_tokens: 0,
-          _reconciliation: "provider_failure",
-        }).catch(() => undefined);
-      }
+      await settleReservation("uncertain", "provider_failure");
       return json({ error: message }, upstream.status === 429 ? 429 : 502);
     }
 
     if (!upstream.headers.get("content-type")?.toLowerCase().includes("text/event-stream")) {
       await upstream.body.cancel().catch(() => undefined);
-      if (service && reserve.data?.request_uuid) {
-        await service.rpc("atlas_settle_request", {
-          _request_uuid: reserve.data.request_uuid,
-          _status: "failed",
-          _actual_credits: 0,
-          _actual_budget_micro_kes: 0,
-          _input_tokens: estimateAtlasInputTokens(parsed.data.messages, trustedLessonContext),
-          _output_tokens: 0,
-          _cached_tokens: 0,
-          _reconciliation: "none",
-        }).catch(() => undefined);
-      }
+      await settleReservation("uncertain", "unreadable_provider_response");
       return json({ error: "Atlas provider returned an unreadable response. Please try again." }, 502);
     }
 
     let providerFailureObserved = false;
-    let providerUsage: { inputTokens: number; outputTokens: number; cachedTokens: number } | null = null;
     const providerStream = observeAtlasProviderSseStream(
   upstream.body,
   upstream.status,
@@ -575,8 +560,10 @@ Deno.serve(async (req) => {
     providerFailureObserved = true;
     logProviderFailure(provider, failure);
   },
-  (usage) => {
-    providerUsage = usage;
+  undefined,
+  (payload) => {
+    const usage = finalMeteredUsage(payload, provider.model);
+    if (usage) providerUsage = usage;
   }
 );
 
@@ -663,24 +650,7 @@ if (parsed.data.studyFlowOperation) {
   }
 }
 
-const settlementStream = new TransformStream<Uint8Array, Uint8Array>({
-  transform(chunk, controller) {
-    controller.enqueue(chunk);
-  },
-  cancel() {
-    void settleReservation("failed", "disconnected");
-  },
-  flush() {
-    if (providerUsage) {
-      void settleReservation("uncertain", "usage_unpriced");
-      return;
-    }
-    void settleReservation(providerFailureObserved ? "uncertain" : "settled",
-      providerFailureObserved ? "provider_uncertain" : "none");
-  },
-});
-
-const finalStream = providerStream.pipeThrough(settlementStream);
+const finalStream = withMeteredSettlement(providerStream, () => settleReservation("uncertain", "stream_ended"));
 
 return new Response(finalStream, {
   headers: {
@@ -692,23 +662,7 @@ return new Response(finalStream, {
 });
   } catch (error) {
     console.error("Atlas failed", error instanceof Error ? error.message : "unknown");
-    if (typeof reserve !== "undefined" && reserve?.data?.request_uuid) {
-      const serviceUrl = Deno.env.get("SUPABASE_URL");
-      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-      if (serviceUrl && serviceKey) {
-        const recovery = createClient(serviceUrl, serviceKey, { auth: { persistSession: false } });
-        await recovery.rpc("atlas_settle_request", {
-          _request_uuid: reserve.data.request_uuid,
-          _status: error instanceof AtlasProviderTimeoutError ? "uncertain" : "failed",
-          _actual_credits: 0,
-          _actual_budget_micro_kes: 0,
-          _input_tokens: estimateAtlasInputTokens(parsed.data.messages, trustedLessonContext),
-          _output_tokens: 0,
-          _cached_tokens: 0,
-          _reconciliation: error instanceof AtlasProviderTimeoutError ? "provider_timeout" : "failed",
-        }).catch(() => undefined);
-      }
-    }
+    if (recoverSettlement) await recoverSettlement();
     if (error instanceof AtlasProviderConfigurationError) {
       return json({ error: "Atlas AI is not configured yet. Please contact support." }, 503);
     }

@@ -301,6 +301,7 @@ export function observeAtlasProviderSseStream(
   status: number,
   onFailure: (failure: AtlasProviderFailure) => void,
   onUsage?: (usage: AtlasProviderUsage) => void,
+  onEvent?: (payload: unknown) => void,
 ): ReadableStream<Uint8Array> {
   const decoder = new TextDecoder();
   let pending = "";
@@ -309,6 +310,7 @@ export function observeAtlasProviderSseStream(
   const inspect = (frame: string) => {
     if (frame.length > MAX_PROVIDER_SSE_FRAME_CHARS) return;
     const payload = parseSsePayload(frame);
+    onEvent?.(payload);
     const usage = parseAtlasProviderUsage(payload);
     if (usage && onUsage) {
       try {

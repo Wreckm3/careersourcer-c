@@ -997,6 +997,14 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["subscription_tier"]
       }
+      atlas_founder_control_snapshot: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      atlas_founder_pause_generation: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       has_founder_atlas_entitlement: {
         Args: Record<PropertyKey, never>
         Returns: boolean

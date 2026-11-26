@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { finalMeteredUsage, withMeteredSettlement } from "../supabase/functions/_shared/atlas/metering";
 import { emptyLabDraft, formatLabEvidence, LAB_FIELDS } from "../src/lib/atlas/learningLab";
 import { limitAtlasRequestMessages } from "../src/lib/atlas/conversationHistory";
 import { mergeAtlasText, parseAtlasSseFrame, requireAtlasAnswer } from "../src/lib/atlas/sse";
@@ -40,6 +41,29 @@ import {
   atlasStudyFlowRoadmapSchema,
   parseAtlasStudyFlowRoadmap,
 } from "../src/lib/atlas/studyFlowSchema";
+
+describe("Atlas verified provider metering", () => {
+  const terminal = { type: "response.completed", response: { id: "resp_fixture", model: "fixture-model", usage: { input_tokens: 100, output_tokens: 10, input_tokens_details: { cached_tokens: 20 } } } };
+  it("accepts only final matching-model usage with exact token counts", () => {
+    assert.deepEqual(finalMeteredUsage(terminal, "fixture-model"), { inputTokens: 100, cachedTokens: 20, outputTokens: 10, responseId: "resp_fixture" });
+    assert.equal(finalMeteredUsage(terminal, "other-model"), null);
+    assert.equal(finalMeteredUsage({ ...terminal, type: "response.created" }, "fixture-model"), null);
+  });
+  it("rejects malformed usage and unsupported paid cache writes", () => {
+    assert.equal(finalMeteredUsage({ ...terminal, response: { ...terminal.response, usage: { input_tokens: 100, output_tokens: 10 } } }, "fixture-model"), null);
+    assert.equal(finalMeteredUsage({ ...terminal, response: { ...terminal.response, usage: { ...terminal.response.usage, input_tokens_details: { cached_tokens: 101 } } } }, "fixture-model"), null);
+    assert.equal(finalMeteredUsage({ ...terminal, response: { ...terminal.response, usage: { ...terminal.response.usage, input_tokens_details: { cached_tokens: 20, cache_write_tokens: 1 } } } }, "fixture-model"), null);
+  });
+  it("awaits exactly one settlement on close or cancellation", async () => {
+    let count = 0;
+    const body = new ReadableStream<Uint8Array>({ start(controller) { controller.close(); } });
+    await new Response(withMeteredSettlement(body, async () => { count++; })).text();
+    assert.equal(count, 1);
+    const open = new ReadableStream<Uint8Array>();
+    await withMeteredSettlement(open, async () => { count++; }).cancel();
+    assert.equal(count, 2);
+  });
+});
 
 describe("Atlas Learning Lab evidence", () => {
   it("rejects incomplete or whitespace-only practice records", () => {
