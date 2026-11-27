@@ -72,6 +72,10 @@ Deno.serve(async (req) => {
     const auth = createClient(url, anon, { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } }, auth: { persistSession: false } });
     const { data: { user } } = await auth.auth.getUser();
     if (!user) return reply({ error: "Sign in before starting M-Pesa checkout." }, 401);
+    // Public checkout is opt-in and cannot be enabled against the sandbox.
+    if (Deno.env.get("MPESA_CHECKOUT_ENABLED") !== "true" || Deno.env.get("MPESA_ENV") !== "production") {
+      return reply({ error: "Paid subscriptions are not available during the beta." }, 503);
+    }
     const body = await req.json().catch(() => null);
     const tier = body?.tier;
     const phone = normalizeMpesaPhone(body?.phoneNumber);
