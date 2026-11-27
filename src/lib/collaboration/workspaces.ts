@@ -137,6 +137,7 @@ export async function loadTeamProjectWorkspace(teamId: string, projectId: string
       resourceResult.error ?? activityResult.error ?? contributionResult.error ?? portfolioResult.error;
   }
   return {
+    scope: { teamId, projectId, userId },
     milestones: milestoneResult.data,
     tasks: taskResult.data,
     messages: messageResult.data.reverse(),

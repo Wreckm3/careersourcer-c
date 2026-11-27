@@ -35,6 +35,8 @@ import {
   type TeamProjectTaskPriority,
 } from "@/lib/collaboration/workspaces";
 import { streamAtlasTeamRecommendation } from "@/lib/atlas/atlasTransport";
+import { AtlasTeamBrief } from "@/components/atlas/AtlasTeamBrief";
+import { sameBriefScope, type BriefScope } from "@/lib/collaboration/teamBrief";
 
 type TeamHome = Awaited<ReturnType<typeof loadTeamHome>>;
 type TeamWorkspaceData = Awaited<ReturnType<typeof loadTeamWorkspace>>;
@@ -69,7 +71,7 @@ export default function CollaborationWorkspace() {
   const [teamDiscoverable, setTeamDiscoverable] = useState(true);
   const [projectDraft, setProjectDraft] = useState({ name: "", description: "", objectives: "" });
   const [inviteEmail, setInviteEmail] = useState("");
-  const [atlasAnswer, setAtlasAnswer] = useState("");
+  const [atlasAnswer, setAtlasAnswer] = useState<{ scope: BriefScope; text: string } | null>(null);
   const [atlasLoading, setAtlasLoading] = useState(false);
 
   useEffect(() => {
@@ -168,6 +170,7 @@ export default function CollaborationWorkspace() {
   const manager = teamMembership?.role === "owner" || teamMembership?.role === "admin";
   const owner = teamMembership?.role === "owner";
   const currentUserId = user?.id ?? "";
+  const currentScope: BriefScope = { userId: currentUserId, teamId, projectId };
   const roadmapOptions = studyFlow?.flow?.status === "active" && studyFlow.flow.active_roadmap
     ? studyFlow.flow.active_roadmap.objectives.flatMap((objective) =>
       objective.stages.flatMap((stage) => stage.lessons.map((lesson) => ({ id: lesson.id, title: lesson.title }))))
@@ -215,11 +218,13 @@ export default function CollaborationWorkspace() {
   }, "Team access removed");
 
   const atlasRecommendation = async (task: TeamProjectTask) => {
+    const scope = { userId: currentUserId, teamId: task.team_id, projectId: task.project_id };
+    if (!sameBriefScope(scope, currentScope) || task.assignee_id !== currentUserId || atlasLoading) return;
     setAtlasLoading(true);
-    setAtlasAnswer("");
+    setAtlasAnswer(null);
     try {
       const { answer } = await streamAtlasTeamRecommendation(task.id, () => undefined);
-      setAtlasAnswer(answer);
+      setAtlasAnswer({ scope, text: answer });
     } catch (error) {
       toast.error(`Atlas could not make a recommendation: ${errorText(error)}`);
     } finally {
@@ -452,9 +457,9 @@ export default function CollaborationWorkspace() {
                     <button disabled={busy} className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground md:col-span-2">Create project</button>
                   </form>}
                   {!project && <p className="text-sm text-muted-foreground">{teamData?.projects.length ? "Select a project to view its workspace." : "This team has no projects yet."}</p>}
-                  {project && projectData && (
+                  {project && projectData && teamMembership?.user_id === currentUserId && sameBriefScope(projectData.scope, currentScope) && (
                     <ProjectWorkspaceView
-                      key={project.id}
+                      key={`${currentUserId}:${teamId}:${project.id}`}
                       project={project}
                       teamMembers={teamData?.members ?? []}
                       manager={manager}
@@ -462,7 +467,7 @@ export default function CollaborationWorkspace() {
                       data={projectData}
                       roadmapOptions={roadmapOptions}
                       busy={busy}
-                      atlasAnswer={atlasAnswer}
+                      atlasAnswer={atlasAnswer && sameBriefScope(atlasAnswer.scope, currentScope) ? atlasAnswer.text : ""}
                       atlasLoading={atlasLoading}
                       onAtlasRecommendation={atlasRecommendation}
                       onAction={runAction}
@@ -766,11 +771,14 @@ export default function CollaborationWorkspace() {
 
         <section>
           <h3 className="mb-3 font-bold">Private team discussion</h3>
+          {import.meta.env.VITE_ATLAS_TEAM_BRIEF_ENABLED === "true" && (
+            <AtlasTeamBrief scope={props.data.scope} tasks={props.data.tasks} canUseDraft={!props.busy && !message.trim()} onUseDraft={(draft) => setMessage((current) => current.trim() ? current : draft)} />
+          )}
           <form onSubmit={handleActionForm(() => props.onSendMessage(message).then((result) => {
             setMessage("");
             return result;
           }), "Message sent")} className="mb-3 flex gap-2">
-            <input className={fieldClass} maxLength={4000} value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Share an update with this project team" required />
+            <textarea className={fieldClass} rows={2} maxLength={4000} value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Share an update with this project team" required />
             <button disabled={props.busy} aria-label="Send message" className="shrink-0 rounded-lg bg-primary px-3 text-primary-foreground"><Send className="h-4 w-4" /></button>
           </form>
           <div className="max-h-72 space-y-2 overflow-y-auto">
