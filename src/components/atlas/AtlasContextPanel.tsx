@@ -97,7 +97,7 @@ export function AtlasContextPanel({
             type="button"
             variant={activePanel === panel ? "secondary" : "ghost"}
             size="sm"
-            className={`atlas-mode-control ${activePanel === panel ? "bg-atlas-surface text-atlas-foreground" : "text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"}`}
+            className={`atlas-mode-control min-w-0 w-full px-1 text-xs ${activePanel === panel ? "bg-atlas-surface text-atlas-foreground" : "text-atlas-muted hover:bg-atlas-surface hover:text-atlas-foreground"}`}
             onClick={() => onSelectPanel(panel)}
             role="tab"
             aria-selected={activePanel === panel}
