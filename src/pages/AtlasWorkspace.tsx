@@ -450,8 +450,8 @@ export default function AtlasWorkspace() {
             onAssessEvidence={(evidenceId) => void handleAssessStudyEvidence(evidenceId)}
             onPrompt={preparePrompt}
           />
-          {user && !atlasTierLoading && isFounder && branchData?.branch.id === "game-development" && import.meta.env.VITE_ATLAS_CURATED_RESEARCH_ENABLED === "true" && (
-            <AtlasResearchPilot key={user.id} userId={user.id} onPrompt={preparePrompt} />
+          {user && !atlasTierLoading && isFounder && (branchData?.branch.id === "game-development" || branchData?.branch.id === "web-development" || branchData?.branch.id === "ai-automation") && import.meta.env.VITE_ATLAS_CURATED_RESEARCH_ENABLED === "true" && (
+            <AtlasResearchPilot key={`${user.id}:${branchData.branch.id}`} userId={user.id} branchId={branchData.branch.id} onPrompt={preparePrompt} />
           )}
           {user && !atlasTierLoading && atlasTier === "elite" && branchData?.branch.id && (
             <AtlasOpportunityPanel key={`${user.id}:${branchData.branch.id}`} branchId={branchData.branch.id} />

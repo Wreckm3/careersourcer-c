@@ -29,3 +29,25 @@ test("complete sequence creates draft without link fabrication or mastery claim"
   assert.match(draft ?? "", /not proof of mastery/);
   assert.doesNotMatch(draft ?? "", /https:\/\//);
 });
+
+test("web and Python presets send explicit constraints", () => {
+  const web = buildResearchPilotRequest({ goal: "web", css: true, editor: true, files: true, html: false, minutes: 60 });
+  assert.deepEqual(web.stages, [["html-syntax"], ["css-basics"]]);
+  assert.deepEqual(web.availableArtifacts, ["web-editor-ready", "basic-file-skills"]);
+  assert.deepEqual(web.software, {});
+  const python = buildResearchPilotRequest({ goal: "python", interpreter: true, basics: false, minutes: 120 });
+  assert.deepEqual(python.software, { python: "3.14" });
+  assert.deepEqual(python.availableArtifacts, ["python-interpreter-ready"]);
+});
+test("new catalogue entries require exact ID and URL binding", () => {
+  const web = { ...resource, id: "mdn-basic-html", url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Basic_HTML_syntax" };
+  const css = { ...resource, id: "mdn-css-introduction", url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/What_is_CSS" };
+  const python = { ...resource, id: "python-314-introduction", url: "https://docs.python.org/3.14/tutorial/introduction.html" };
+  for (const item of [web, css, python]) {
+    assert.ok(parseResearchPilotResult({ ...body, resources: [item] }, 1));
+    assert.equal(parseResearchPilotResult({ ...body, resources: [{ ...item, url: item.url + "?redirect=evil" }] }, 1), null);
+    assert.equal(parseResearchPilotResult({ ...body, resources: [{ ...item, id: "unknown" }] }, 1), null);
+  }
+  assert.equal(parseResearchPilotResult({ ...body, resources: [{ ...web, url: css.url }] }, 1), null);
+  assert.equal(parseResearchPilotResult(body, 0), null);
+});
