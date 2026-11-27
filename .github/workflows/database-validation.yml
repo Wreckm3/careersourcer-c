@@ -156,7 +156,7 @@ jobs:
 
       - name: Run local payment and Atlas unit/integration tests
         id: payment-atlas
-        run: npx tsx --test tests/stripe-webhook.test.ts tests/mpesa-payment.test.ts tests/atlas-credit.test.ts tests/atlas-core.test.ts tests/atlas-mastery-recovery.test.ts tests/atlas-opportunity.test.ts tests/atlas-founder-controls.test.ts tests/atlas-research.test.ts tests/atlas-research-catalog.test.ts tests/atlas-research-service.test.ts
+        run: npx tsx --test tests/stripe-webhook.test.ts tests/mpesa-payment.test.ts tests/atlas-credit.test.ts tests/atlas-core.test.ts tests/atlas-mastery-recovery.test.ts tests/atlas-opportunity.test.ts tests/atlas-founder-controls.test.ts tests/atlas-research.test.ts tests/atlas-research-catalog.test.ts tests/atlas-research-service.test.ts tests/atlas-research-client.test.ts
 
       - name: Run TypeScript type check
         id: typescript
