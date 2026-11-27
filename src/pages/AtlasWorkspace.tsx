@@ -39,6 +39,7 @@ import {
 } from "@/lib/atlas/studyFlow";
 import { AtlasStudyFlowPanel } from "@/components/atlas/AtlasStudyFlowPanel";
 import { AtlasOpportunityPanel } from "@/components/atlas/AtlasOpportunityPanel";
+import { AtlasResearchPilot } from "@/components/atlas/AtlasResearchPilot";
 
 const MODE_PREFIXES: Record<AtlasResponseMode, (input: string) => string> = {
   Adaptive: (input) => input,
@@ -69,7 +70,7 @@ export default function AtlasWorkspace() {
   const { user, loading: authLoading } = useAuth();
   const { progress } = useProgress();
   const { tier: subscriptionTier, loading: subscriptionLoading } = useSubscription();
-  const { tier: atlasTier, loading: atlasTierLoading } = useAtlasEffectiveTier();
+  const { tier: atlasTier, loading: atlasTierLoading, isFounder } = useAtlasEffectiveTier();
   const atlasCredits = useAtlasCredits();
   const refreshAtlasCredits = atlasCredits.refresh;
   const phases = usePhases(progress.selectedPath);
@@ -449,6 +450,9 @@ export default function AtlasWorkspace() {
             onAssessEvidence={(evidenceId) => void handleAssessStudyEvidence(evidenceId)}
             onPrompt={preparePrompt}
           />
+          {user && !atlasTierLoading && isFounder && branchData?.branch.id === "game-development" && import.meta.env.VITE_ATLAS_CURATED_RESEARCH_ENABLED === "true" && (
+            <AtlasResearchPilot key={user.id} userId={user.id} onPrompt={preparePrompt} />
+          )}
           {user && !atlasTierLoading && atlasTier === "elite" && branchData?.branch.id && (
             <AtlasOpportunityPanel key={`${user.id}:${branchData.branch.id}`} branchId={branchData.branch.id} />
           )}

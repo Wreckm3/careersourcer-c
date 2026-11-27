@@ -14,3 +14,6 @@ verify_jwt = false
 # STK initiation separately verifies the caller's Supabase access token.
 [functions.mpesa-stk-push]
 verify_jwt = true
+
+[functions.atlas-research]
+verify_jwt = true
