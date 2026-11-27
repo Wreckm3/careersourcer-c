@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { AtlasTurnPlan } from "./types";
+import type { MentorStyle } from "./mentorStyle";
 import { mergeAtlasText, parseAtlasSseFrame, requireAtlasAnswer } from "./sse";
 
 const ATLAS_ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/atlas`;
@@ -10,6 +11,7 @@ export interface AtlasStreamResult {
 
 type AtlasTransportRequest = Pick<AtlasTurnPlan["request"], "messages" | "lessonContext"> & {
   feature?: "mentorship";
+  mentorStyle?: MentorStyle;
   teamTaskId?: string;
 };
 

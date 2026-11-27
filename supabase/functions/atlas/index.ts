@@ -24,6 +24,7 @@ import { routeAtlasRequest } from "../_shared/atlas/credits.ts";
 import { finalMeteredUsage, withMeteredSettlement, type MeteredUsage } from "../_shared/atlas/metering.ts";
 import { checkAtlasLunaInput, ATLAS_BETA_MODEL, ATLAS_MAX_INPUT_TOKENS } from "../_shared/atlas/inputPreflight.ts";
 import { normalizeAtlasLessonContext } from "../_shared/atlas/learningContext.ts";
+import { MENTOR_STYLES, mentorStyleInstruction } from "../_shared/atlas/mentorStyle.ts";
 import {
   AtlasStudyFlowAssessmentResponse,
   AtlasStudyFlowResponse,
@@ -47,6 +48,7 @@ const Request = z.object({
   messages: z.array(Message).min(1).max(12),
   lessonContext: Lesson.nullish(),
   feature: AtlasFeatureSchema.default("mentorship"),
+  mentorStyle: z.enum(MENTOR_STYLES).optional(),
   teamTaskId: z.string().uuid().optional(),
   studyFlowOperation: z.enum(["generate", "revise", "assess"]).optional(),
   studyFlowInstruction: z.string().trim().min(1).max(1200).optional(),
@@ -515,7 +517,7 @@ Deno.serve(async (req) => {
         ? studyFlowAssessmentPrompt(studyContext, assessmentTarget.lesson, assessmentTarget.evidence)
         : operation === "generate" || operation === "revise"
           ? studyFlowPrompt(studyContext, operation, activeStudyFlow)
-          : prompt(entitlements.atlasLevel, studyContext, trustedLessonContext);
+          : [parsed.data.feature === "mentorship" ? mentorStyleInstruction(parsed.data.mentorStyle) : "", prompt(entitlements.atlasLevel, studyContext, trustedLessonContext)].filter(Boolean).join("\n\n");
     const input = teamTaskContext
       ? [{ role: "user", content: "Recommend one practical learning exercise for my assigned team task." }]
       : operation === "assess"

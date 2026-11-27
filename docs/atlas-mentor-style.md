@@ -1,0 +1,5 @@
+# Atlas mentorship personality
+
+Five fixed delivery preferences (Adaptive, Ruthless Mentor, Supportive Coach, Strategic Advisor and Technical Expert) are independent of the existing task modes. Adaptive retains the existing server prompt. The server accepts only a fixed enum; never interpolate arbitrary custom personality text. Non-default instructions apply to ordinary mentorship, not team-task prompts or StudyFlow generation, revision, or assessment. Safety, evidence and financial controls are unchanged.
+
+The setting is per signed-in account on the current browser, with an in-session fallback if storage is blocked. It is not cloud synchronized. No new database tables, API providers, entitlements or credit rules. The composer selector is hidden unless `VITE_ATLAS_MENTOR_STYLE_ENABLED=true`. Keep it off until the updated Atlas function is deployed and independently verified. Do not enable generation or change budgets to test the selector. Test the preference and fixed instructions locally, then validate the complete application in isolated CI. Authenticated provider behavior remains unverified until an explicitly approved metered test.
