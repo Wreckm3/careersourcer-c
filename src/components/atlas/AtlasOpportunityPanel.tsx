@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AtlasRadar } from "./AtlasRadar";
 import { planOpportunity, type OpportunityDevice, type OpportunityReadiness } from "@/lib/atlas/opportunityEngine";
 
 export function AtlasOpportunityPanel({ branchId }: { branchId: string }) {
@@ -6,12 +7,14 @@ export function AtlasOpportunityPanel({ branchId }: { branchId: string }) {
   const [minutes, setMinutes] = useState<30 | 60 | 120>(30);
   const [internet, setInternet] = useState(false);
   const [readiness, setReadiness] = useState<OpportunityReadiness>("learning");
-  const plan = planOpportunity({ branchId, device, minutes, internet, readiness });
+  const input = { branchId, device, minutes, internet, readiness };
+  const plan = planOpportunity(input);
+  const radarEnabled = import.meta.env.VITE_ATLAS_RADAR_ENABLED === "true";
   const field = "mt-1 w-full rounded-md border border-atlas-border bg-atlas-background p-2 text-xs text-atlas-foreground";
   return (
-    <section aria-label="Atlas Opportunity Engine" className="mt-4 space-y-3 rounded-xl border border-atlas-border bg-atlas-surface/50 p-3">
+    <section aria-label={radarEnabled ? "Atlas Radar" : "Atlas Opportunity Engine"} className="mt-4 space-y-3 rounded-xl border border-atlas-border bg-atlas-surface/50 p-3">
       <div>
-        <p className="text-[11px] font-medium uppercase text-atlas-accent">Atlas Pro · Opportunity Engine</p>
+        <p className="text-[11px] font-medium uppercase text-atlas-accent">Atlas Pro · {radarEnabled ? "Radar" : "Opportunity Engine"}</p>
         <h3 className="mt-1 text-sm font-semibold text-atlas-foreground">Explore a practical opportunity</h3>
         <p className="mt-1 text-xs leading-5 text-atlas-muted">Start with a small experiment, not a promise of income. This uses your selected learning path and the constraints you choose. No AI credits or location permissions are used.</p>
       </div>
@@ -34,6 +37,8 @@ export function AtlasOpportunityPanel({ branchId }: { branchId: string }) {
       </label>
       <label className="flex items-center gap-2 text-xs text-atlas-muted"><input type="checkbox" checked={internet} onChange={(e) => setInternet(e.target.checked)} /> Internet available for feedback</label>
       <p className="text-[11px] text-atlas-muted">Your answers are temporary, self-reported and not a certification of mastery. Select computer only if it can run the tools you need.</p>
+      {radarEnabled && <AtlasRadar key={branchId} input={input} />}
+      {radarEnabled && <h4 className="text-xs font-semibold text-atlas-foreground">Practice planner · your learning path</h4>}
       {plan ? (
         <div className="space-y-2 rounded-md border border-atlas-border p-3 text-xs leading-5 text-atlas-muted">
           <h4 className="font-semibold text-atlas-foreground">{plan.title}</h4>
