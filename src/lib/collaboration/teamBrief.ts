@@ -28,7 +28,11 @@ const deadline = (value: string | null) => {
   const date = value ? Date.parse(value) : NaN;
   return Number.isFinite(date) ? date : Number.POSITIVE_INFINITY;
 };
-const label = (value: string) => value.replace(/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) || "Untitled task";
+const label = (value: string) => Array.from(value, character => {
+  const code = character.charCodeAt(0);
+  return code <= 0x1f || code === 0x7f || (code >= 0x202a && code <= 0x202e) ||
+    (code >= 0x2066 && code <= 0x2069) ? " " : character;
+}).join("").replace(/\s+/g, " ").trim().slice(0, 160) || "Untitled task";
 function rank(tasks: readonly BriefTask[]) {
   return [...tasks].sort((a, b) => priority[a.priority] - priority[b.priority] ||
     Number(a.status !== "in_progress") - Number(b.status !== "in_progress") ||
