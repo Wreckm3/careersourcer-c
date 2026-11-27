@@ -1,0 +1,5 @@
+# Curated research catalog seed
+
+This is a server-side library, not a deployed endpoint. Two Unity 6.0 manual pages were reviewed on 2026-11-27 using retrieved documentation; the retrieved copies were cached, not live health checks. Difficulty and practice durations are editorial estimates, not publisher claims. The catalog expires after 30 days unless reviewed again. A humanoid rig is an explicit prerequisite, not an automatic result of importing a mesh. No Blender entry is included because its page could not be retrieved during this review.
+
+The shared pure engine is located under `supabase/functions/_shared/atlas/`; the existing frontend module re-exports it for compatibility. The catalog is not imported into the frontend. No endpoint, API provider, AI calls, cache persistence or database migration is included. Before integrating with StudyFlow, authenticate and authorize on the server; validate request bounds; resolve only IDs selected by the server; keep existing null-URL roadmap schema intact until a coordinated schema migration. Do not accept user claims of mastery as verified artifacts. No costs or production changes.
