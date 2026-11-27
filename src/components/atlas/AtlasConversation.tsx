@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import type { AtlasConversationMessage } from "@/lib/atlas/types";
+import { MENTOR_STYLES, MENTOR_STYLE_LABELS, MENTOR_STYLE_DESCRIPTIONS, isMentorStyle, type MentorStyle } from "@/lib/atlas/mentorStyle";
 import { AtlasOrb } from "./AtlasOrb";
 import type { AtlasOrbState, AtlasResponseMode } from "./workspaceTypes";
 
@@ -15,6 +16,9 @@ export interface AtlasConversationProps {
   errorCanUpgrade?: boolean;
   accessLocked: boolean;
   mode: AtlasResponseMode;
+  mentorStyle?: MentorStyle;
+  onMentorStyleChange?: (style: MentorStyle) => void;
+  mentorStylePersisted?: boolean;
   orbState: AtlasOrbState;
   composerFocusKey?: number;
   onDraftChange: (value: string) => void;
@@ -187,6 +191,9 @@ export function AtlasConversation({
   errorCanUpgrade = false,
   accessLocked,
   mode,
+  mentorStyle,
+  onMentorStyleChange,
+  mentorStylePersisted = true,
   orbState,
   composerFocusKey = 0,
   onDraftChange,
@@ -357,6 +364,22 @@ export function AtlasConversation({
 
       <div className="shrink-0 border-t border-atlas-border bg-atlas-background px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:px-5">
         <div className="mx-auto max-w-4xl">
+          {mentorStyle !== undefined && onMentorStyleChange && (
+            <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-atlas-muted">
+              <label className="flex items-center gap-2">
+                Mentor style
+                <select
+                  value={mentorStyle}
+                  disabled={streaming || accessLocked}
+                  className="rounded-md border border-atlas-border bg-atlas-surface px-2 py-1 text-xs text-atlas-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-accent"
+                  onChange={event => { if (isMentorStyle(event.target.value)) onMentorStyleChange(event.target.value); }}
+                >
+                  {MENTOR_STYLES.map(style => <option key={style} value={style}>{MENTOR_STYLE_LABELS[style]}</option>)}
+                </select>
+              </label>
+              <span>{MENTOR_STYLE_DESCRIPTIONS[mentorStyle]} {!mentorStylePersisted && "Saved for this session only."}</span>
+            </div>
+          )}
           <div className="mb-2 flex items-center gap-1 overflow-x-auto pb-1" role="toolbar" aria-label="Atlas response mode">
             {responseModes.map((responseMode) => (
               <button

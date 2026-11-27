@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Focus, Menu, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useAtlasMentorStyle } from "@/hooks/useAtlasMentorStyle";
 import { useProgress } from "@/hooks/useProgress";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAtlasEffectiveTier } from "@/hooks/useAtlasEffectiveTier";
@@ -85,6 +86,8 @@ export default function AtlasWorkspace() {
   const [lastFailedPrompt, setLastFailedPrompt] = useState<string | null>(null);
   const [composerFocusKey, setComposerFocusKey] = useState(0);
   const [mode, setMode] = useState<AtlasResponseMode>("Adaptive");
+  const { style: mentorStyle, setStyle: setMentorStyle, persisted: mentorStylePersisted } = useAtlasMentorStyle(user?.id);
+  const mentorStyleEnabled = import.meta.env.VITE_ATLAS_MENTOR_STYLE_ENABLED === "true";
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [contextOpen, setContextOpen] = useState(true);
   const [focusMode, setFocusMode] = useState(false);
@@ -362,7 +365,7 @@ export default function AtlasWorkspace() {
       setStoredProject(plan.memory.currentProject);
       setMessages([...plan.messages, { role: "assistant", content: "" }]);
 
-      const { answer } = await streamAtlasResponse(plan.request, (answer) => {
+      const { answer } = await streamAtlasResponse({ ...plan.request, ...(mentorStyleEnabled ? { mentorStyle } : {}) }, (answer) => {
         setMessages([...plan.messages, { role: "assistant", content: answer }]);
       });
 
@@ -380,7 +383,7 @@ export default function AtlasWorkspace() {
     } finally {
       setStreaming(false);
     }
-  }, [accessLocked, refreshAtlasCredits, controller, controllerContext, messages, mode, streaming]);
+  }, [accessLocked, refreshAtlasCredits, controller, controllerContext, messages, mode, streaming, mentorStyle, mentorStyleEnabled]);
 
   const retry = useCallback(() => {
     if (lastFailedPrompt) void send(lastFailedPrompt, lastFailedPrompt);
@@ -570,6 +573,9 @@ export default function AtlasWorkspace() {
                   accessLocked={false}
                   mode={mode}
                   onModeChange={setMode}
+                  mentorStyle={mentorStyleEnabled ? mentorStyle : undefined}
+                  onMentorStyleChange={mentorStyleEnabled ? setMentorStyle : undefined}
+                  mentorStylePersisted={mentorStylePersisted}
                   onPreparePrompt={preparePrompt}
                   orbState={orbState}
                   composerFocusKey={composerFocusKey}
