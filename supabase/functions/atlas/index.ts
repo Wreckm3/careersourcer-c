@@ -22,6 +22,7 @@ import {
 } from "../_shared/atlas/entitlements.ts";
 import { routeAtlasRequest } from "../_shared/atlas/credits.ts";
 import { finalMeteredUsage, withMeteredSettlement, type MeteredUsage } from "../_shared/atlas/metering.ts";
+import { checkAtlasLunaInput, ATLAS_BETA_MODEL, ATLAS_MAX_INPUT_TOKENS } from "../_shared/atlas/inputPreflight.ts";
 import { normalizeAtlasLessonContext } from "../_shared/atlas/learningContext.ts";
 import {
   AtlasStudyFlowAssessmentResponse,
@@ -327,7 +328,7 @@ Deno.serve(async (req) => {
       return json({ error: "Atlas does not have enough credits for this request.", essentialMode: wallet.essential_mode }, 402);
     }
     const provider = getAtlasProviderConfig();
-    if (provider.provider !== "openai") {
+    if (provider.provider !== "openai" || provider.model !== ATLAS_BETA_MODEL) {
       return json({ error: "Atlas provider metering is not configured." }, 503);
     }
     const requestId = crypto.randomUUID();
@@ -525,7 +526,8 @@ Deno.serve(async (req) => {
     const providerBody = {
       instructions,
       input,
-      reasoning: { effort: "medium", summary: "auto" },
+      reasoning: route.level === "instant" ? { effort: "none" } : { effort: "low" },
+      prompt_cache_options: { mode: "explicit" },
       text: parsed.data.studyFlowOperation
         ? { format: { type: "json_object" }, verbosity: "low" }
         : { verbosity: "medium" },
@@ -536,6 +538,27 @@ Deno.serve(async (req) => {
     if (new TextEncoder().encode(JSON.stringify(providerBody)).length > 128000) {
       await settleReservation("failed", "context_too_large");
       return json({ error: "Atlas context is too large for this request." }, 413);
+    }
+    // Bind the preflight to the actual reservation, not a client estimate or
+    // a rate row that could have been edited since reservation.
+    const { data: meteringSnapshot, error: snapshotError } = await service
+      .from("atlas_metering_snapshots")
+      .select("model,input_token_ceiling")
+      .eq("request_uuid", reserve.data.request_uuid)
+      .single();
+    const ceiling = meteringSnapshot?.input_token_ceiling;
+    if (snapshotError || meteringSnapshot?.model !== provider.model ||
+      typeof ceiling !== "number" || !Number.isSafeInteger(ceiling) ||
+      ceiling < 1024 || ceiling > ATLAS_MAX_INPUT_TOKENS) {
+      await settleReservation("failed", "metering_snapshot_unavailable");
+      return json({ error: "Atlas verified input limit is unavailable." }, 503);
+    }
+    const inputCheck = await checkAtlasLunaInput(provider.apiKey, providerBody, ceiling);
+    if (inputCheck !== "allowed") {
+      await settleReservation("failed", "input_preflight_failed");
+      return json({ error: inputCheck === "too_large"
+        ? "Atlas context exceeds the verified input budget. Start a shorter conversation."
+        : "Atlas could not verify the input cost. Please try again later." }, inputCheck === "too_large" ? 413 : 503);
     }
     dispatched = true;
     const upstream = await streamAtlasCompletion(provider, providerBody);
