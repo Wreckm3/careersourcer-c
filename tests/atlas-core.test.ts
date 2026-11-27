@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { finalMeteredUsage, withMeteredSettlement } from "../supabase/functions/_shared/atlas/metering";
+import { emptyLabDraft, formatLabEvidence, LAB_FIELDS } from "../src/lib/atlas/learningLab";
 import { limitAtlasRequestMessages } from "../src/lib/atlas/conversationHistory";
 import { mergeAtlasText, parseAtlasSseFrame, requireAtlasAnswer } from "../src/lib/atlas/sse";
 import {
@@ -28,9 +30,64 @@ import {
   describeAtlasProviderFailure,
   getAtlasProviderFailure,
   observeAtlasProviderSseStream,
+  parseAtlasProviderUsage,
   resolveAtlasProviderConfig,
   streamAtlasCompletion,
 } from "../supabase/functions/_shared/atlas/provider";
+import { normalizeAtlasLessonContext } from "../supabase/functions/_shared/atlas/learningContext";
+import { extractAtlasStudyFlowText } from "../supabase/functions/_shared/atlas/studyflowStream";
+import {
+  atlasStudyFlowAssessmentSchema,
+  atlasStudyFlowRoadmapSchema,
+  parseAtlasStudyFlowRoadmap,
+} from "../src/lib/atlas/studyFlowSchema";
+
+describe("Atlas verified provider metering", () => {
+  const terminal = { type: "response.completed", response: { id: "resp_fixture", model: "fixture-model", usage: { input_tokens: 100, output_tokens: 10, input_tokens_details: { cached_tokens: 20 } } } };
+  it("accepts only final matching-model usage with exact token counts", () => {
+    assert.deepEqual(finalMeteredUsage(terminal, "fixture-model"), { inputTokens: 100, cachedTokens: 20, outputTokens: 10, responseId: "resp_fixture" });
+    assert.equal(finalMeteredUsage(terminal, "other-model"), null);
+    assert.equal(finalMeteredUsage({ ...terminal, type: "response.created" }, "fixture-model"), null);
+  });
+  it("rejects malformed usage and unsupported paid cache writes", () => {
+    assert.equal(finalMeteredUsage({ ...terminal, response: { ...terminal.response, usage: { input_tokens: 100, output_tokens: 10 } } }, "fixture-model"), null);
+    assert.equal(finalMeteredUsage({ ...terminal, response: { ...terminal.response, usage: { ...terminal.response.usage, input_tokens_details: { cached_tokens: 101 } } } }, "fixture-model"), null);
+    assert.equal(finalMeteredUsage({ ...terminal, response: { ...terminal.response, usage: { ...terminal.response.usage, input_tokens_details: { cached_tokens: 20, cache_write_tokens: 1 } } } }, "fixture-model"), null);
+  });
+  it("awaits exactly one settlement on close or cancellation", async () => {
+    let count = 0;
+    const body = new ReadableStream<Uint8Array>({ start(controller) { controller.close(); } });
+    await new Response(withMeteredSettlement(body, async () => { count++; })).text();
+    assert.equal(count, 1);
+    const open = new ReadableStream<Uint8Array>();
+    await withMeteredSettlement(open, async () => { count++; }).cancel();
+    assert.equal(count, 2);
+  });
+});
+
+describe("Atlas Learning Lab evidence", () => {
+  it("rejects incomplete or whitespace-only practice records", () => {
+    assert.equal(formatLabEvidence(emptyLabDraft()), null);
+    assert.equal(formatLabEvidence({ approach: "plan", result: "work", verification: "  ", reflection: "lesson" }), null);
+  });
+
+  it("keeps learner-reported work distinct from verified mastery", () => {
+    const evidence = formatLabEvidence({ approach: "  plan  ", result: "work", verification: "checked", reflection: "lesson" });
+    assert.ok(evidence);
+    assert.match(evidence, /not independently verified/);
+    assert.match(evidence, /Your approach:\nplan/);
+    assert.match(evidence, /How you checked it:\nchecked/);
+  });
+
+  it("keeps the largest valid draft within the existing evidence limit", () => {
+    const draft = emptyLabDraft();
+    for (const field of LAB_FIELDS) draft[field.key] = "x".repeat(field.maxLength);
+    const evidence = formatLabEvidence(draft);
+    assert.ok(evidence && evidence.length <= 4000);
+    draft.result += "x";
+    assert.equal(formatLabEvidence(draft), null);
+  });
+});
 
 describe("Atlas stream parsing", () => {
   it("collects delta events and a final Responses API payload", () => {
@@ -85,7 +142,134 @@ describe("Atlas conversation bounds", () => {
   });
 });
 
+describe("Atlas learning context handoff", () => {
+  const lessonContext = {
+    categoryId: "technology",
+    branchId: "web-development",
+    lessonId: "web-1",
+    mission: "Build a small page.",
+    missionCompleted: true,
+    toolsLearned: ["HTML"],
+    projectCompleted: "claimed completion",
+    progress: { lessonIndex: 5, totalLessons: 5, completedInBranch: 5, percentBranch: 100, streakCurrent: 4 },
+    nextMission: null,
+  };
+
+  it("drops lesson context that does not match the server-selected path", () => {
+    assert.equal(normalizeAtlasLessonContext(lessonContext, "game-development", ["web-1"]), null);
+    assert.equal(normalizeAtlasLessonContext(lessonContext, null, ["web-1"]), null);
+  });
+
+  it("derives completion from saved sessions and omits client-asserted progress", () => {
+    const incomplete = normalizeAtlasLessonContext(lessonContext, "web-development", []);
+    assert.equal(incomplete?.missionCompleted, false);
+    assert.equal("progress" in (incomplete ?? {}), false);
+    assert.equal("projectCompleted" in (incomplete ?? {}), false);
+
+    const completed = normalizeAtlasLessonContext(lessonContext, "web-development", ["web-1"]);
+    assert.equal(completed?.missionCompleted, true);
+  });
+});
+
+describe("Atlas StudyFlow response validation", () => {
+  const validResponse = {
+    message: "I drafted a learner-led roadmap for you to review.",
+    roadmap: {
+      schemaVersion: 1,
+      title: "Build a first accessible website",
+      direction: "Learn web fundamentals through a small, useful project.",
+      objectives: [{
+        id: "web-foundation",
+        title: "Create a usable web page",
+        description: "Use HTML and CSS to communicate one clear idea.",
+        stages: [{
+          id: "page-basics",
+          title: "Page foundations",
+          purpose: "Build and inspect a simple page.",
+          milestone: { title: "Share a working page", criteria: "Open the saved page in a browser and explain its structure." },
+          lessons: [{
+            id: "inspect-web-page",
+            title: "Inspect a page",
+            objective: "Notice page structure and layout.",
+            prerequisites: [],
+            resource: {
+              title: "Browser developer tools",
+              kind: "documentation",
+              url: null,
+              why: "They expose page structure.",
+              observe: "Look at headings and layout elements.",
+              doAfter: "Write down one structure choice.",
+              objectiveContribution: "Connects structure to the page objective.",
+            },
+            exercise: "Inspect one familiar page.",
+            mission: "Describe its main sections.",
+            completionCriteria: "Save a short note naming three page sections.",
+          }],
+        }],
+      }],
+      currentObjectiveId: "web-foundation",
+      nextAction: { title: "Inspect one page", description: "Use browser tools to identify its heading and sections.", estimatedMinutes: 10 },
+      recoveryHint: "Start with one page section and ask Atlas for a smaller step if blocked.",
+    },
+  };
+
+  it("accepts a bounded structured roadmap with unverified links omitted", () => {
+    assert.equal(atlasStudyFlowRoadmapSchema.safeParse(validResponse.roadmap).success, true);
+    assert.ok(parseAtlasStudyFlowRoadmap(validResponse.roadmap));
+  });
+
+  it("rejects fabricated URLs and circular prerequisites", () => {
+    const urlResponse = structuredClone(validResponse);
+    const resource = urlResponse.roadmap.objectives[0].stages[0].lessons[0].resource as { url: string | null };
+    resource.url = "https://example.test/guide";
+    assert.equal(atlasStudyFlowRoadmapSchema.safeParse(urlResponse.roadmap).success, false);
+
+    const circularResponse = structuredClone(validResponse);
+    const lesson = circularResponse.roadmap.objectives[0].stages[0].lessons[0] as { prerequisites: string[] };
+    lesson.prerequisites = ["inspect-web-page"];
+    assert.equal(atlasStudyFlowRoadmapSchema.safeParse(circularResponse.roadmap).success, true);
+    assert.equal(parseAtlasStudyFlowRoadmap(circularResponse.roadmap), null);
+  });
+
+  it("extracts complete JSON from mocked provider events and rejects provider errors", () => {
+    const response = [
+      'data: {"type":"response.output_text.delta","delta":"{\\"message\\":\\"Ready\\",\\"assessment\\":"}',
+      'data: {"type":"response.output_text.delta","delta":"{\\"decision\\":\\"developing\\"}}"}',
+      'data: {"type":"response.completed","response":{"output_text":"{\\"message\\":\\"Ready\\",\\"assessment\\":{\\"decision\\":\\"developing\\"}}"}}',
+    ].join("\n\n");
+    const output = extractAtlasStudyFlowText(response);
+    assert.equal(JSON.parse(output).message, "Ready");
+    assert.throws(
+      () => extractAtlasStudyFlowText('data: {"type":"response.failed"}'),
+      /provider failed/i,
+    );
+    assert.equal(atlasStudyFlowAssessmentSchema.safeParse({
+      decision: "criteria_met",
+      feedback: "Your evidence demonstrates the stated lesson criteria.",
+      criteriaMet: ["Created and opened a page"],
+      remainingGaps: [],
+      nextStep: "Explain how the page sections are organized.",
+    }).success, true);
+  });
+});
+
 describe("Atlas provider configuration", () => {
+  it("extracts server-side provider usage without retaining raw payloads", () => {
+    assert.deepEqual(parseAtlasProviderUsage({
+      type: "response.completed",
+      response: {
+        usage: {
+          input_tokens: 120,
+          output_tokens: 80,
+          input_tokens_details: { cached_tokens: 20 },
+        },
+      },
+    }), {
+      inputTokens: 120,
+      outputTokens: 80,
+      cachedTokens: 20,
+    });
+  });
   it("builds an OpenAI request with a mocked provider configuration", async () => {
     const config = resolveAtlasProviderConfig((key) => ({
       ATLAS_PROVIDER: "openai",

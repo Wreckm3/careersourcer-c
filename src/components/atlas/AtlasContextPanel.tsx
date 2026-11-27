@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { PanelRightClose } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ interface AtlasContextPanelProps {
   xp: number;
   level: number;
   streak: number;
+  studyFlowContent?: ReactNode;
   onSelectPanel: (panel: AtlasWorkspacePanel) => void;
   onClose: () => void;
   onPrompt: (prompt: string) => void;
@@ -45,6 +46,7 @@ export function AtlasContextPanel({
   xp,
   level,
   streak,
+  studyFlowContent,
   onSelectPanel,
   onClose,
   onPrompt,
@@ -83,11 +85,12 @@ export function AtlasContextPanel({
         </Button>
       </header>
 
-      <div className="grid shrink-0 grid-cols-3 gap-1 border-b border-atlas-border p-2" role="tablist" aria-label="Context sections">
+      <div className="grid shrink-0 grid-cols-4 gap-1 border-b border-atlas-border p-2" role="tablist" aria-label="Context sections">
         {([
           ["learning", "Learning"],
           ["projects", "Projects"],
           ["progress", "Progress"],
+          ["studyflow", "StudyFlow"],
         ] as const).map(([panel, label]) => (
           <Button
             key={panel}
@@ -197,6 +200,8 @@ export function AtlasContextPanel({
             </Button>
           </section>
         )}
+
+        {activePanel === "studyflow" && studyFlowContent}
 
         <section className="mt-6 border-t border-atlas-border pt-4" aria-labelledby="atlas-context-tools">
           <h3 id="atlas-context-tools" className="text-[11px] font-medium uppercase text-atlas-muted">Tools for this moment</h3>

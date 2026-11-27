@@ -21,8 +21,10 @@ const Branch = lazy(() => import("./pages/Branch"));
 const FocusMode = lazy(() => import("./pages/FocusMode"));
 const Profile = lazy(() => import("./pages/Profile"));
 const AtlasWorkspace = lazy(() => import("./pages/AtlasWorkspace"));
+const AtlasFounderControl = lazy(() => import("./pages/AtlasFounderControl"));
 const Demo = lazy(() => import("./pages/Demo"));
 const Pool = lazy(() => import("./pages/Pool"));
+const CollaborationWorkspace = lazy(() => import("./pages/CollaborationWorkspace"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
@@ -54,11 +56,13 @@ function ProductApp() {
                     <Route path="/paths" element={<><PageMeta title="Learning Paths" description="Choose a practical CareerSourcer path in technology, business, or creative work." /><PathSelection /></>} />
                     <Route path="/pricing" element={<><PageMeta title="Pricing" description="Compare CareerSourcer plans and choose the right tier for your goals." /><Pricing /></>} />
                     <Route path="/atlas" element={<RequireAuth><PageMeta title="Atlas Workspace" description="Your CareerSourcer learning roadmap, project focus, and mentor workspace." /><AtlasWorkspace /></RequireAuth>} />
+                    <Route path="/atlas/founder" element={<RequireAuth><PageMeta title="Atlas Founder Control Centre" /><AtlasFounderControl /></RequireAuth>} />
                     <Route path="/category/:categoryId" element={<><PageMeta title="Category" description="Explore CareerSourcer branches and find the direction that fits your goals." /><Category /></>} />
                     <Route path="/branch/:categoryId/:branchId" element={<><PageMeta title="Branch" description="Follow project-first lessons and track your branch progress on CareerSourcer." /><Branch /></>} />
                     <Route path="/session/:pathId/:sessionId" element={<><PageMeta title="Focus Mode" description="Complete a CareerSourcer lesson and build a real project artifact." /><FocusMode /></>} />
                     <Route path="/profile" element={<RequireAuth><PageMeta title="Profile" description="Review your CareerSourcer progress, achievements, portfolio, and streak." /><Profile /></RequireAuth>} />
                     <Route path="/pool" element={<><PageMeta title="Collaboration Pool" description="Find CareerSourcer learners in your branch and build projects together." /><Pool /></>} />
+                    <Route path="/collaboration" element={<RequireAuth><PageMeta title="Team Workspaces" description="Coordinate team projects, tasks, discussions, and verified contributions." /><CollaborationWorkspace /></RequireAuth>} />
                     <Route path="*" element={<><PageMeta title="Page Not Found" description="This CareerSourcer page could not be found." /><NotFound /></>} />
                 </Routes>
               </Suspense>

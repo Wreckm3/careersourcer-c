@@ -31,6 +31,26 @@ export interface AtlasProviderFailure {
   category: AtlasProviderFailureCategory;
 }
 
+export interface AtlasProviderUsage {
+  inputTokens: number;
+  outputTokens: number;
+  cachedTokens: number;
+}
+
+export function parseAtlasProviderUsage(payload: unknown): AtlasProviderUsage | null {
+  const record = asRecord(payload);
+  const response = asRecord(record?.response);
+  const usage = asRecord(response?.usage) ?? asRecord(record?.usage);
+  if (!usage) return null;
+  const inputTokens = typeof usage.input_tokens === "number" && Number.isSafeInteger(usage.input_tokens) ? usage.input_tokens : 0;
+  const outputTokens = typeof usage.output_tokens === "number" && Number.isSafeInteger(usage.output_tokens) ? usage.output_tokens : 0;
+  const details = asRecord(usage.input_tokens_details);
+  const cachedTokens = typeof details?.cached_tokens === "number" && Number.isSafeInteger(details.cached_tokens)
+    ? details.cached_tokens
+    : 0;
+  return { inputTokens, outputTokens, cachedTokens };
+}
+
 const MAX_PROVIDER_FAILURE_BODY_CHARS = 16_384;
 const MAX_PROVIDER_SSE_FRAME_CHARS = 16_384;
 
@@ -280,14 +300,26 @@ export function observeAtlasProviderSseStream(
   body: ReadableStream<Uint8Array>,
   status: number,
   onFailure: (failure: AtlasProviderFailure) => void,
+  onUsage?: (usage: AtlasProviderUsage) => void,
+  onEvent?: (payload: unknown) => void,
 ): ReadableStream<Uint8Array> {
   const decoder = new TextDecoder();
   let pending = "";
   let reported = false;
 
   const inspect = (frame: string) => {
-    if (reported || frame.length > MAX_PROVIDER_SSE_FRAME_CHARS) return;
+    if (frame.length > MAX_PROVIDER_SSE_FRAME_CHARS) return;
     const payload = parseSsePayload(frame);
+    onEvent?.(payload);
+    const usage = parseAtlasProviderUsage(payload);
+    if (usage && onUsage) {
+      try {
+        onUsage(usage);
+      } catch {
+        // Usage telemetry must never disrupt an answer stream.
+      }
+    }
+    if (reported) return;
     const eventType = providerEventType(payload);
     if (eventType === "unknown") return;
 

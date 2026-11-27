@@ -14,6 +14,7 @@ import { buildPortfolio } from "@/lib/achievements";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { linkGoogleIdentity } from "@/lib/auth/oauth";
+import type { TeamContributionPortfolio } from "@/lib/collaboration/workspaces";
 
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -36,6 +37,7 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [teamPortfolio, setTeamPortfolio] = useState<TeamContributionPortfolio[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth", { replace: true });
@@ -52,6 +54,25 @@ export default function Profile() {
         const name = data?.display_name || user.email?.split("@")[0] || "";
         setDisplayName(name);
         setDraft(name);
+      });
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setTeamPortfolio([]);
+      return;
+    }
+    void supabase
+      .from("team_contribution_portfolio")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("consented_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (error) {
+          toast.error("Couldn't load your verified team portfolio evidence");
+          return;
+        }
+        setTeamPortfolio(data);
       });
   }, [user]);
 
@@ -262,6 +283,28 @@ export default function Profile() {
             >
               {showAllPortfolio ? "Show less" : `Show all ${portfolio.length}`}
             </button>
+          )}
+        </motion.section>
+
+        <motion.section className="mb-10" aria-label="Verified team contributions" {...fadeUp(0.285)}>
+          <div className="mb-4 flex items-baseline justify-between">
+            <h2 className="text-lg font-bold text-foreground">Verified team contributions</h2>
+            <span className="text-xs text-muted-foreground">{teamPortfolio.length} items</span>
+          </div>
+          {teamPortfolio.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Approved team contributions you choose to share will appear here.</p>
+          ) : (
+            <ul className="space-y-2">
+              {teamPortfolio.map((item) => (
+                <li key={item.contribution_id} className="rounded-2xl border border-border bg-card p-4">
+                  <p className="text-sm font-bold text-foreground">{item.title_snapshot}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{item.evidence_snapshot}</p>
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Shared with your consent on {new Date(item.consented_at).toLocaleDateString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
           )}
         </motion.section>
 

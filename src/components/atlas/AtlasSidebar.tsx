@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   BarChart3,
+  BookOpenCheck,
   Compass,
   FolderKanban,
   MessageSquareText,
@@ -29,6 +30,13 @@ interface AtlasSidebarProps {
   onToggleCollapsed: () => void;
   onOpenPanel: (panel: AtlasWorkspacePanel) => void;
   onUseMessage: (message: string) => void;
+  creditStatus?: {
+    available: number;
+    flexible: number;
+    reserve: number;
+    renewalAt: string | null;
+    essentialMode: boolean;
+  };
 }
 
 export function AtlasSidebar({
@@ -43,6 +51,7 @@ export function AtlasSidebar({
   onToggleCollapsed,
   onOpenPanel,
   onUseMessage,
+  creditStatus,
 }: AtlasSidebarProps) {
   const [search, setSearch] = useState("");
   const prompts = useMemo(() => {
@@ -128,6 +137,17 @@ export function AtlasSidebar({
           <BarChart3 />
           {!collapsed && <span>My progress</span>}
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className={navClass(activePanel === "studyflow")}
+          onClick={() => onOpenPanel("studyflow")}
+          title={collapsed ? "StudyFlow" : undefined}
+          aria-pressed={activePanel === "studyflow"}
+        >
+          <BookOpenCheck />
+          {!collapsed && <span>StudyFlow</span>}
+        </Button>
       </nav>
 
       {!collapsed && (
@@ -167,6 +187,25 @@ export function AtlasSidebar({
       )}
 
       <footer className={`mt-auto shrink-0 border-t border-atlas-border py-3 ${collapsed ? "px-2" : "px-3"}`}>
+        {!collapsed && creditStatus && (
+          <div className="mb-2 rounded-md border border-atlas-border bg-atlas-background px-3 py-2" aria-label="Atlas credit wallet">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-atlas-muted">Available credits</span>
+              <span className="font-semibold text-atlas-foreground">{creditStatus.available}</span>
+            </div>
+            {creditStatus.essentialMode && (
+              <p className="mt-1 text-[11px] font-medium text-atlas-accent">Essential Mentorship Mode</p>
+            )}
+            {creditStatus.available <= 20 && !creditStatus.essentialMode && (
+              <p className="mt-1 text-[11px] text-atlas-muted">Low-credit warning</p>
+            )}
+            {creditStatus.renewalAt && (
+              <p className="mt-1 text-[11px] text-atlas-muted">
+                Renews {new Date(creditStatus.renewalAt).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+        )}
         <Button asChild variant="ghost" className={`h-auto w-full ${collapsed ? "justify-center px-0" : "justify-start px-2"} py-2 text-atlas-foreground hover:bg-atlas-surface`} title={collapsed ? "Account" : undefined}>
           <Link to="/profile" aria-label="Account and profile">
             <UserRound className="h-4 w-4 shrink-0" />

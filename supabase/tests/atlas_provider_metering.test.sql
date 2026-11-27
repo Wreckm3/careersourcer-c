@@ -1,0 +1,34 @@
+BEGIN;
+SELECT plan(14);
+INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+VALUES ('de000000-0000-4000-8000-000000000091', '00000000-0000-0000-0000-000000000000', 'authenticated','authenticated','metering-fixture@example.test','',now(),'{}','{}',now(),now());
+UPDATE public.atlas_financial_controls SET emergency_shutdown=false, individual_daily_budget_micro_kes=1000000000, global_daily_budget_micro_kes=2500000000 WHERE id=1;
+SELECT public.atlas_grant_allowance('de000000-0000-4000-8000-000000000091','builder','metering-fixture',now()+interval '30 days','subscription');
+SELECT is(public.atlas_reserve_metered_request('de000000-0000-4000-8000-000000000091','missing','fixture-model',2,100)->>'reason','pricing_unavailable','no rate means no reservation');
+INSERT INTO public.atlas_verified_metering_rates(model,input_rate,cached_rate,output_rate,input_token_ceiling,verified_until,source)
+VALUES ('fixture-model',1000000,250000,4000000,2000,now()+interval '1 day','synthetic test only');
+SELECT set_config('test.metered_id',public.atlas_reserve_metered_request('de000000-0000-4000-8000-000000000091','priced','fixture-model',2,100)->>'request_uuid',true);
+SELECT is((SELECT reserved_budget_micro_kes FROM public.atlas_usage_requests WHERE id=current_setting('test.metered_id')::uuid),2400::bigint,'reserves full input ceiling plus output');
+UPDATE public.atlas_verified_metering_rates SET input_rate=2000000 WHERE model='fixture-model';
+SELECT is(public.atlas_settle_metered_request(current_setting('test.metered_id')::uuid,true,100,20,10,'fixture-response')->>'status','settled','valid usage settles');
+SELECT is((SELECT actual_budget_micro_kes FROM public.atlas_usage_requests WHERE id=current_setting('test.metered_id')::uuid),125::bigint,'uses original snapshot: 80 uncached + 5 cached + 40 output');
+SELECT is((SELECT reconciliation FROM public.atlas_usage_requests WHERE id=current_setting('test.metered_id')::uuid),'provider_usage_priced','priced usage distinguished from legacy estimates');
+SELECT is(public.atlas_settle_metered_request(current_setting('test.metered_id')::uuid,true,1000,0,100,'different')->>'duplicate','true','settlement cannot be replayed');
+SELECT set_config('test.unknown_id',public.atlas_reserve_metered_request('de000000-0000-4000-8000-000000000091','unknown','fixture-model',2,100)->>'request_uuid',true);
+SELECT is(public.atlas_settle_metered_request(current_setting('test.unknown_id')::uuid,true,NULL,NULL,NULL,NULL)->>'status','uncertain','post-dispatch missing usage remains uncertain');
+SELECT ok((SELECT actual_budget_micro_kes=reserved_budget_micro_kes FROM public.atlas_usage_requests WHERE id=current_setting('test.unknown_id')::uuid),'uncertain reservation budget stays held');
+SELECT set_config('test.unsent_id',public.atlas_reserve_metered_request('de000000-0000-4000-8000-000000000091','unsent','fixture-model',2,100)->>'request_uuid',true);
+SELECT is(public.atlas_settle_metered_request(current_setting('test.unsent_id')::uuid,false,NULL,NULL,NULL,NULL)->>'status','failed','undispatched request releases credits');
+UPDATE public.atlas_verified_metering_rates SET verified_until=now()-interval '1 second' WHERE model='fixture-model';
+SELECT is(public.atlas_reserve_metered_request('de000000-0000-4000-8000-000000000091','expired','fixture-model',2,100)->>'reason','pricing_unavailable','expired rates fail closed');
+SELECT ok(NOT has_function_privilege('authenticated','public.atlas_reserve_metered_request(uuid,text,text,integer,integer)','EXECUTE') AND NOT has_function_privilege('authenticated','public.atlas_settle_metered_request(uuid,boolean,integer,integer,integer,text)','EXECUTE'),'metering operations are server only');
+SELECT ok(NOT has_table_privilege('authenticated','public.atlas_verified_metering_rates','UPDATE') AND NOT has_table_privilege('authenticated','public.atlas_metering_snapshots','SELECT'),'rate and snapshot data are private');
+INSERT INTO public.founder_atlas_entitlements(user_id) VALUES ('de000000-0000-4000-8000-000000000091');
+INSERT INTO public.atlas_founder_operators(user_id) VALUES ('de000000-0000-4000-8000-000000000091');
+SELECT set_config('request.jwt.claim.sub','de000000-0000-4000-8000-000000000091',true);
+SET LOCAL ROLE authenticated;
+SELECT is(public.atlas_founder_control_snapshot()->>'monthly_priced_micro_kes','125','founder snapshot reports token-priced spend separately');
+SELECT is(public.atlas_founder_control_snapshot()->>'monthly_legacy_estimate_micro_kes','0','token-priced spend is excluded from legacy estimates');
+RESET ROLE;
+SELECT * FROM finish();
+ROLLBACK;

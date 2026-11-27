@@ -1,0 +1,201 @@
+name: Isolated database validation
+
+on:
+  push:
+    branches:
+      - database-test
+      - "test/**"
+  pull_request:
+    branches:
+      - database-test
+      - "test/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: database-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  database-validation:
+    name: Local Supabase pgTAP and application tests
+    if: >-
+      ${{
+        github.event_name != 'workflow_dispatch' ||
+        github.ref_name == 'database-test' ||
+        startsWith(github.ref_name, 'test/')
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VITE_SUPABASE_PUBLISHABLE_KEY: local-ci-placeholder
+      VITE_SUPABASE_PROJECT_ID: isfoizzpfskatsgesnbn
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install compatible Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: "2.114.0"
+
+      - name: Allocate free runner-local Supabase ports
+        id: supabase-ports
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import socket
+          from pathlib import Path
+
+          port_keys = {
+              "api": ("api", "port"),
+              "database": ("db", "port"),
+              "shadow_database": ("db", "shadow_port"),
+              "pooler": ("db.pooler", "port"),
+              "studio": ("studio", "port"),
+              "mailpit": ("local_smtp", "port"),
+              "analytics": ("analytics", "port"),
+          }
+          sockets = []
+          ports = {}
+          try:
+              for name in port_keys:
+                  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                  sock.bind(("0.0.0.0", 0))
+                  sockets.append(sock)
+                  ports[name] = sock.getsockname()[1]
+          finally:
+              for sock in sockets:
+                  sock.close()
+
+          config = Path("supabase/config.toml")
+          with config.open("a", encoding="utf-8") as file:
+              sections = {}
+              for name, (section, key) in port_keys.items():
+                  sections.setdefault(section, []).append((key, ports[name]))
+              for section, values in sections.items():
+                  file.write(f"\n[{section}]\n")
+                  for key, port in values:
+                      file.write(f"{key} = {port}\n")
+
+          print("Allocated free local Supabase ports: " + ", ".join(
+              f"{name}={port}" for name, port in ports.items()
+          ))
+          PY
+
+      - name: Start temporary local Supabase stack
+        id: supabase-start
+        run: supabase start
+
+      - name: Capture and verify local database targets
+        id: local-targets
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase status -o json > /tmp/supabase-status.json
+          API_URL="$(jq -r '.API_URL // empty' /tmp/supabase-status.json)"
+          ANON_KEY="$(jq -r '.ANON_KEY // empty' /tmp/supabase-status.json)"
+          SERVICE_ROLE_KEY="$(jq -r '.SERVICE_ROLE_KEY // empty' /tmp/supabase-status.json)"
+          DB_URL="$(jq -r '.DB_URL // empty' /tmp/supabase-status.json)"
+
+          if [[ -z "$API_URL" || -z "$ANON_KEY" || -z "$SERVICE_ROLE_KEY" || -z "$DB_URL" ]]; then
+            echo "Supabase status did not provide all required local endpoints."
+            exit 1
+          fi
+          case "$API_URL" in
+            http://127.0.0.1:*|http://localhost:*|http://\[::1\]:*) ;;
+            *) echo "Refusing non-local Supabase API target: $API_URL"; exit 1 ;;
+          esac
+          case "$DB_URL" in
+            postgresql://*@127.0.0.1:*|postgresql://*@localhost:*|postgresql://*@\[::1\]:*) ;;
+            *) echo "Refusing non-local PostgreSQL target."; exit 1 ;;
+          esac
+
+          echo "COLLAB_LOCAL_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "COLLAB_LOCAL_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "COLLAB_LOCAL_SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "VITE_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "LOCAL_SUPABASE_VERIFIED=true" >> "$GITHUB_ENV"
+
+      - name: Apply all local migrations
+        id: migrations
+        run: supabase db reset --local --no-seed
+
+      - name: Run database lint
+        id: database-lint
+        run: supabase db lint --local
+
+      - name: Run all pgTAP database tests
+        id: pg-tap
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase test db --local supabase/tests/*.sql 2>&1 | tee /tmp/pgtap.log
+          if grep -Eiq '(^|[^[:alnum:]_])(skip|skipped)([^[:alnum:]_]|$)' /tmp/pgtap.log; then
+            echo "Required pgTAP database tests were skipped."
+            exit 1
+          fi
+
+      - name: Run collaboration local-concurrency integration test
+        id: collaboration
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run test:collaboration 2>&1 | tee /tmp/collaboration.log
+          if grep -Eiq '# SKIP|skipped [1-9][0-9]*|Local Supabase credentials are not configured' /tmp/collaboration.log; then
+            echo "Required collaboration database test was skipped."
+            exit 1
+          fi
+
+      - name: Run local payment and Atlas unit/integration tests
+        id: payment-atlas
+        run: npx tsx --test tests/stripe-webhook.test.ts tests/mpesa-payment.test.ts tests/atlas-credit.test.ts tests/atlas-core.test.ts tests/atlas-mastery-recovery.test.ts tests/atlas-opportunity.test.ts tests/atlas-founder-controls.test.ts
+
+      - name: Run TypeScript type check
+        id: typescript
+        run: |
+          npx tsc --noEmit -p tsconfig.app.json
+          npx tsc --noEmit -p tsconfig.node.json
+
+      - name: Run ESLint
+        id: eslint
+        run: npm run lint -- --ignore-pattern=supabase/.temp/**
+
+      - name: Run production build
+        id: build
+        run: npm run build
+
+      - name: Write test summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Isolated database validation"
+            echo ""
+            echo "| Check | Result |"
+            echo "|---|---|"
+            echo "| Runner-local port allocation | ${{ steps.supabase-ports.outcome }} |"
+            echo "| Supabase stack | ${{ steps.supabase-start.outcome }} |"
+            echo "| Local target verification | ${{ steps.local-targets.outcome }} |"
+            echo "| Migration application | ${{ steps.migrations.outcome }} |"
+            echo "| Database lint | ${{ steps.database-lint.outcome }} |"
+            echo "| pgTAP tests | ${{ steps.pg-tap.outcome }} |"
+            echo "| Collaboration concurrency | ${{ steps.collaboration.outcome }} |"
+            echo "| Payment and Atlas tests | ${{ steps.payment-atlas.outcome }} |"
+            echo "| TypeScript | ${{ steps.typescript.outcome }} |"
+            echo "| ESLint | ${{ steps.eslint.outcome }} |"
+            echo "| Production build | ${{ steps.build.outcome }} |"
+            echo ""
+            echo "All database targets are runner-local. No production secrets or payment providers are used."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stop and clean temporary Supabase stack
+        if: always()
+        run: supabase stop --project-id isfoizzpfskatsgesnbn --no-backup

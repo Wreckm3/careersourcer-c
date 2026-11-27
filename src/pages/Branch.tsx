@@ -1,4 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCircle2, Circle, Play, Clock, Lock, Target } from "lucide-react";
 import { getBranch, getBranchProgress, getLessonAccess } from "@/data/curriculum";
@@ -30,10 +31,15 @@ function ProgressRing({ percent, color, size = 72 }: { percent: number; color: s
 export default function Branch() {
   const { categoryId, branchId } = useParams<{ categoryId: string; branchId: string }>();
   const navigate = useNavigate();
-  const { progress, isCompleted } = useProgress();
+  const { progress, isCompleted, selectPath } = useProgress();
   const { tier } = useSubscription();
 
   const data = getBranch(categoryId || "", branchId || "");
+  const activeBranchId = data?.branch.id;
+  useEffect(() => {
+    if (activeBranchId) selectPath(activeBranchId);
+  }, [activeBranchId, selectPath]);
+
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -128,17 +134,18 @@ export default function Branch() {
               <h2 className="mt-1 text-base font-bold">Find out what this work feels like</h2>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 {starterComplete
-                  ? "You’ve finished the starter mission. Atlas can now review the builds you completed and set a practical next mission."
+                  ? "You’ve finished the five introductory sessions. Start personalized mentorship, explore your direction and shape a learning roadmap that fits you."
                   : `${starterCompleted} of ${starterTotal} starter missions complete. These first builds are for exploring the field — not trying to learn all of it at once.`}
               </p>
               {starterComplete && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     to="/atlas"
+                    state={{ selectedPath: branch.id }}
                     className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-primary-foreground"
                     style={{ backgroundColor: category.color }}
                   >
-                    <AtlasIcon className="h-4 w-4" /> Ask Atlas for your progress review
+                    <AtlasIcon className="h-4 w-4" /> Begin personalized mentorship with Atlas
                   </Link>
                   {!hasBuilder && (
                     <Link to="/pricing" className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted/50">

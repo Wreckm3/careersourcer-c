@@ -5,6 +5,9 @@ import { startMpesaCheckout, type PaidTier } from "@/lib/payments";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 
+// Payments stay unavailable until the operator explicitly enables verified checkout.
+const checkoutEnabled = import.meta.env.VITE_MPESA_CHECKOUT_ENABLED === "true";
+
 export default function Pricing() {
   const { user } = useAuth();
   const { tier: currentTier, refresh } = useSubscription();
@@ -27,6 +30,7 @@ export default function Pricing() {
   }, [currentTier, selected, state]);
 
   async function checkout() {
+    if (!checkoutEnabled) return;
     if (!user) { setState("failed"); setMessage("Please sign in before starting checkout."); return; }
     setState("pending"); setMessage("Sending STK Push… approve the prompt on your phone.");
     try {
@@ -40,16 +44,16 @@ export default function Pricing() {
 
   return <main className="mx-auto max-w-6xl px-6 py-16 text-foreground">
     <h1 className="text-4xl font-bold">Choose your CareerSourcer plan</h1>
-    <p className="mt-3 text-muted-foreground">Secure monthly billing with M-Pesa Express.</p>
+    <p className="mt-3 text-muted-foreground">{checkoutEnabled ? "Secure monthly billing with M-Pesa Express." : "Paid plans are not available during the beta. No payment is required to explore the free plan."}</p>
     <div className="mt-10 grid gap-6 md:grid-cols-4">
       {(Object.keys(PLANS) as Tier[]).map((id) => {
         const plan = PLANS[id]; const paid = id !== "free";
         return <button key={id} type="button" onClick={() => paid && setSelected(id as PaidTier)} className={`rounded-xl border p-6 text-left ${selected === id ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
           <h2 className="text-xl font-semibold">{plan.name}</h2><p className="mt-2 text-2xl font-bold">{plan.priceDisplay}</p><p className="mt-2 text-sm text-muted-foreground">{plan.tagline}</p>
-          <p className="mt-4 text-sm">{currentTier === id ? "Current plan" : paid ? plan.ctaLabel : "Included"}</p>
+          <p className="mt-4 text-sm">{currentTier === id ? "Current plan" : paid ? checkoutEnabled ? plan.ctaLabel : "Coming soon" : "Included"}</p>
         </button>;
       })}
     </div>
-    {selected && <section className="mt-10 max-w-md rounded-xl border border-border p-6"><h2 className="text-xl font-semibold">Pay with M-Pesa</h2><label className="mt-4 block text-sm">Kenyan M-Pesa number<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XXXXXXXX" className="mt-2 w-full rounded-md border bg-background px-3 py-2" inputMode="tel" /></label><button type="button" onClick={() => void checkout()} disabled={state === "pending"} className="mt-4 w-full rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-60">{state === "pending" ? "Waiting for payment…" : `Pay KSh ${PLANS[selected].priceKes}`}</button>{message && <p className={`mt-3 text-sm ${state === "failed" ? "text-destructive" : "text-muted-foreground"}`}>{message}</p>}{!user && <p className="mt-3 text-sm"> <Link className="underline" to="/auth">Sign in</Link> to continue.</p>}</section>}
+    {checkoutEnabled && selected && <section className="mt-10 max-w-md rounded-xl border border-border p-6"><h2 className="text-xl font-semibold">Pay with M-Pesa</h2><label className="mt-4 block text-sm">Kenyan M-Pesa number<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XXXXXXXX" className="mt-2 w-full rounded-md border bg-background px-3 py-2" inputMode="tel" /></label><button type="button" onClick={() => void checkout()} disabled={state === "pending"} className="mt-4 w-full rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-60">{state === "pending" ? "Waiting for payment…" : `Pay KSh ${PLANS[selected].priceKes}`}</button>{message && <p className={`mt-3 text-sm ${state === "failed" ? "text-destructive" : "text-muted-foreground"}`}>{message}</p>}{!user && <p className="mt-3 text-sm"> <Link className="underline" to="/auth">Sign in</Link> to continue.</p>}</section>}
   </main>;
 }

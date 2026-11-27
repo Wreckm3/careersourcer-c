@@ -1,9 +1,9 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { isMpesaTier, MPESA_PRICES, normalizeMpesaPhone } from "../_shared/mpesa/payments.ts";
 
 const darajaBase = Deno.env.get("MPESA_ENV") === "production" ? "https://api.safaricom.co.ke" : "https://sandbox.safaricom.co.ke";
-const prices = { builder: 99, professional: 299, elite: 499 } as const;
-type PaidTier = keyof typeof prices;
+type PaidTier = keyof typeof MPESA_PRICES;
 type PaymentStatus = "pending" | "success" | "failed" | "cancelled" | "timeout" | "unknown";
 type DatabaseJson = string | number | boolean | null | { [key: string]: DatabaseJson | undefined } | DatabaseJson[];
 type MpesaPaymentRow = {
@@ -49,17 +49,6 @@ type MpesaDatabase = {
 type MpesaClient = ReturnType<typeof createClient<MpesaDatabase>>;
 const reply = (body: Record<string, unknown>, status = 200) => Response.json(body, { status, headers: corsHeaders });
 
-function isPaidTier(value: unknown): value is PaidTier {
-  return typeof value === "string" && Object.prototype.hasOwnProperty.call(prices, value);
-}
-
-function normalizePhone(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const compact = value.trim().replace(/[\s()\-]/g, "");
-  const match = compact.match(/^(?:\+?254|0)([17]\d{8})$/);
-  return match ? `254${match[1]}` : null;
-}
-
 function timestamp() {
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Nairobi", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).formatToParts(new Date()).reduce<Record<string, string>>((out, part) => { if (part.type !== "literal") out[part.type] = part.value; return out; }, {});
   return `${parts.year}${parts.month}${parts.day}${parts.hour}${parts.minute}${parts.second}`;
@@ -83,15 +72,19 @@ Deno.serve(async (req) => {
     const auth = createClient(url, anon, { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } }, auth: { persistSession: false } });
     const { data: { user } } = await auth.auth.getUser();
     if (!user) return reply({ error: "Sign in before starting M-Pesa checkout." }, 401);
+    // Public checkout is opt-in and cannot be enabled against the sandbox.
+    if (Deno.env.get("MPESA_CHECKOUT_ENABLED") !== "true" || Deno.env.get("MPESA_ENV") !== "production") {
+      return reply({ error: "Paid subscriptions are not available during the beta." }, 503);
+    }
     const body = await req.json().catch(() => null);
     const tier = body?.tier;
-    const phone = normalizePhone(body?.phoneNumber);
-    if (!isPaidTier(tier)) return reply({ error: "Invalid paid plan." }, 400);
+    const phone = normalizeMpesaPhone(body?.phoneNumber);
+    if (!isMpesaTier(tier)) return reply({ error: "Invalid paid plan." }, 400);
     if (!phone) return reply({ error: "Enter a valid Kenyan M-Pesa number." }, 400);
     const key = Deno.env.get("MPESA_CONSUMER_KEY"), secret = Deno.env.get("MPESA_CONSUMER_SECRET"), shortcode = Deno.env.get("MPESA_SHORTCODE"), passkey = Deno.env.get("MPESA_PASSKEY"), callbackUrl = Deno.env.get("MPESA_CALLBACK_URL"), callbackSecret = Deno.env.get("MPESA_CALLBACK_SECRET");
     if (!key || !secret || !shortcode || !passkey || !callbackUrl || !callbackSecret) return reply({ error: "M-Pesa checkout is not configured." }, 503);
     service = createClient<MpesaDatabase>(url, serviceKey, { auth: { persistSession: false } });
-    const amount = prices[tier];
+    const amount = MPESA_PRICES[tier];
     const { data: payment, error: insertError } = await service.from("mpesa_payments").insert({ user_id: user.id, tier, amount_kes: amount, phone_number: phone }).select("id").single();
     if (insertError || !payment) throw new Error("Could not create pending payment");
     paymentId = payment.id;
